@@ -2,12 +2,15 @@
 
 Ready-to-use code patterns for common animation scenarios in Animancer Pro 8.
 
-> **📖 How to use this guide:** Each example is self-contained and ready to copy-paste. Jump to what you need—you don't have to read everything!
+> **📖 How to use this guide:** Each example is self-contained and ready to copy-paste. Jump to what
+> you need—you don't have to read everything!
 
 ---
 
 ## Table of Contents
-1. [Directional Animation Switching](#directional-animation-switching-seamless) ⭐ **Start here for seamless directional animations!**
+
+1. [Directional Animation Switching](#directional-animation-switching-seamless) ⭐ **Start here for
+   seamless directional animations!**
 2. [Basic Character Controller](#basic-character-controller)
 3. [Attack System with Events](#attack-system-with-events)
 4. [Multi-Sprite Character](#multi-sprite-character)
@@ -25,9 +28,11 @@ Ready-to-use code patterns for common animation scenarios in Animancer Pro 8.
 
 ## Directional Animation Switching (Seamless)
 
-**The Pattern:** Switch between directional animations (walk_left, walk_right, walk_up, walk_down) without restarting the cycle.
+**The Pattern:** Switch between directional animations (walk_left, walk_right, walk_up, walk_down)
+without restarting the cycle.
 
-**Key Insight:** If all your directional animations are the same length, you can preserve the walk cycle position when changing direction!
+**Key Insight:** If all your directional animations are the same length, you can preserve the walk
+cycle position when changing direction!
 
 ```csharp
 using UnityEngine;
@@ -90,11 +95,13 @@ public class DirectionalCharacter : MonoBehaviour
 ```
 
 **Why This Works:**
+
 - All directional animations are the same length
 - NormalizedTime (0-1) is clip-independent
 - Setting the new clip's time to match the old preserves the cycle
 
-**Official Documentation:** [Animancer - Time Control](https://kybernetik.com.au/animancer/docs/manual/playing/states/#time)
+**Official Documentation:**
+[Animancer - Time Control](https://kybernetik.com.au/animancer/docs/manual/playing/states/#time)
 
 ---
 
@@ -1147,13 +1154,11 @@ public class PooledEnemy : MonoBehaviour
 
 ## Key Takeaways
 
-✅ **Always check IsPlaying()** before replaying animations
-✅ **Clear OwnedEvents** before adding new ones
-✅ **Use NormalizedTime** to sync multi-sprite characters
-✅ **Leverage animation events** for gameplay logic (damage windows, footsteps)
-✅ **Set ActionOnDisable** for pooled objects
-✅ **Separate animation from gameplay logic** (use dedicated components)
-✅ **Cache AnimationClip references** (don't load at runtime)
+✅ **Always check IsPlaying()** before replaying animations ✅ **Clear OwnedEvents** before adding
+new ones ✅ **Use NormalizedTime** to sync multi-sprite characters ✅ **Leverage animation events**
+for gameplay logic (damage windows, footsteps) ✅ **Set ActionOnDisable** for pooled objects ✅
+**Separate animation from gameplay logic** (use dedicated components) ✅ **Cache AnimationClip
+references** (don't load at runtime)
 
 ---
 
@@ -1166,4 +1171,5 @@ public class PooledEnemy : MonoBehaviour
 
 ---
 
-**Official Documentation:** [kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)
+**Official Documentation:**
+[kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)

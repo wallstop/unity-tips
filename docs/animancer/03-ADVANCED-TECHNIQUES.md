@@ -1,12 +1,16 @@
 # Advanced Techniques: Mastering Animancer
 
-Take your animations to the next level with layers, mixers, state machines, and Animancer Pro 8's powerful new features.
+Take your animations to the next level with layers, mixers, state machines, and Animancer Pro 8's
+powerful new features.
 
-> **⚡ TL;DR:** Layers = blend body parts, Mixers = blend based on parameters (like Blend Trees), State Machines = organize complex logic, v8 adds Transition Libraries + Weighted Masks. [Skip to Key Takeaways](#key-takeaways)
+> **⚡ TL;DR:** Layers = blend body parts, Mixers = blend based on parameters (like Blend Trees),
+> State Machines = organize complex logic, v8 adds Transition Libraries + Weighted Masks.
+> [Skip to Key Takeaways](#key-takeaways)
 
 ---
 
 ## Table of Contents
+
 1. [Animation Layers](#animation-layers)
 2. [Mixers and Blending](#mixers-and-blending)
 3. [State Machines](#state-machines)
@@ -22,9 +26,11 @@ Take your animations to the next level with layers, mixers, state machines, and 
 
 ## Animation Layers
 
-Layers let you play multiple animations **simultaneously** on different parts of the body. Think of it like Photoshop layers—each one affects a different region.
+Layers let you play multiple animations **simultaneously** on different parts of the body. Think of
+it like Photoshop layers—each one affects a different region.
 
-**Official Docs:** [Animation Layers](https://kybernetik.com.au/animancer/docs/manual/blending/layers/)
+**Official Docs:**
+[Animation Layers](https://kybernetik.com.au/animancer/docs/manual/blending/layers/)
 
 ```mermaid
 graph TD
@@ -44,12 +50,12 @@ graph TD
 
 ### Why Use Layers?
 
-| Use Case | Example |
-|----------|---------|
-| **Upper body actions** | Walk while waving or aiming |
-| **Facial animations** | Talking while running |
+| Use Case                | Example                                      |
+| ----------------------- | -------------------------------------------- |
+| **Upper body actions**  | Walk while waving or aiming                  |
+| **Facial animations**   | Talking while running                        |
 | **Additive animations** | Breathing or idle fidgets on top of movement |
-| **Injury effects** | Limping overlay on walk cycle |
+| **Injury effects**      | Limping overlay on walk cycle                |
 
 ### Creating Layers
 
@@ -146,12 +152,12 @@ public class WalkAndWave : MonoBehaviour
 
 ### Types of Mixers
 
-| Mixer Type | Use Case | Parameter |
-|------------|----------|-----------|
-| **Linear Mixer** | Idle → Walk → Run | Speed (float) |
-| **2D Mixer** | Movement in X/Y | Vector2 |
-| **Cartesian Mixer** | Directional movement | X, Y floats |
-| **Directional Mixer** | Rotate around a point | Angle |
+| Mixer Type            | Use Case              | Parameter     |
+| --------------------- | --------------------- | ------------- |
+| **Linear Mixer**      | Idle → Walk → Run     | Speed (float) |
+| **2D Mixer**          | Movement in X/Y       | Vector2       |
+| **Cartesian Mixer**   | Directional movement  | X, Y floats   |
+| **Directional Mixer** | Rotate around a point | Angle         |
 
 ### Linear Mixer Example
 
@@ -201,6 +207,7 @@ public class MovementMixer : MonoBehaviour
 ```
 
 **Result:**
+
 - Speed 0: 100% idle
 - Speed 2.5: 50% idle, 50% walk
 - Speed 5: 100% walk
@@ -252,7 +259,8 @@ public class StrafeMixer : MonoBehaviour
 
 ## State Machines
 
-Animancer includes a **flexible Finite State Machine (FSM)** system that works perfectly with animations but is **separate** from the animation system itself.
+Animancer includes a **flexible Finite State Machine (FSM)** system that works perfectly with
+animations but is **separate** from the animation system itself.
 
 **Official Docs:** [Finite State Machines](https://kybernetik.com.au/animancer/docs/manual/fsm/)
 
@@ -391,7 +399,8 @@ stateDiagram-v2
 
 ## Transition Assets
 
-**Transition Assets** are ScriptableObjects that store animation configurations. They make it easy to configure animations in the Inspector while keeping code clean.
+**Transition Assets** are ScriptableObjects that store animation configurations. They make it easy
+to configure animations in the Inspector while keeping code clean.
 
 ### Creating a Transition Asset
 
@@ -434,6 +443,7 @@ public class Character : MonoBehaviour
 ```
 
 **Benefits:**
+
 - ✅ Configure fade times, speeds in Inspector
 - ✅ Reusable across multiple characters
 - ✅ Designer-friendly
@@ -443,9 +453,11 @@ public class Character : MonoBehaviour
 
 ## Transition Libraries (v8.0)
 
-**NEW in Animancer v8:** Transition Libraries allow you to **alter transitions based on the previous state**. Perfect for combo systems and contextual animations.
+**NEW in Animancer v8:** Transition Libraries allow you to **alter transitions based on the previous
+state**. Perfect for combo systems and contextual animations.
 
-**Official Docs:** [Transition Libraries](https://kybernetik.com.au/animancer/docs/manual/transitions/libraries/)
+**Official Docs:**
+[Transition Libraries](https://kybernetik.com.au/animancer/docs/manual/transitions/libraries/)
 
 ### Use Cases
 
@@ -512,7 +524,8 @@ public class ComboSystem : MonoBehaviour
 
 ## Weighted Mask Layers (v8.0)
 
-**NEW in Animancer v8:** More precise control than Avatar Masks. Instead of "all or nothing" bone masking, you can specify **per-bone weights** and **fade between weight groups**.
+**NEW in Animancer v8:** More precise control than Avatar Masks. Instead of "all or nothing" bone
+masking, you can specify **per-bone weights** and **fade between weight groups**.
 
 ### Use Case: Precise Layering
 
@@ -556,7 +569,8 @@ public class WeightedLayerExample : MonoBehaviour
 
 ## Parameter Binding (v8.0)
 
-**NEW in Animancer v8:** Central parameter management across mixers and states. Perfect for complex blending setups.
+**NEW in Animancer v8:** Central parameter management across mixers and states. Perfect for complex
+blending setups.
 
 ```csharp
 using Animancer;
@@ -705,13 +719,12 @@ public class IKController : MonoBehaviour
 
 ## Key Takeaways
 
-✅ **Layers** let you play multiple animations on different body parts simultaneously
-✅ **Mixers** blend animations based on parameters (like Blend Trees in code)
-✅ **State Machines** keep gameplay logic clean and testable
-✅ **Transition Libraries** (v8.0) enable smart context-aware transitions
-✅ **Weighted Mask Layers** (v8.0) provide precise per-bone control
-✅ **Multi-sprite sync** requires careful NormalizedTime management
-✅ **IK support** works via Unity's standard OnAnimatorIK callback
+✅ **Layers** let you play multiple animations on different body parts simultaneously ✅ **Mixers**
+blend animations based on parameters (like Blend Trees in code) ✅ **State Machines** keep gameplay
+logic clean and testable ✅ **Transition Libraries** (v8.0) enable smart context-aware transitions
+✅ **Weighted Mask Layers** (v8.0) provide precise per-bone control ✅ **Multi-sprite sync**
+requires careful NormalizedTime management ✅ **IK support** works via Unity's standard OnAnimatorIK
+callback
 
 ---
 
@@ -722,4 +735,5 @@ public class IKController : MonoBehaviour
 
 ---
 
-**Official Documentation:** [kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)
+**Official Documentation:**
+[kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)

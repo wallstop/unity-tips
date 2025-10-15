@@ -1,8 +1,10 @@
 # Common PrimeTween Patterns
 
-> **Battle-Tested Recipes from IshoBoy**: These patterns are actively used in production. Copy them freely!
+> **Battle-Tested Recipes from IshoBoy**: These patterns are actively used in production. Copy them
+> freely!
 
 ## Table of Contents
+
 - [UI Patterns](#ui-patterns)
 - [Gameplay Patterns](#gameplay-patterns)
 - [Camera Patterns](#camera-patterns)
@@ -47,6 +49,7 @@ public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerEx
 ```
 
 **IshoBoy Example**: `MainMenu.cs:401` uses this pattern for menu buttons:
+
 ```csharp
 // From MainMenu.cs - Button pulse effect
 private void OnEnter(Button button, BaseEventData _)
@@ -121,6 +124,7 @@ public class UIPanel : MonoBehaviour
 ```
 
 **Variants**:
+
 - Slide + Fade: Add `Tween.Position` in a `Sequence.Group()`
 - Scale + Fade: Add `Tween.Scale` for "pop-in" effect
 
@@ -163,6 +167,7 @@ public class StaggeredListReveal : MonoBehaviour
 ```
 
 **Alternative (Chain + Group)**:
+
 ```csharp
 Sequence sequence = Sequence.Create();
 
@@ -216,6 +221,7 @@ public class NumberCounter : MonoBehaviour
 ```
 
 **Variants**:
+
 - Add commas: `value.ToString("N0")`
 - Show decimals: `value.ToString("F2")`
 - Punch scale on complete for emphasis
@@ -287,6 +293,7 @@ public class ItemDrop : MonoBehaviour
 ```
 
 **IshoBoy Example**: `CarryComponent.cs:730-782` implements this pattern:
+
 ```csharp
 // From CarryComponent.cs - Complex drop with squash/stretch
 Sequence.Create()
@@ -362,6 +369,7 @@ public class DamageFlash : MonoBehaviour
 ```
 
 **Variants**:
+
 - Punch scale instead of shake
 - Flash multiple times in sequence
 - Add invulnerability flicker (cycle alpha)
@@ -406,6 +414,7 @@ public class PickupMagnet : MonoBehaviour
 ```
 
 **Advanced**: Update target position each frame:
+
 ```csharp
 void Update()
 {
@@ -790,6 +799,7 @@ public class PooledObject : MonoBehaviour
 ```
 
 **IshoBoy Extension** (`TweenExtensions.cs`):
+
 ```csharp
 public static void ClearTweens(this List<Tween> tweens)
 {
@@ -876,6 +886,7 @@ public class EventScheduler : MonoBehaviour
 ```
 
 **Advantages over `Invoke`**:
+
 - Can be stopped/paused
 - Part of animation flow
 - Respects `Time.timeScale` (unless using `useUnscaledTime`)
@@ -954,7 +965,9 @@ public class TweenPreset : ScriptableObject
 
 ---
 
-**Pro Tip**: The IshoBoy codebase has many more examples. Search for `using PrimeTween;` to find real-world usage:
+**Pro Tip**: The IshoBoy codebase has many more examples. Search for `using PrimeTween;` to find
+real-world usage:
+
 - `CarryComponent.cs` — Complex item drop sequences
 - `MainMenu.cs` — Button animations with Inspector settings
 - `CircularFadePostProcess.cs` — Custom tween for post-processing

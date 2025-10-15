@@ -1,0 +1,19 @@
+---
+config:
+  default: true
+  # Allow long lines in docs tables/wide links
+  MD013: false
+  MD024:
+    allow_different_nesting: true
+    siblings_only: true
+  # Allow heading punctuation common in Unity docs
+  MD026: false
+  # Allow inline HTML for embedded media
+  MD033: false
+  # Allow emphasis-only headings used for callouts
+  MD036: false
+  # Allow fenced code blocks without a language for generic snippets
+  MD040: false
+ignores:
+  - "**/node_modules/**"
+  - "**/vendor/**"

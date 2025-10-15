@@ -1,12 +1,16 @@
 # Core Concepts: Understanding Animancer
 
-This guide covers the fundamental building blocks of Animancer—understanding these concepts will unlock the full power of the system.
+This guide covers the fundamental building blocks of Animancer—understanding these concepts will
+unlock the full power of the system.
 
-> **⚡ TL;DR:** AnimancerComponent plays clips, returns AnimancerStates you control (speed, time, weight), add events with `state.OwnedEvents`, use `NormalizedTime` (0-1) to sync animations, check `IsPlaying()` before replaying. [Skip to Key Takeaways](#key-takeaways)
+> **⚡ TL;DR:** AnimancerComponent plays clips, returns AnimancerStates you control (speed, time,
+> weight), add events with `state.OwnedEvents`, use `NormalizedTime` (0-1) to sync animations, check
+> `IsPlaying()` before replaying. [Skip to Key Takeaways](#key-takeaways)
 
 ---
 
 ## Table of Contents
+
 1. [The Animation Graph](#the-animation-graph)
 2. [AnimancerComponent](#animancercomponent)
 3. [AnimancerStates](#animancerstates)
@@ -21,7 +25,8 @@ This guide covers the fundamental building blocks of Animancer—understanding t
 
 ## The Animation Graph
 
-Animancer builds a **runtime animation graph** behind the scenes—just like Animator Controller—but you control it directly through code.
+Animancer builds a **runtime animation graph** behind the scenes—just like Animator Controller—but
+you control it directly through code.
 
 ```mermaid
 graph TD
@@ -38,6 +43,7 @@ graph TD
 ```
 
 **Key Points:**
+
 - The graph is **automatically managed**—you don't need to wire nodes manually
 - Each animation clip gets an **AnimancerState** when played
 - States are **reused** when you play the same clip again
@@ -47,9 +53,11 @@ graph TD
 
 ## AnimancerComponent
 
-The `AnimancerComponent` is your gateway to the animation system. It replaces Unity's `Animator` component.
+The `AnimancerComponent` is your gateway to the animation system. It replaces Unity's `Animator`
+component.
 
-**Official Docs:** [Animancer Component](https://kybernetik.com.au/animancer/docs/manual/playing/component-types/)
+**Official Docs:**
+[Animancer Component](https://kybernetik.com.au/animancer/docs/manual/playing/component-types/)
 
 ### Setup
 
@@ -69,14 +77,14 @@ public class MyCharacter : MonoBehaviour
 }
 ```
 
-### Key Properties
+### Key Properties (AnimancerState)
 
-| Property | Description |
-|----------|-------------|
-| `States` | Dictionary of all AnimancerStates in the graph |
-| `States.Current` | The currently playing state (highest weight) |
-| `IsPlaying` | Whether any animation is playing |
-| `Playable` | The underlying PlayableGraph (advanced) |
+| Property         | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `States`         | Dictionary of all AnimancerStates in the graph |
+| `States.Current` | The currently playing state (highest weight)   |
+| `IsPlaying`      | Whether any animation is playing               |
+| `Playable`       | The underlying PlayableGraph (advanced)        |
 
 ### Common Methods
 
@@ -98,9 +106,11 @@ _animancer.Evaluate();
 
 ## AnimancerStates
 
-Every animation clip you play creates or reuses an **AnimancerState**—think of it as the runtime representation of your animation.
+Every animation clip you play creates or reuses an **AnimancerState**—think of it as the runtime
+representation of your animation.
 
-**Official Docs:** [Animancer States](https://kybernetik.com.au/animancer/docs/manual/playing/states/)
+**Official Docs:**
+[Animancer States](https://kybernetik.com.au/animancer/docs/manual/playing/states/)
 
 ```mermaid
 graph LR
@@ -127,7 +137,7 @@ AnimancerState state = _animancer.States.Current;
 AnimancerState state = _animancer.States.GetOrCreate(myClip);
 ```
 
-### Key Properties
+### Key Properties (State API)
 
 ```csharp
 AnimancerState state = _animancer.Play(myClip);
@@ -267,6 +277,7 @@ One of Animancer's most powerful features: **event callbacks at specific times**
 ### Why Events?
 
 Unity's Animation Events require:
+
 1. Adding events in the Animation window
 2. Having a method with a matching name on the GameObject
 3. Hoping the method signature matches
@@ -314,7 +325,8 @@ if (state.SharedEvents != null)
 }
 ```
 
-**Rule of Thumb:** Use `OwnedEvents` for dynamic gameplay (99% of cases), `SharedEvents` for reusable event configurations in Transition Assets.
+**Rule of Thumb:** Use `OwnedEvents` for dynamic gameplay (99% of cases), `SharedEvents` for
+reusable event configurations in Transition Assets.
 
 ### Practical Event Examples
 
@@ -373,7 +385,8 @@ void CastSpell()
 
 ## Normalized Time
 
-**Normalized time** is one of Animancer's most important concepts. It represents animation progress as a value between **0 and 1**.
+**Normalized time** is one of Animancer's most important concepts. It represents animation progress
+as a value between **0 and 1**.
 
 ```mermaid
 graph LR
@@ -411,7 +424,9 @@ float loopProgress = state.NormalizedTime % 1f;
 
 ### The Magic of Directional Animations
 
-**Here's where Normalized Time truly shines:** If you have animations of the same length but different directions (walk left, walk right, walk up, walk down), you can seamlessly switch between them mid-animation!
+**Here's where Normalized Time truly shines:** If you have animations of the same length but
+different directions (walk left, walk right, walk up, walk down), you can seamlessly switch between
+them mid-animation!
 
 ```csharp
 void PlayDirectionalWalk(AnimationClip newDirectionClip)
@@ -431,9 +446,11 @@ void PlayDirectionalWalk(AnimationClip newDirectionClip)
 }
 ```
 
-**Result:** When you change from walking right → walking left, the character's feet stay in the same position in the cycle. No jarring restarts!
+**Result:** When you change from walking right → walking left, the character's feet stay in the same
+position in the cycle. No jarring restarts!
 
-**Official Documentation:** [Animancer States - Time](https://kybernetik.com.au/animancer/docs/manual/playing/states/#time)
+**Official Documentation:**
+[Animancer States - Time](https://kybernetik.com.au/animancer/docs/manual/playing/states/#time)
 
 ### Syncing Multiple Sprites
 
@@ -514,7 +531,8 @@ graph LR
     style D fill:#4CAF50
 ```
 
-During the fade, both animations play simultaneously with changing weights. Unity blends their poses together.
+During the fade, both animations play simultaneously with changing weights. Unity blends their poses
+together.
 
 ---
 
@@ -646,13 +664,11 @@ public class CharacterAnimator : MonoBehaviour
 
 ## Key Takeaways
 
-✅ **AnimancerComponent** replaces Animator—it's your control center
-✅ **AnimancerState** represents each playing animation with full control
-✅ **Play()** is your main method—simple and powerful
-✅ **Events** replace Animation Events with clean C# delegates
-✅ **Normalized Time** (0-1) makes timing clip-independent
-✅ **Transitions** blend smoothly with configurable fade durations
-✅ **Always check IsPlaying()** to prevent stuttering restarts
+✅ **AnimancerComponent** replaces Animator—it's your control center ✅ **AnimancerState**
+represents each playing animation with full control ✅ **Play()** is your main method—simple and
+powerful ✅ **Events** replace Animation Events with clean C# delegates ✅ **Normalized Time** (0-1)
+makes timing clip-independent ✅ **Transitions** blend smoothly with configurable fade durations ✅
+**Always check IsPlaying()** to prevent stuttering restarts
 
 ---
 
@@ -660,10 +676,12 @@ public class CharacterAnimator : MonoBehaviour
 
 Now that you understand the fundamentals, you're ready for:
 
-- **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** - Layers, mixers, state machines, transitions
+- **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** - Layers, mixers, state machines,
+  transitions
 - **[Best Practices & Pitfalls](./04-BEST-PRACTICES.md)** - Common mistakes and how to avoid them
 - **[Code Examples & Recipes](./05-CODE-EXAMPLES.md)** - Ready-to-use patterns for every scenario
 
 ---
 
-**Official Documentation:** [kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)
+**Official Documentation:**
+[kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)
