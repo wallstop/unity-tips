@@ -19,7 +19,7 @@ jobs:
         if:
           github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
           github.repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
@@ -28,13 +28,13 @@ jobs:
         if:
           github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name !=
           github.repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Check out push ref
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
