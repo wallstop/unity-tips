@@ -110,7 +110,7 @@ Every animation clip you play creates or reuses an **AnimancerState**—think of
 representation of your animation.
 
 **Official Docs:**
-[Animancer States](https://kybernetik.com.au/animancer/docs/manual/playing/states/)
+[Animancer States](https://kybernetik.com.au/animancer/docs/manual/playing/states)
 
 ```mermaid
 graph LR
@@ -450,7 +450,7 @@ void PlayDirectionalWalk(AnimationClip newDirectionClip)
 position in the cycle. No jarring restarts!
 
 **Official Documentation:**
-[Animancer States - Time](https://kybernetik.com.au/animancer/docs/manual/playing/states/#time)
+[Animancer States — Performance](https://kybernetik.com.au/animancer/docs/manual/playing/states#performance)
 
 ### Syncing Multiple Sprites
 

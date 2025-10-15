@@ -21,6 +21,18 @@ repos:
         entry: scripts/fix_markdown_ordered_lists.py
         language: python
         types: [markdown]
+      - id: ensure-human-link-text
+        name: Ensure Markdown link text is human-readable
+        entry: scripts/fix_link_text.py
+        language: python
+        types: [markdown]
+        args: ["--fix"]
+      - id: check-markdown-links
+        name: Validate Markdown links resolve
+        entry: scripts/check_links.py
+        language: python
+        types: [markdown]
+        additional_dependencies: ["requests>=2.31.0"]
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.13.0
     hooks:

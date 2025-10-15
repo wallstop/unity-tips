@@ -560,11 +560,11 @@ from production experience.
 
 ## 🔗 External Resources
 
-- **[Unity Manual: Assembly Definitions](https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html)**
+- **[Unity Manual: Assembly Definitions](https://docs.unity3d.com/Manual/assembly-definition-files.html)**
   — Official documentation
 - **[Unity Blog: Assembly Definitions](https://blog.unity.com/technology/customizing-script-compilation-assembly-definition-files)**
   — Detailed explanation
-- **[Script Compilation Timeline](https://docs.unity3d.com/Manual/ScriptCompilation.html)** — How
+- **[Script Compilation Timeline](https://docs.unity3d.com/Manual/script-compilation.html)** — How
   compilation works
 - **[Special Folders](https://docs.unity3d.com/Manual/SpecialFolders.html)** — Unity's predefined
   assembly folders
