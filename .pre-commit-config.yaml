@@ -14,11 +14,18 @@ repos:
     hooks:
       - id: prettier
         files: "\\.(md|markdown|mdx|json|ya?ml)$"
+  - repo: local
+    hooks:
+      - id: fix-markdown-ordered-lists
+        name: Fix Markdown ordered list numbering
+        entry: scripts/fix_markdown_ordered_lists.py
+        language: python
+        types: [markdown]
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.13.0
     hooks:
       - id: markdownlint-cli2
-        args: ["--config", ".markdownlint-cli2.yaml"]
+        args: ["--config", ".markdownlint-cli2.yaml", "--fix"]
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.35.1
     hooks:

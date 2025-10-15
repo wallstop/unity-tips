@@ -14,6 +14,8 @@ make reviews smoother.
 
 - Run `pre-commit run --all-files` before you open a pull request. This formats Markdown, YAML, and
   JSON files and enforces lint rules.
+- The **Lint Docs** GitHub Action will auto-apply any fixable pre-commit changes on pull requests
+  opened from this repository. Fork-based PRs still need to push the fixes manually.
 - Fix any remaining markdownlint warnings by following the message in the output (e.g., add
   languages to fenced code blocks).
 - Follow the existing tone of the docs and prefer American English spelling for new content.

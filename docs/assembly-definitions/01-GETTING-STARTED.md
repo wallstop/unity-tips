@@ -348,7 +348,7 @@ Assets/Scripts/
    - Done!
    ```
 
-2. **Create Gameplay Assembly (depends on Core)**
+1. **Create Gameplay Assembly (depends on Core)**
 
    ```
    - Right-click "Gameplay" folder
@@ -359,7 +359,7 @@ Assets/Scripts/
    - Done!
    ```
 
-3. **Create UI Assembly (depends on Core)**
+1. **Create UI Assembly (depends on Core)**
 
    ```
    - Right-click "UI" folder
