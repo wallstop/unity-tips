@@ -11,11 +11,14 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
+import os
 import requests
 
 from link_utils import LinkMatch, extract_links, split_anchor
 
-REQUEST_TIMEOUT = 10
+CONNECT_TIMEOUT = float(os.getenv("LINK_CHECK_CONNECT_TIMEOUT", "5"))
+READ_TIMEOUT = float(os.getenv("LINK_CHECK_READ_TIMEOUT", "20"))
+REQUEST_TIMEOUT = (CONNECT_TIMEOUT, READ_TIMEOUT)
 USER_AGENT = "unity-tips-link-checker/1.0"
 
 
