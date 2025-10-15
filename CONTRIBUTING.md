@@ -16,6 +16,10 @@ make reviews smoother.
   JSON files and enforces lint rules.
 - The **Lint Docs** GitHub Action will auto-apply any fixable pre-commit changes on pull requests
   opened from this repository. Fork-based PRs still need to push the fixes manually.
+- `scripts/fix_link_text.py --fix $(rg --files -g '*.md')` rewrites bare URLs into descriptive
+  links; run it occasionally if you paste new resources straight from the browser address bar.
+- `scripts/check_links.py $(rg --files -g '*.md')` validates local paths and external URLs.
+  Investigate any failures—broken anchors or 404s should be updated, not ignored.
 - Fix any remaining markdownlint warnings by following the message in the output (e.g., add
   languages to fenced code blocks).
 - Follow the existing tone of the docs and prefer American English spelling for new content.
