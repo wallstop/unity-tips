@@ -101,7 +101,7 @@ public class DirectionalCharacter : MonoBehaviour
 - Setting the new clip's time to match the old preserves the cycle
 
 **Official Documentation:**
-[Animancer - Time Control](https://kybernetik.com.au/animancer/docs/manual/playing/states/#time)
+[Animancer — Performance Tips](https://kybernetik.com.au/animancer/docs/manual/playing/states#performance)
 
 ---
 
