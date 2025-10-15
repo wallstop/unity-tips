@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
 import os
+import sys
 import requests
 
 from link_utils import LinkMatch, extract_links, split_anchor
@@ -75,6 +76,12 @@ class LinkChecker:
                 headers=headers,
             )
             status = response.status_code
+            if status == 429:
+                message = "Rate limited (HTTP 429); skipping validation"
+                print(f"warning: {url}: {message}", file=sys.stderr)
+                result = (True, message)
+                self.remote_cache[url] = result
+                return result
             if status >= 400 or status == 405:
                 response = requests.get(
                     url,
@@ -83,6 +90,12 @@ class LinkChecker:
                     headers=headers,
                 )
                 status = response.status_code
+                if status == 429:
+                    message = "Rate limited (HTTP 429); skipping validation"
+                    print(f"warning: {url}: {message}", file=sys.stderr)
+                    result = (True, message)
+                    self.remote_cache[url] = result
+                    return result
             if 200 <= status < 400:
                 result = (True, "")
             else:
