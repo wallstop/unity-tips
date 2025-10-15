@@ -1,8 +1,13 @@
 # Unity Assembly Definitions Documentation
 
-> **Faster compile times. Better code organization. Clearer dependencies.** Take control of Unity's compilation process.
+> **Faster compile times. Better code organization. Clearer dependencies.** Take control of Unity's
+> compilation process.
 
-Assembly Definitions (asmdef files) are Unity's solution to slow compile times and tangled dependencies. They let you split your codebase into separate assemblies (DLLs), giving you **10-100x faster iteration times** on large projects, explicit dependency management, and the ability to exclude code from specific platforms. Without them, Unity compiles your entire project as one giant assembly every time you change a single script.
+Assembly Definitions (asmdef files) are Unity's solution to slow compile times and tangled
+dependencies. They let you split your codebase into separate assemblies (DLLs), giving you **10-100x
+faster iteration times** on large projects, explicit dependency management, and the ability to
+exclude code from specific platforms. Without them, Unity compiles your entire project as one giant
+assembly every time you change a single script.
 
 ---
 
@@ -17,17 +22,20 @@ Assembly Definitions (asmdef files) are Unity's solution to slow compile times a
 ```
 
 **What just happened?**
+
 - ✅ Unity now compiles that folder as a **separate assembly**
 - ✅ When you edit scripts in that folder, **only that assembly recompiles**
 - ✅ The rest of your codebase stays untouched
 - ✅ **Compile time: 30 seconds → 2 seconds** (typical improvement)
 
 **Before Assembly Definitions:**
+
 ```
 Change one script → Unity recompiles EVERYTHING → Wait 30+ seconds → Test
 ```
 
 **After Assembly Definitions:**
+
 ```
 Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 ```
@@ -38,7 +46,8 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — *15-minute read*
+**🌱 [Getting Started](01-GETTING-STARTED.md)** — _15-minute read_
+
 - What problem do Assembly Definitions solve?
 - How Unity's compilation works (with and without asmdef)
 - Creating your first assembly definition
@@ -46,7 +55,8 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Visual diagrams of compile-time improvements
 - Quick win: Reducing iteration time by 90%
 
-**💪 [Core Concepts](02-CORE-CONCEPTS.md)** — *25-minute read*
+**💪 [Core Concepts](02-CORE-CONCEPTS.md)** — _25-minute read_
+
 - Assembly Definition files (.asmdef)
 - Assembly Definition References (.asmref)
 - How dependencies work
@@ -56,7 +66,8 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Assembly reload optimization
 - Precompiled assemblies and plugins
 
-**📖 [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — *30-minute read*
+**📖 [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — _30-minute read_
+
 - Complex dependency hierarchies
 - Version defines and conditional compilation
 - Root namespace organization
@@ -66,7 +77,8 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Package Manager integration
 - CI/CD considerations
 
-**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — *Cookbook*
+**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — _Cookbook_
+
 - Standard project structure patterns
 - Core/Gameplay/UI separation strategy
 - Editor tooling assemblies
@@ -75,7 +87,8 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Package development patterns
 - Multi-platform projects
 
-**⚠️ [Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — *What to do and what NOT to do*
+**⚠️ [Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — _What to do and what NOT to do_
+
 - When to use (and not use) Assembly Definitions
 - Granularity: Too many vs too few assemblies
 - Circular dependency detection and fixes
@@ -91,6 +104,7 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 ### Problem: Unity's Default Compilation is Slow
 
 **Without Assembly Definitions**, Unity compiles your entire project as 4 giant assemblies:
+
 1. `Assembly-CSharp.dll` — All your runtime scripts
 2. `Assembly-CSharp-Editor.dll` — All your editor scripts
 3. `Assembly-CSharp-firstpass.dll` — Plugins in Standard Assets
@@ -137,11 +151,11 @@ graph TD
 
 ### Real-World Performance Impact
 
-| Project Size | Without Asmdef | With Asmdef | Improvement |
-|--------------|----------------|-------------|-------------|
-| **Small (500 scripts)** | 5-10 seconds | 2-3 seconds | **2-3x faster** |
-| **Medium (2000 scripts)** | 15-30 seconds | 2-5 seconds | **5-10x faster** |
-| **Large (8000+ scripts)** | 60-120 seconds | 3-8 seconds | **10-20x faster** |
+| Project Size              | Without Asmdef  | With Asmdef  | Improvement       |
+| ------------------------- | --------------- | ------------ | ----------------- |
+| **Small (500 scripts)**   | 5-10 seconds    | 2-3 seconds  | **2-3x faster**   |
+| **Medium (2000 scripts)** | 15-30 seconds   | 2-5 seconds  | **5-10x faster**  |
+| **Large (8000+ scripts)** | 60-120 seconds  | 3-8 seconds  | **10-20x faster** |
 | **Huge (20000+ scripts)** | 180-300 seconds | 5-15 seconds | **20-40x faster** |
 
 **Note**: These are typical incremental compile times when changing scripts in a single assembly.
@@ -149,6 +163,7 @@ graph TD
 ### Benefit #2: Explicit Dependencies
 
 **Without Assembly Definitions:**
+
 ```csharp
 // UI script can access EVERYTHING
 using MyGame.Gameplay.Enemy;
@@ -163,9 +178,11 @@ public class MainMenuButton : MonoBehaviour
     private GameDatabase _db;
 }
 ```
+
 **No compiler error. No warning. Just a mess.**
 
 **With Assembly Definitions:**
+
 ```csharp
 // UI script in MyGame.UI.asmdef
 // MyGame.UI doesn't reference MyGame.Gameplay
@@ -207,18 +224,18 @@ A JSON file that defines a C# assembly:
 
 ```json
 {
-    "name": "MyGame.Core",
-    "rootNamespace": "MyGame.Core",
-    "references": [],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.Core",
+  "rootNamespace": "MyGame.Core",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -264,6 +281,7 @@ graph TD
 ```
 
 **Clean Architecture Rules:**
+
 - ✅ Core has no dependencies (foundation layer)
 - ✅ Gameplay depends on Core only
 - ✅ UI depends on Core only (not Gameplay!)
@@ -277,12 +295,14 @@ graph TD
 ### Use Case 1: Reducing Iteration Time
 
 **Before:**
+
 ```
 You're working on UI animations.
 Change Button.cs → Wait 45 seconds → Test → Repeat
 ```
 
 **After:**
+
 ```
 You're working on UI animations.
 Change Button.cs → Wait 2 seconds → Test → Repeat
@@ -313,6 +333,7 @@ public class MainMenu
 ```
 
 **Benefits:**
+
 - Catch architecture violations at compile time
 - Enforce separation of concerns
 - Easier refactoring and maintenance
@@ -323,9 +344,9 @@ public class MainMenu
 ```json
 // MyGame.Mobile.asmdef
 {
-    "name": "MyGame.Mobile",
-    "includePlatforms": ["iOS", "Android"],
-    "references": ["MyGame.Core"]
+  "name": "MyGame.Mobile",
+  "includePlatforms": ["iOS", "Android"],
+  "references": ["MyGame.Core"]
 }
 ```
 
@@ -348,6 +369,7 @@ public class TouchControls : MonoBehaviour
 ```
 
 **Benefits:**
+
 - No platform #if directives cluttering your code
 - Automatically excluded from non-mobile builds
 - Smaller build sizes
@@ -358,10 +380,10 @@ public class TouchControls : MonoBehaviour
 ```json
 // MyGame.Editor.asmdef
 {
-    "name": "MyGame.Editor",
-    "references": ["MyGame.Core"],
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false
+  "name": "MyGame.Editor",
+  "references": ["MyGame.Core"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
 }
 ```
 
@@ -438,18 +460,21 @@ graph TD
 ## 🎓 Learning Path
 
 ### Beginner (30 minutes)
+
 1. Read [Getting Started](01-GETTING-STARTED.md) — Understand the problem and solution
 2. Create your first assembly definition
 3. Measure compile time improvement
 4. Learn basic dependency management
 
 ### Intermediate (1-2 hours)
+
 1. Read [Core Concepts](02-CORE-CONCEPTS.md) — Master asmdef features
 2. Study [Common Patterns](04-COMMON-PATTERNS.md) — Learn proven structures
 3. Set up a 3-4 assembly project (Core/Gameplay/UI/Editor)
 4. Review [Best Practices](05-BEST-PRACTICES.md) — Avoid common mistakes
 
 ### Advanced (2+ hours)
+
 1. Deep dive into [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
 2. Master version defines and conditional compilation
 3. Study complex dependency hierarchies
@@ -514,41 +539,42 @@ Assembly Definitions embody three principles:
 2. **Explicit Dependencies** — Architecture should be visible and enforced
 3. **Scalability** — Start simple, grow complexity only when needed
 
-These docs follow the same philosophy: clear examples, real-world patterns, and pragmatic advice from production experience.
+These docs follow the same philosophy: clear examples, real-world patterns, and pragmatic advice
+from production experience.
 
 ---
 
 ## 🎯 Next Steps
 
-**New to Assembly Definitions?**
-→ Start with [Getting Started](01-GETTING-STARTED.md)
+**New to Assembly Definitions?** → Start with [Getting Started](01-GETTING-STARTED.md)
 
-**Want to understand how they work?**
-→ Read [Core Concepts](02-CORE-CONCEPTS.md)
+**Want to understand how they work?** → Read [Core Concepts](02-CORE-CONCEPTS.md)
 
-**Need to structure a real project?**
-→ Browse [Common Patterns](04-COMMON-PATTERNS.md)
+**Need to structure a real project?** → Browse [Common Patterns](04-COMMON-PATTERNS.md)
 
-**Looking for advanced techniques?**
-→ See [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
+**Looking for advanced techniques?** → See [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
 
-**Avoiding mistakes?**
-→ Study [Best Practices & Pitfalls](05-BEST-PRACTICES.md)
+**Avoiding mistakes?** → Study [Best Practices & Pitfalls](05-BEST-PRACTICES.md)
 
 ---
 
 ## 🔗 External Resources
 
-- **[Unity Manual: Assembly Definitions](https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html)** — Official documentation
-- **[Unity Blog: Assembly Definitions](https://blog.unity.com/technology/customizing-script-compilation-assembly-definition-files)** — Detailed explanation
-- **[Script Compilation Timeline](https://docs.unity3d.com/Manual/ScriptCompilation.html)** — How compilation works
-- **[Special Folders](https://docs.unity3d.com/Manual/SpecialFolders.html)** — Unity's predefined assembly folders
+- **[Unity Manual: Assembly Definitions](https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html)**
+  — Official documentation
+- **[Unity Blog: Assembly Definitions](https://blog.unity.com/technology/customizing-script-compilation-assembly-definition-files)**
+  — Detailed explanation
+- **[Script Compilation Timeline](https://docs.unity3d.com/Manual/ScriptCompilation.html)** — How
+  compilation works
+- **[Special Folders](https://docs.unity3d.com/Manual/SpecialFolders.html)** — Unity's predefined
+  assembly folders
 
 ---
 
 ## 📊 Key Statistics
 
 Assembly Definitions typically provide:
+
 - ✅ **10-40x faster** incremental compile times (on large projects)
 - ✅ **90% reduction** in compilation time during iteration
 - ✅ **100% dependency enforcement** (catches violations at compile time)
@@ -559,6 +585,7 @@ Assembly Definitions typically provide:
 ## 🤝 Contributing to These Docs
 
 Found an issue or want to add an example? These docs live in:
+
 - `docs/assembly-definitions/README.md` (this file)
 - `docs/assembly-definitions/01-GETTING-STARTED.md`
 - `docs/assembly-definitions/02-CORE-CONCEPTS.md`
@@ -570,4 +597,4 @@ Found an issue or want to add an example? These docs live in:
 
 **Happy Compiling!** ⚡
 
-*Documentation last updated: 2025-10-15*
+_Documentation last updated: 2025-10-15_

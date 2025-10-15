@@ -1,6 +1,7 @@
 # Best Practices & Pitfalls
 
-> **What to do, what NOT to do, and why.** Learn from production experience to avoid common mistakes and optimize your Odin workflow.
+> **What to do, what NOT to do, and why.** Learn from production experience to avoid common mistakes
+> and optimize your Odin workflow.
 
 ---
 
@@ -21,6 +22,7 @@
 ### ✅ DO: Use SerializedMonoBehaviour Only When Needed
 
 **Good:**
+
 ```csharp
 // Simple script with basic fields → use MonoBehaviour
 public class HealthBar : MonoBehaviour
@@ -43,6 +45,7 @@ public class ItemDatabase : SerializedMonoBehaviour
 ### ✅ DO: Initialize Dictionaries and Collections
 
 **Good:**
+
 ```csharp
 [SerializeField]
 private Dictionary<string, int> _scores = new();  // ✅ Initialized
@@ -52,6 +55,7 @@ private List<Item> _items = new();  // ✅ Initialized
 ```
 
 **Bad:**
+
 ```csharp
 [SerializeField]
 private Dictionary<string, int> _scores;  // ❌ null by default
@@ -69,6 +73,7 @@ void Start()
 ### ✅ DO: Use [NonSerialized] for Runtime-Only Data
 
 **Good:**
+
 ```csharp
 [SerializeField]
 private Dictionary<string, GameObject> _prefabs = new();
@@ -84,6 +89,7 @@ private Dictionary<string, GameObject> _spawnedInstances = new();  // Runtime ca
 ### ❌ DON'T: Serialize Unity Objects in Dictionaries Without Caution
 
 **Problematic:**
+
 ```csharp
 // This works but can cause issues with scene references
 [SerializeField]
@@ -91,6 +97,7 @@ private Dictionary<string, Transform> _sceneObjects = new();
 ```
 
 **Better:**
+
 ```csharp
 // For prefabs (assets)
 [SerializeField]
@@ -104,13 +111,15 @@ private Transform _spawnPoint;
 private Transform _exitPoint;
 ```
 
-**Why:** Dictionary keys with UnityEngine.Object references can break if objects are destroyed or references lost.
+**Why:** Dictionary keys with UnityEngine.Object references can break if objects are destroyed or
+references lost.
 
 ---
 
 ### ✅ DO: Validate Dictionary Keys
 
 **Good:**
+
 ```csharp
 [ValidateInput(nameof(ValidateKeys), "Dictionary keys must not be empty!")]
 [SerializeField]
@@ -131,6 +140,7 @@ private bool ValidateKeys(Dictionary<string, ItemData> dict)
 ### ✅ DO: Cache Expensive Dropdown Providers
 
 **Good:**
+
 ```csharp
 private static List<string> _cachedItemIDs;
 
@@ -149,6 +159,7 @@ private IEnumerable<string> GetItemIDs()
 ```
 
 **Bad:**
+
 ```csharp
 [ValueDropdown(nameof(GetItemIDs))]
 [SerializeField]
@@ -167,6 +178,7 @@ private IEnumerable<string> GetItemIDs()
 ### ✅ DO: Avoid Heavy Logic in [ShowInInspector] Properties
 
 **Good:**
+
 ```csharp
 [ShowInInspector, ReadOnly]
 private int TotalItems => _items.Count;  // ✅ Fast
@@ -180,6 +192,7 @@ private void CalculateComplexStats()  // ✅ Only runs when clicked
 ```
 
 **Bad:**
+
 ```csharp
 [ShowInInspector, ReadOnly]
 private int ComplexCalculation
@@ -192,13 +205,15 @@ private int ComplexCalculation
 }
 ```
 
-**Why:** `[ShowInInspector]` properties re-evaluate continuously. Use buttons for expensive operations.
+**Why:** `[ShowInInspector]` properties re-evaluate continuously. Use buttons for expensive
+operations.
 
 ---
 
 ### ✅ DO: Paginate Large Table Lists
 
 **Good:**
+
 ```csharp
 [TableList(ShowIndexLabels = true, NumberOfItemsPerPage = 25)]
 [SerializeField]
@@ -212,6 +227,7 @@ private List<EnemyData> _enemies = new();  // Could have 1000+ items
 ### ❌ DON'T: Serialize Massive Dictionaries
 
 **Problematic:**
+
 ```csharp
 // 10,000+ entries
 [SerializeField]
@@ -219,6 +235,7 @@ private Dictionary<int, Vector3> _allPositions = new();
 ```
 
 **Better:**
+
 ```csharp
 // Store in external file or database
 [FilePath]
@@ -244,6 +261,7 @@ void Start()
 **Symptom:** Dictionary appears empty in Inspector, doesn't serialize.
 
 **Bad:**
+
 ```csharp
 using Sirenix.OdinInspector;
 
@@ -255,6 +273,7 @@ public class Example : MonoBehaviour  // ❌ Wrong base class!
 ```
 
 **Fixed:**
+
 ```csharp
 using Sirenix.OdinInspector;
 
@@ -272,10 +291,12 @@ public class Example : SerializedMonoBehaviour  // ✅ Correct!
 **Problem:** Confusion about when to use which.
 
 **Rule:**
+
 - `[SerializeField]` — For fields that should **persist** (save to disk)
 - `[ShowInInspector]` — For properties/fields that should **display** but may not persist
 
 **Example:**
+
 ```csharp
 // Persisted field
 [SerializeField]
@@ -297,6 +318,7 @@ private float _lastDamageTime;
 **Symptom:** Buttons or callbacks fire multiple times unexpectedly.
 
 **Problem Pattern:**
+
 ```csharp
 [Button]
 private void SetupCallbacks()
@@ -306,6 +328,7 @@ private void SetupCallbacks()
 ```
 
 **Fixed:**
+
 ```csharp
 [Button]
 private void SetupCallbacks()
@@ -320,6 +343,7 @@ private void SetupCallbacks()
 ### Mistake #4: Using Buttons That Modify Scene in Edit Mode Without Undo
 
 **Bad:**
+
 ```csharp
 [Button]
 private void SpawnEnemies()
@@ -332,6 +356,7 @@ private void SpawnEnemies()
 ```
 
 **Good:**
+
 ```csharp
 [Button]
 private void SpawnEnemies()
@@ -353,6 +378,7 @@ private void SpawnEnemies()
 ### Mistake #5: Forgetting Editor Conditionals
 
 **Bad:**
+
 ```csharp
 [Button]
 private void EditorOnlyMethod()
@@ -362,6 +388,7 @@ private void EditorOnlyMethod()
 ```
 
 **Good:**
+
 ```csharp
 [Button]
 private void EditorOnlyMethod()
@@ -377,12 +404,14 @@ private void EditorOnlyMethod()
 ### Mistake #6: Serializing Properties Without Backing Fields
 
 **Problematic:**
+
 ```csharp
 [ShowInInspector]
 public int Health { get; set; } = 100;  // ⚠️ May not serialize correctly
 ```
 
 **Better:**
+
 ```csharp
 [SerializeField]
 private int _health = 100;
@@ -447,6 +476,7 @@ private void SpawnEnemy()
 ### ❌ DON'T: Modify Scene Objects from Edit Mode Without Care
 
 **Bad:**
+
 ```csharp
 [Button]
 private void ModifyAllEnemies()
@@ -460,6 +490,7 @@ private void ModifyAllEnemies()
 ```
 
 **Good:**
+
 ```csharp
 [Button]
 private void ModifyAllEnemies()
@@ -485,6 +516,7 @@ private void ModifyAllEnemies()
 Ensure your project uses text-based scene/prefab serialization:
 
 **Edit → Project Settings → Editor**
+
 - Asset Serialization: **Force Text**
 - Line Endings For New Scripts: **Unix**
 
@@ -549,11 +581,13 @@ public static class ProjectValidator
 ### ❌ DON'T: Commit .meta Files Without Testing
 
 Always test that:
+
 1. Odin data serializes correctly
 2. References aren't broken
 3. Dictionary data persists
 
-**Best Practice:** After pulling changes, open all Odin-heavy ScriptableObjects and verify data integrity.
+**Best Practice:** After pulling changes, open all Odin-heavy ScriptableObjects and verify data
+integrity.
 
 ---
 
@@ -561,12 +595,12 @@ Always test that:
 
 ### Minimize Build Size Impact
 
-| Technique | Size Reduction |
-|-----------|----------------|
-| Wrap editor code in `#if UNITY_EDITOR` | ~100-500KB |
-| Strip unused Odin features (Preferences) | ~500KB-1MB |
-| Don't serialize massive collections | Varies |
-| Use `[NonSerialized]` for runtime data | ~10-100KB |
+| Technique                                | Size Reduction |
+| ---------------------------------------- | -------------- |
+| Wrap editor code in `#if UNITY_EDITOR`   | ~100-500KB     |
+| Strip unused Odin features (Preferences) | ~500KB-1MB     |
+| Don't serialize massive collections      | Varies         |
+| Use `[NonSerialized]` for runtime data   | ~10-100KB      |
 
 ### ✅ DO: Profile Build Size
 
@@ -593,6 +627,7 @@ public static void AnalyzeBuildSize()
 ### ✅ DO: Remove Debug Tools from Builds
 
 **Development Build:**
+
 ```csharp
 public class DevTools : SerializedMonoBehaviour
 {
@@ -602,6 +637,7 @@ public class DevTools : SerializedMonoBehaviour
 ```
 
 **Production Build:**
+
 ```csharp
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 public class DevTools : SerializedMonoBehaviour
@@ -619,24 +655,28 @@ public class DevTools : SerializedMonoBehaviour
 ### Before Shipping Your Game
 
 #### ✅ Validate All Odin Data
+
 - [ ] All `[Required]` fields are assigned
 - [ ] No duplicate dictionary keys
 - [ ] All prefab references are valid
 - [ ] No missing ScriptableObject references
 
 #### ✅ Performance Check
+
 - [ ] No expensive logic in `[ShowInInspector]` properties
 - [ ] Large collections use pagination
 - [ ] Dropdown providers are cached
 - [ ] No memory leaks from event subscriptions
 
 #### ✅ Build Check
+
 - [ ] All editor code wrapped in `#if UNITY_EDITOR`
 - [ ] Debug tools removed or gated behind `DEVELOPMENT_BUILD`
 - [ ] Build size is acceptable
 - [ ] No Odin-related runtime errors in builds
 
 #### ✅ Team Workflow
+
 - [ ] Custom attributes documented
 - [ ] Validation scripts created
 - [ ] Data schemas documented
@@ -648,15 +688,16 @@ public class DevTools : SerializedMonoBehaviour
 
 ### Odin vs Vanilla Unity
 
-| Metric | Vanilla Unity | Odin | Notes |
-|--------|---------------|------|-------|
-| **Serialization Speed** | 100% | ~85% | Editor-only, negligible impact |
-| **Deserialization Speed** | 100% | ~95% | Slightly slower |
-| **Inspector Draw Time** | 100% | ~90% | More features = slightly slower |
-| **Runtime Performance** | 100% | 100% | Identical! |
-| **Build Size** | Baseline | +2-5MB | Odin runtime included |
+| Metric                    | Vanilla Unity | Odin   | Notes                           |
+| ------------------------- | ------------- | ------ | ------------------------------- |
+| **Serialization Speed**   | 100%          | ~85%   | Editor-only, negligible impact  |
+| **Deserialization Speed** | 100%          | ~95%   | Slightly slower                 |
+| **Inspector Draw Time**   | 100%          | ~90%   | More features = slightly slower |
+| **Runtime Performance**   | 100%          | 100%   | Identical!                      |
+| **Build Size**            | Baseline      | +2-5MB | Odin runtime included           |
 
-**Takeaway:** Odin's performance cost is minimal and limited to the editor. Runtime performance is identical.
+**Takeaway:** Odin's performance cost is minimal and limited to the editor. Runtime performance is
+identical.
 
 ---
 
@@ -664,49 +705,54 @@ public class DevTools : SerializedMonoBehaviour
 
 ### DO ✅
 
-| Practice | Benefit |
-|----------|---------|
+| Practice                                       | Benefit                               |
+| ---------------------------------------------- | ------------------------------------- |
 | Use `SerializedMonoBehaviour` only when needed | Better performance for simple scripts |
-| Initialize collections | Avoid NullReferenceExceptions |
-| Use `[NonSerialized]` for runtime data | Reduce serialization overhead |
-| Cache expensive dropdown providers | Faster Inspector |
-| Validate dictionary keys | Catch errors early |
-| Paginate large lists | Better Inspector performance |
-| Wrap editor code in `#if UNITY_EDITOR` | Reduce build size |
-| Support undo for edit-mode changes | Better UX |
-| Document complex dictionaries | Team productivity |
-| Create validation tools | Data integrity |
+| Initialize collections                         | Avoid NullReferenceExceptions         |
+| Use `[NonSerialized]` for runtime data         | Reduce serialization overhead         |
+| Cache expensive dropdown providers             | Faster Inspector                      |
+| Validate dictionary keys                       | Catch errors early                    |
+| Paginate large lists                           | Better Inspector performance          |
+| Wrap editor code in `#if UNITY_EDITOR`         | Reduce build size                     |
+| Support undo for edit-mode changes             | Better UX                             |
+| Document complex dictionaries                  | Team productivity                     |
+| Create validation tools                        | Data integrity                        |
 
 ### DON'T ❌
 
-| Mistake | Consequence |
-|---------|-------------|
-| Forget `SerializedMonoBehaviour` | Data won't serialize |
-| Put expensive logic in `[ShowInInspector]` | Inspector lag |
-| Serialize massive dictionaries (>10k items) | Slow editor |
-| Modify scene in edit mode without undo | Frustrating workflow |
-| Forget `#if UNITY_EDITOR` for editor code | Build errors |
-| Use auto-properties for critical data | Unreliable serialization |
-| Mix Unity Objects in dictionary keys | Broken references |
-| Ignore validation | Runtime bugs |
+| Mistake                                     | Consequence              |
+| ------------------------------------------- | ------------------------ |
+| Forget `SerializedMonoBehaviour`            | Data won't serialize     |
+| Put expensive logic in `[ShowInInspector]`  | Inspector lag            |
+| Serialize massive dictionaries (>10k items) | Slow editor              |
+| Modify scene in edit mode without undo      | Frustrating workflow     |
+| Forget `#if UNITY_EDITOR` for editor code   | Build errors             |
+| Use auto-properties for critical data       | Unreliable serialization |
+| Mix Unity Objects in dictionary keys        | Broken references        |
+| Ignore validation                           | Runtime bugs             |
 
 ---
 
 ## Final Advice
 
-**Start Simple:** Begin with dictionaries and buttons. Master the basics before diving into custom processors.
+**Start Simple:** Begin with dictionaries and buttons. Master the basics before diving into custom
+processors.
 
-**Validate Early:** Use `[Required]` and `[ValidateInput]` liberally. Catching errors in the editor saves debugging time.
+**Validate Early:** Use `[Required]` and `[ValidateInput]` liberally. Catching errors in the editor
+saves debugging time.
 
-**Profile First:** Only optimize if you have actual performance issues. Odin is fast enough for most projects.
+**Profile First:** Only optimize if you have actual performance issues. Odin is fast enough for most
+projects.
 
 **Document Everything:** Your future self (and teammates) will thank you.
 
-**Embrace Iteration:** Odin makes iteration fast. Use it to empower designers and speed up workflows.
+**Embrace Iteration:** Odin makes iteration fast. Use it to empower designers and speed up
+workflows.
 
 ---
 
 **Key Takeaways:**
+
 - Use Odin where it provides value, not everywhere
 - Performance cost is minimal and editor-only
 - Validation and documentation are critical for teams

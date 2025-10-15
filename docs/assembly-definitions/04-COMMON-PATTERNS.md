@@ -9,6 +9,7 @@
 **Best For:** Games with 500-2000 scripts
 
 **Folder Structure:**
+
 ```
 Assets/Scripts/
 ├── MyGame.Core.asmdef
@@ -33,6 +34,7 @@ Assets/Editor/
 ```
 
 **Dependency Graph:**
+
 ```mermaid
 graph TD
     A[MyGame.Core] --> B[MyGame.Gameplay]
@@ -47,50 +49,56 @@ graph TD
 ```
 
 **MyGame.Core.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Core",
-    "rootNamespace": "MyGame.Core",
-    "references": []
+  "name": "MyGame.Core",
+  "rootNamespace": "MyGame.Core",
+  "references": []
 }
 ```
 
 **MyGame.Gameplay.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Gameplay",
-    "rootNamespace": "MyGame.Gameplay",
-    "references": ["MyGame.Core"]
+  "name": "MyGame.Gameplay",
+  "rootNamespace": "MyGame.Gameplay",
+  "references": ["MyGame.Core"]
 }
 ```
 
 **MyGame.UI.asmdef:**
+
 ```json
 {
-    "name": "MyGame.UI",
-    "rootNamespace": "MyGame.UI",
-    "references": ["MyGame.Core"]
+  "name": "MyGame.UI",
+  "rootNamespace": "MyGame.UI",
+  "references": ["MyGame.Core"]
 }
 ```
 
 **MyGame.Editor.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Editor",
-    "rootNamespace": "MyGame.Editor",
-    "references": ["MyGame.Core", "MyGame.Gameplay"],
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false
+  "name": "MyGame.Editor",
+  "rootNamespace": "MyGame.Editor",
+  "references": ["MyGame.Core", "MyGame.Gameplay"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
 }
 ```
 
 **Benefits:**
+
 - ✅ Simple structure, easy to understand
 - ✅ UI doesn't depend on Gameplay (clean separation)
 - ✅ Core is foundation for everything
 - ✅ Editor tools can access everything for debugging
 
 **Typical Compile Times:**
+
 - Change Core → 8 seconds (all recompile)
 - Change Gameplay → 4 seconds (Gameplay + Editor)
 - Change UI → 2 seconds (UI only)
@@ -102,6 +110,7 @@ graph TD
 **Best For:** Games with 2000+ scripts, multiple teams
 
 **Folder Structure:**
+
 ```
 Assets/Scripts/
 ├── Core/
@@ -137,6 +146,7 @@ Assets/Scripts/
 ```
 
 **Dependency Graph:**
+
 ```mermaid
 graph TD
     A[Core] --> B[Player]
@@ -166,12 +176,14 @@ graph TD
 ```
 
 **Benefits:**
+
 - ✅ Very granular compilation (only changed features recompile)
 - ✅ Multiple teams can work independently
 - ✅ Clear feature boundaries
 - ✅ Easy to enable/disable features
 
 **Trade-offs:**
+
 - ⚠️ More complex setup
 - ⚠️ More `.asmdef` files to manage
 - ⚠️ Requires discipline to maintain boundaries
@@ -183,6 +195,7 @@ graph TD
 **Best For:** Games targeting PC, Console, Mobile, VR
 
 **Folder Structure:**
+
 ```
 Assets/Scripts/
 ├── Core/
@@ -219,50 +232,51 @@ Assets/Scripts/
 ```
 
 **MyGame.Platform.Mobile.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Platform.Mobile",
-    "rootNamespace": "MyGame.Platform.Mobile",
-    "references": ["MyGame.Core"],
-    "includePlatforms": ["iOS", "Android"]
+  "name": "MyGame.Platform.Mobile",
+  "rootNamespace": "MyGame.Platform.Mobile",
+  "references": ["MyGame.Core"],
+  "includePlatforms": ["iOS", "Android"]
 }
 ```
 
 **MyGame.Platform.Desktop.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Platform.Desktop",
-    "rootNamespace": "MyGame.Platform.Desktop",
-    "references": ["MyGame.Core"],
-    "includePlatforms": [
-        "WindowsStandalone64",
-        "OSXStandalone",
-        "LinuxStandalone64"
-    ]
+  "name": "MyGame.Platform.Desktop",
+  "rootNamespace": "MyGame.Platform.Desktop",
+  "references": ["MyGame.Core"],
+  "includePlatforms": ["WindowsStandalone64", "OSXStandalone", "LinuxStandalone64"]
 }
 ```
 
 **MyGame.Platform.Console.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Platform.Console",
-    "rootNamespace": "MyGame.Platform.Console",
-    "references": ["MyGame.Core"],
-    "includePlatforms": ["PS4", "PS5", "XboxOne", "Switch"]
+  "name": "MyGame.Platform.Console",
+  "rootNamespace": "MyGame.Platform.Console",
+  "references": ["MyGame.Core"],
+  "includePlatforms": ["PS4", "PS5", "XboxOne", "Switch"]
 }
 ```
 
 **MyGame.Platform.VR.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Platform.VR",
-    "rootNamespace": "MyGame.Platform.VR",
-    "references": ["MyGame.Core"],
-    "defineConstraints": ["ENABLE_VR"]
+  "name": "MyGame.Platform.VR",
+  "rootNamespace": "MyGame.Platform.VR",
+  "references": ["MyGame.Core"],
+  "defineConstraints": ["ENABLE_VR"]
 }
 ```
 
 **Benefits:**
+
 - ✅ No `#if UNITY_IOS` throughout codebase
 - ✅ Platform-specific code automatically excluded from other platforms
 - ✅ Smaller build sizes
@@ -275,6 +289,7 @@ Assets/Scripts/
 ### The Golden Rule: UI Doesn't Depend on Gameplay
 
 **❌ Bad:**
+
 ```mermaid
 graph TD
     A[Core] --> B[Gameplay]
@@ -287,6 +302,7 @@ graph TD
 UI depends on Gameplay → Changes to gameplay recompile UI
 
 **✅ Good:**
+
 ```mermaid
 graph TD
     A[Core] --> B[Gameplay]
@@ -302,6 +318,7 @@ UI and Gameplay both depend on Core only
 ### Implementation
 
 **MyGame.Core.asmdef** — Contains interfaces and events:
+
 ```csharp
 namespace MyGame.Core
 {
@@ -327,6 +344,7 @@ namespace MyGame.Core
 ```
 
 **MyGame.Gameplay.asmdef** — Implements interfaces:
+
 ```csharp
 using MyGame.Core;
 
@@ -351,6 +369,7 @@ namespace MyGame.Gameplay
 ```
 
 **MyGame.UI.asmdef** — Listens to events:
+
 ```csharp
 using MyGame.Core;
 using UnityEngine;
@@ -381,6 +400,7 @@ namespace MyGame.UI
 ```
 
 **Benefits:**
+
 - ✅ UI doesn't depend on Gameplay
 - ✅ Change Gameplay → UI doesn't recompile
 - ✅ Enforces loose coupling
@@ -393,6 +413,7 @@ namespace MyGame.UI
 ### Pattern: Debug Tools Assembly
 
 **Folder Structure:**
+
 ```
 Assets/Editor/
 ├── MyGame.Editor.Tools.asmdef
@@ -402,21 +423,20 @@ Assets/Editor/
 ```
 
 **MyGame.Editor.Tools.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Editor.Tools",
-    "rootNamespace": "MyGame.Editor.Tools",
-    "references": [
-        "MyGame.Core",
-        "MyGame.Gameplay"
-    ],
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false,
-    "defineConstraints": ["DEVELOPMENT_BUILD"]
+  "name": "MyGame.Editor.Tools",
+  "rootNamespace": "MyGame.Editor.Tools",
+  "references": ["MyGame.Core", "MyGame.Gameplay"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false,
+  "defineConstraints": ["DEVELOPMENT_BUILD"]
 }
 ```
 
 **DebugMenu.cs:**
+
 ```csharp
 using UnityEditor;
 using MyGame.Gameplay;
@@ -456,6 +476,7 @@ namespace MyGame.Editor.Tools
 ```
 
 **Benefits:**
+
 - ✅ Debug tools don't compile in production builds
 - ✅ Zero runtime overhead
 - ✅ Can access all game assemblies for debugging
@@ -468,6 +489,7 @@ namespace MyGame.Editor.Tools
 ### Pattern: Tests Mirror Production Structure
 
 **Folder Structure:**
+
 ```
 Assets/Scripts/
 ├── Core/
@@ -493,39 +515,38 @@ Assets/Tests/
 ```
 
 **MyGame.Tests.Core.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Tests.Core",
-    "rootNamespace": "MyGame.Tests.Core",
-    "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "MyGame.Core"
-    ],
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false,
-    "optionalUnityReferences": ["TestAssemblies"]
+  "name": "MyGame.Tests.Core",
+  "rootNamespace": "MyGame.Tests.Core",
+  "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "MyGame.Core"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false,
+  "optionalUnityReferences": ["TestAssemblies"]
 }
 ```
 
 **MyGame.Tests.Gameplay.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Tests.Gameplay",
-    "rootNamespace": "MyGame.Tests.Gameplay",
-    "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "MyGame.Core",
-        "MyGame.Gameplay"
-    ],
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false,
-    "optionalUnityReferences": ["TestAssemblies"]
+  "name": "MyGame.Tests.Gameplay",
+  "rootNamespace": "MyGame.Tests.Gameplay",
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "MyGame.Core",
+    "MyGame.Gameplay"
+  ],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false,
+  "optionalUnityReferences": ["TestAssemblies"]
 }
 ```
 
 **Benefits:**
+
 - ✅ Test structure mirrors production structure
 - ✅ Each test assembly only references what it needs
 - ✅ Fast test compilation
@@ -552,27 +573,27 @@ Assets/Plugins/
 ```
 
 **MyGame.ThirdParty.asmdef:**
+
 ```json
 {
-    "name": "MyGame.ThirdParty",
-    "rootNamespace": "MyGame.ThirdParty",
-    "references": [],
-    "autoReferenced": false
+  "name": "MyGame.ThirdParty",
+  "rootNamespace": "MyGame.ThirdParty",
+  "references": [],
+  "autoReferenced": false
 }
 ```
 
 **Usage in Your Code:**
+
 ```json
 {
-    "name": "MyGame.Gameplay",
-    "references": [
-        "MyGame.Core",
-        "MyGame.ThirdParty"
-    ]
+  "name": "MyGame.Gameplay",
+  "references": ["MyGame.Core", "MyGame.ThirdParty"]
 }
 ```
 
 **Benefits:**
+
 - ✅ Explicit dependency on plugin
 - ✅ Compile isolation
 - ✅ Easy to swap plugins later
@@ -582,6 +603,7 @@ Assets/Plugins/
 ### Pattern 2: Conditional Plugin Integration
 
 **Folder Structure:**
+
 ```
 Assets/Plugins/
 ├── SteamIntegration/
@@ -596,28 +618,31 @@ Assets/Plugins/
 ```
 
 **MyGame.Steam.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Steam",
-    "rootNamespace": "MyGame.Steam",
-    "references": ["MyGame.Core"],
-    "defineConstraints": ["STEAM_ENABLED"],
-    "autoReferenced": false
+  "name": "MyGame.Steam",
+  "rootNamespace": "MyGame.Steam",
+  "references": ["MyGame.Core"],
+  "defineConstraints": ["STEAM_ENABLED"],
+  "autoReferenced": false
 }
 ```
 
 **MyGame.PlayFab.asmdef:**
+
 ```json
 {
-    "name": "MyGame.PlayFab",
-    "rootNamespace": "MyGame.PlayFab",
-    "references": ["MyGame.Core"],
-    "defineConstraints": ["PLAYFAB_ENABLED"],
-    "autoReferenced": false
+  "name": "MyGame.PlayFab",
+  "rootNamespace": "MyGame.PlayFab",
+  "references": ["MyGame.Core"],
+  "defineConstraints": ["PLAYFAB_ENABLED"],
+  "autoReferenced": false
 }
 ```
 
 **Usage:**
+
 ```csharp
 // In MyGame.Core or MyGame.Gameplay
 public interface ICloudSaveProvider
@@ -644,6 +669,7 @@ public class PlayFabCloudSave : ICloudSaveProvider
 ```
 
 **Benefits:**
+
 - ✅ Enable/disable plugins per build
 - ✅ No unused plugin code in builds
 - ✅ Easy A/B testing
@@ -655,6 +681,7 @@ public class PlayFabCloudSave : ICloudSaveProvider
 ### Pattern: Reusable Package with Assembly Definitions
 
 **Folder Structure:**
+
 ```
 Packages/com.mycompany.utilities/
 ├── package.json
@@ -677,32 +704,35 @@ Packages/com.mycompany.utilities/
 ```
 
 **package.json:**
+
 ```json
 {
-    "name": "com.mycompany.utilities",
-    "version": "1.0.0",
-    "displayName": "My Company Utilities",
-    "description": "Reusable utilities for Unity projects",
-    "unity": "2021.3",
-    "dependencies": {},
-    "keywords": ["utilities", "helpers", "extensions"]
+  "name": "com.mycompany.utilities",
+  "version": "1.0.0",
+  "displayName": "My Company Utilities",
+  "description": "Reusable utilities for Unity projects",
+  "unity": "2021.3",
+  "dependencies": {},
+  "keywords": ["utilities", "helpers", "extensions"]
 }
 ```
 
 **Runtime/MyCompany.Utilities.asmdef:**
+
 ```json
 {
-    "name": "MyCompany.Utilities",
-    "rootNamespace": "MyCompany.Utilities",
-    "references": [],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "autoReferenced": true
+  "name": "MyCompany.Utilities",
+  "rootNamespace": "MyCompany.Utilities",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "autoReferenced": true
 }
 ```
 
 **Benefits:**
+
 - ✅ Easy to share across projects
 - ✅ Versioned via Package Manager
 - ✅ Includes tests
@@ -719,6 +749,7 @@ Packages/com.mycompany.utilities/
 **Solution:**
 
 **Shared Package Structure:**
+
 ```
 Packages/com.mycompany.gamecore/
 ├── package.json
@@ -729,24 +760,27 @@ Packages/com.mycompany.gamecore/
 ```
 
 **Project A:**
+
 ```json
 {
-    "dependencies": {
-        "com.mycompany.gamecore": "file:../SharedPackages/com.mycompany.gamecore"
-    }
+  "dependencies": {
+    "com.mycompany.gamecore": "file:../SharedPackages/com.mycompany.gamecore"
+  }
 }
 ```
 
 **Project B:**
+
 ```json
 {
-    "dependencies": {
-        "com.mycompany.gamecore": "file:../SharedPackages/com.mycompany.gamecore"
-    }
+  "dependencies": {
+    "com.mycompany.gamecore": "file:../SharedPackages/com.mycompany.gamecore"
+  }
 }
 ```
 
 **Benefits:**
+
 - ✅ Single source of truth for shared code
 - ✅ Update once, affects all projects
 - ✅ Each project can use different versions
@@ -757,35 +791,40 @@ Packages/com.mycompany.gamecore/
 
 ### Pattern Quick Reference
 
-| Pattern | Use Case | Assemblies | Complexity |
-|---------|----------|------------|------------|
-| **Small-to-Medium** | 500-2000 scripts | 3-5 | ⭐ Low |
-| **Large Game** | 2000+ scripts, multiple teams | 10+ | ⭐⭐⭐ High |
-| **Multi-Platform** | PC/Console/Mobile/VR | 8-12 | ⭐⭐ Medium |
-| **Core/Gameplay/UI** | Any size, clean architecture | 3+ | ⭐ Low |
-| **Debug Tools** | Development features | 1 | ⭐ Low |
-| **Tests** | Unit/integration tests | 1 per feature | ⭐ Low |
-| **Plugin Wrapper** | Third-party plugins | 1 per plugin | ⭐ Low |
-| **Package** | Reusable code | 2-4 | ⭐⭐ Medium |
+| Pattern              | Use Case                      | Assemblies    | Complexity  |
+| -------------------- | ----------------------------- | ------------- | ----------- |
+| **Small-to-Medium**  | 500-2000 scripts              | 3-5           | ⭐ Low      |
+| **Large Game**       | 2000+ scripts, multiple teams | 10+           | ⭐⭐⭐ High |
+| **Multi-Platform**   | PC/Console/Mobile/VR          | 8-12          | ⭐⭐ Medium |
+| **Core/Gameplay/UI** | Any size, clean architecture  | 3+            | ⭐ Low      |
+| **Debug Tools**      | Development features          | 1             | ⭐ Low      |
+| **Tests**            | Unit/integration tests        | 1 per feature | ⭐ Low      |
+| **Plugin Wrapper**   | Third-party plugins           | 1 per plugin  | ⭐ Low      |
+| **Package**          | Reusable code                 | 2-4           | ⭐⭐ Medium |
 
 ### Choosing the Right Pattern
 
 **Start Small:**
+
 - Begin with Core/Gameplay/UI (3 assemblies)
 - Add more as project grows
 
 **Grow Gradually:**
+
 - Split large assemblies when compile times suffer
 - Don't over-engineer from day 1
 
 **Measure:**
+
 - Watch compile times in Console
 - Use Assembly Inspector to visualize dependencies
 
 ### Next Steps
 
-- **[Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — Avoid common mistakes and optimize workflow
+- **[Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — Avoid common mistakes and optimize
+  workflow
 
 ---
 
-**Pro Tip:** Copy a pattern that matches your project size, then adapt it as you learn what works for your team.
+**Pro Tip:** Copy a pattern that matches your project size, then adapt it as you learn what works
+for your team.

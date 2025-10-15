@@ -2,9 +2,13 @@
 
 ## What is Animancer?
 
-**Animancer** is a powerful animation system for Unity that replaces the traditional Animator Controller with a code-first approach. Instead of managing complex state machines in a visual graph, you control animations directly through C# scripts—making your animation logic **transparent**, **flexible**, and **easy to debug**.
+**Animancer** is a powerful animation system for Unity that replaces the traditional Animator
+Controller with a code-first approach. Instead of managing complex state machines in a visual graph,
+you control animations directly through C# scripts—making your animation logic **transparent**,
+**flexible**, and **easy to debug**.
 
-Think of it as "animations on demand": you play exactly what you want, when you want, with full control over every detail.
+Think of it as "animations on demand": you play exactly what you want, when you want, with full
+control over every detail.
 
 ---
 
@@ -28,29 +32,30 @@ graph LR
 
 ### Problems with Animator Controllers
 
-| Problem | Description | Impact |
-|---------|-------------|--------|
-| **Hidden Logic** | Transitions buried in visual graphs | Hard to understand "why didn't that animation play?" |
-| **Dual Sources of Truth** | Parameters in Animator + enums in code | Easy to drift apart and cause bugs |
-| **Complex Edge Cases** | Interrupting, restarting, or blending animations | Requires messy transition rules |
-| **Implicit Behaviors** | Exit times and conditions | Only surface during QA testing |
-| **Poor Version Control** | Binary asset files | Difficult to review changes in PRs |
+| Problem                   | Description                                      | Impact                                               |
+| ------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
+| **Hidden Logic**          | Transitions buried in visual graphs              | Hard to understand "why didn't that animation play?" |
+| **Dual Sources of Truth** | Parameters in Animator + enums in code           | Easy to drift apart and cause bugs                   |
+| **Complex Edge Cases**    | Interrupting, restarting, or blending animations | Requires messy transition rules                      |
+| **Implicit Behaviors**    | Exit times and conditions                        | Only surface during QA testing                       |
+| **Poor Version Control**  | Binary asset files                               | Difficult to review changes in PRs                   |
 
 ### How Animancer Solves These Problems
 
-| Solution | Benefit |
-|----------|---------|
-| **Code-First** | All animation logic in C# scripts—easy to read and review |
-| **Explicit Control** | You decide what plays, when, and how |
-| **Direct Manipulation** | Set speed, time, events directly on animation states |
-| **Deterministic** | Predictable behavior—no hidden state machine magic |
-| **Version Control Friendly** | Plain C# files with clear diffs |
+| Solution                     | Benefit                                                   |
+| ---------------------------- | --------------------------------------------------------- |
+| **Code-First**               | All animation logic in C# scripts—easy to read and review |
+| **Explicit Control**         | You decide what plays, when, and how                      |
+| **Direct Manipulation**      | Set speed, time, events directly on animation states      |
+| **Deterministic**            | Predictable behavior—no hidden state machine magic        |
+| **Version Control Friendly** | Plain C# files with clear diffs                           |
 
 ---
 
 ## Core Concept: Play What You Want, When You Want
 
-With Animator Controllers, you **request** animations by setting parameters and hoping the state machine transitions correctly.
+With Animator Controllers, you **request** animations by setting parameters and hoping the state
+machine transitions correctly.
 
 With Animancer, you **command** animations directly:
 
@@ -109,6 +114,7 @@ That's it! No state machine setup, no parameters, no transitions to configure.
 ### 🎯 **1. Zero Setup Overhead**
 
 **Before (Animator Controller):**
+
 1. Create Animator Controller asset
 2. Add states for each animation
 3. Create parameters (triggers, bools, floats)
@@ -119,6 +125,7 @@ That's it! No state machine setup, no parameters, no transitions to configure.
 8. Debug why transitions don't work
 
 **After (Animancer):**
+
 ```csharp
 animancer.Play(myClip);  // Done!
 ```
@@ -134,7 +141,9 @@ state.NormalizedTime = 0.5f;           // Jump to 50% through
 state.Weight = 0.75f;                  // Blend at 75% influence
 ```
 
-> **💡 Pro Tip:** Have directional animations (walk_left, walk_right, etc.) that are all the same length? You can seamlessly switch between them mid-animation by preserving `NormalizedTime`! See [Code Examples - Directional Animation](./05-CODE-EXAMPLES.md#directional-animation-switching-seamless)
+> **💡 Pro Tip:** Have directional animations (walk_left, walk_right, etc.) that are all the same
+> length? You can seamlessly switch between them mid-animation by preserving `NormalizedTime`! See
+> [Code Examples - Directional Animation](./05-CODE-EXAMPLES.md#directional-animation-switching-seamless)
 
 ### 🎪 **3. Easy Animation Events**
 
@@ -168,6 +177,7 @@ animancer.Play(landClip, fadeDuration: 0.5f, fadeMode: FadeMode.FromStart);
 ## When Should You Use Animancer?
 
 ### ✅ **Perfect For:**
+
 - **Dynamic gameplay** where animations change based on code logic
 - **Characters with many states** (players, complex NPCs)
 - **State machine-driven gameplay** where you already have code managing states
@@ -176,6 +186,7 @@ animancer.Play(landClip, fadeDuration: 0.5f, fadeMode: FadeMode.FromStart);
 - **Projects requiring precise animation control**
 
 ### 🤔 **Consider Alternatives When:**
+
 - Your game has very simple animations (2-3 states total)
 - Your team strongly prefers visual tools over code
 - You're using Unity's Timeline for everything already
@@ -184,17 +195,17 @@ animancer.Play(landClip, fadeDuration: 0.5f, fadeMode: FadeMode.FromStart);
 
 ## Animancer vs Animator Controller: Quick Comparison
 
-| Feature | Animator Controller | Animancer Pro |
-|---------|---------------------|---------------|
-| **Animation Playback** | Set parameters, hope for transition | Direct: `Play(clip)` |
-| **Transition Logic** | Visual graph | C# code |
-| **Runtime Control** | Limited (parameters only) | Full (speed, time, weight, events) |
-| **Debugging** | Difficult (hidden state) | Easy (explicit code) |
-| **Events** | Unity Animation Events | Clean C# delegates |
-| **Version Control** | Binary files | Plain C# |
-| **Learning Curve** | Medium (UI + parameters) | Low (just C#) |
-| **Setup Time** | High | Very Low |
-| **Code Integration** | Indirect (parameters) | Direct (method calls) |
+| Feature                | Animator Controller                 | Animancer Pro                      |
+| ---------------------- | ----------------------------------- | ---------------------------------- |
+| **Animation Playback** | Set parameters, hope for transition | Direct: `Play(clip)`               |
+| **Transition Logic**   | Visual graph                        | C# code                            |
+| **Runtime Control**    | Limited (parameters only)           | Full (speed, time, weight, events) |
+| **Debugging**          | Difficult (hidden state)            | Easy (explicit code)               |
+| **Events**             | Unity Animation Events              | Clean C# delegates                 |
+| **Version Control**    | Binary files                        | Plain C#                           |
+| **Learning Curve**     | Medium (UI + parameters)            | Low (just C#)                      |
+| **Setup Time**         | High                                | Very Low                           |
+| **Code Integration**   | Indirect (parameters)               | Direct (method calls)              |
 
 ---
 
@@ -202,7 +213,8 @@ animancer.Play(landClip, fadeDuration: 0.5f, fadeMode: FadeMode.FromStart);
 
 Now that you understand what Animancer is and why it's awesome, let's dive deeper:
 
-1. **[Core Concepts](./02-CORE-CONCEPTS.md)** - Understanding states, transitions, and the animation graph
+1. **[Core Concepts](./02-CORE-CONCEPTS.md)** - Understanding states, transitions, and the animation
+   graph
 2. **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** - Layers, mixers, state machines, and more
 3. **[Best Practices & Pitfalls](./04-BEST-PRACTICES.md)** - Do's, don'ts, and common mistakes
 4. **[Code Examples & Recipes](./05-CODE-EXAMPLES.md)** - Ready-to-use patterns for common scenarios
@@ -298,6 +310,7 @@ public class SimpleCharacterController : MonoBehaviour
 ```
 
 **Notice how:**
+
 - ✅ No Animator Controller needed
 - ✅ Clear, readable logic
 - ✅ Easy to add new animations
@@ -308,11 +321,13 @@ public class SimpleCharacterController : MonoBehaviour
 
 ## Next Steps
 
-Ready to dive deeper? Head to **[Core Concepts](./02-CORE-CONCEPTS.md)** to learn about animation states, the Animancer graph, and powerful control techniques.
+Ready to dive deeper? Head to **[Core Concepts](./02-CORE-CONCEPTS.md)** to learn about animation
+states, the Animancer graph, and powerful control techniques.
 
 ---
 
 **Official Resources:**
+
 - [Animancer Documentation](https://kybernetik.com.au/animancer/docs/)
 - [Unity Asset Store](https://assetstore.unity.com/packages/tools/animation/animancer-pro-v8-293522)
 - Minimum Unity Version: **2022.3**

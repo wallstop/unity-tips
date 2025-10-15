@@ -1,8 +1,14 @@
 # Odin Inspector & Serializer Documentation
 
-> **Serialize ANYTHING. Expose EVERYTHING.** The Unity Inspector was never meant to be this powerful.
+> **Serialize ANYTHING. Expose EVERYTHING.** The Unity Inspector was never meant to be this
+> powerful.
 
-Odin Inspector & Serializer transforms Unity's Inspector from a basic viewer into a professional development tool. It solves Unity's two biggest serialization problems: **you can't serialize dictionaries** and **you can't easily run code from the Inspector**. With Odin, you can serialize any C# type (including dictionaries, properties, and custom classes) and create powerful Inspector buttons, validation, custom drawers, and visual workflows—all without writing a single custom editor.
+Odin Inspector & Serializer transforms Unity's Inspector from a basic viewer into a professional
+development tool. It solves Unity's two biggest serialization problems: **you can't serialize
+dictionaries** and **you can't easily run code from the Inspector**. With Odin, you can serialize
+any C# type (including dictionaries, properties, and custom classes) and create powerful Inspector
+buttons, validation, custom drawers, and visual workflows—all without writing a single custom
+editor.
 
 ---
 
@@ -32,6 +38,7 @@ public class PlayerInventory : SerializedMonoBehaviour  // Step 1: Inherit Seria
 ```
 
 In the Inspector, you'll see:
+
 - ✅ A fully editable dictionary with add/remove buttons
 - ✅ A clickable "Add Random Item" button that runs immediately
 - ✅ A read-only display of TotalItems that updates in real-time
@@ -44,7 +51,8 @@ That's the power of Odin. **Serialize anything. Do anything.**
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — *10-minute read*
+**🌱 [Getting Started](01-GETTING-STARTED.md)** — _10-minute read_
+
 - What problems does Odin solve?
 - Installation and setup
 - Your first serialized dictionary
@@ -52,14 +60,16 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - Attribute quick reference
 - Migration from vanilla Unity
 
-**💪 [Core Features](02-CORE-FEATURES.md)** — *25-minute read*
+**💪 [Core Features](02-CORE-FEATURES.md)** — _25-minute read_
+
 - Odin Serializer (dictionaries, properties, interfaces, polymorphism)
 - Odin Inspector (buttons, validation, custom drawers, conditional visibility)
 - Common attributes with examples
 - Attribute combinations and patterns
 - Performance considerations
 
-**📖 [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — *30-minute read*
+**📖 [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — _30-minute read_
+
 - Custom attribute processors
 - Editor-only fields and workflows
 - Complex validation systems
@@ -67,7 +77,8 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - Integration with external systems
 - Build pipeline considerations
 
-**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — *Cookbook*
+**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — _Cookbook_
+
 - Dictionary patterns (item databases, state tracking, config management)
 - Button patterns (dev tools, testing utilities, asset generation)
 - Validation patterns (data integrity, reference checks)
@@ -75,7 +86,8 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - UI/UX patterns (tabs, foldouts, groups)
 - Architecture patterns (data-driven design, designer-friendly systems)
 
-**⚠️ [Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — *What to do and what NOT to do*
+**⚠️ [Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — _What to do and what NOT to do_
+
 - Serialization best practices
 - Performance optimization
 - Common mistakes and solutions
@@ -91,6 +103,7 @@ That's the power of Odin. **Serialize anything. Do anything.**
 ### Problem #1: Unity Can't Serialize Dictionaries
 
 **Without Odin:**
+
 ```csharp
 // ❌ This doesn't work in vanilla Unity
 [SerializeField] private Dictionary<string, GameObject> _prefabs;
@@ -108,24 +121,26 @@ public class StringGameObjectPair
 ```
 
 **With Odin:**
+
 ```csharp
 // ✅ Just works!
 [SerializeField] private Dictionary<string, GameObject> _prefabs = new();
 // Inspector shows a beautiful, fully editable dictionary
 ```
 
-| Without Odin | With Odin |
-|--------------|-----------|
-| Can't serialize dictionaries | ✅ Serialize dictionaries |
-| Can't serialize properties | ✅ Serialize properties |
-| Can't serialize interfaces | ✅ Serialize interfaces |
-| Can't serialize nullable types | ✅ Serialize nullable types |
-| Can't serialize tuples | ✅ Serialize tuples |
+| Without Odin                          | With Odin                      |
+| ------------------------------------- | ------------------------------ |
+| Can't serialize dictionaries          | ✅ Serialize dictionaries      |
+| Can't serialize properties            | ✅ Serialize properties        |
+| Can't serialize interfaces            | ✅ Serialize interfaces        |
+| Can't serialize nullable types        | ✅ Serialize nullable types    |
+| Can't serialize tuples                | ✅ Serialize tuples            |
 | Custom class serialization is fragile | ✅ Robust custom class support |
 
 ### Problem #2: Unity Can't Run Code from the Inspector
 
 **Without Odin:**
+
 ```csharp
 // Want to test a method? You have to:
 // 1. Enter play mode (slow!)
@@ -143,6 +158,7 @@ public void GenerateLevel()
 ```
 
 **With Odin:**
+
 ```csharp
 [Button("Generate Level Now!")]
 public void GenerateLevel()
@@ -158,6 +174,7 @@ public void GenerateLevel()
 ### Problem #3: Unity's Inspector is Inflexible
 
 **Without Odin:**
+
 ```csharp
 // All fields always visible, no organization, no validation
 [SerializeField] private float _health;
@@ -168,6 +185,7 @@ public void GenerateLevel()
 ```
 
 **With Odin:**
+
 ```csharp
 [FoldoutGroup("Health Settings")]
 [Range(0, 100)] private float _health = 100;
@@ -193,29 +211,29 @@ private GameObject _deathEffect;
 
 ### Odin Serializer
 
-| Feature | Description | Vanilla Unity Support |
-|---------|-------------|----------------------|
-| **Dictionaries** | Serialize Dictionary<TKey, TValue> | ❌ No |
-| **Properties** | Serialize auto-properties and properties with backing fields | ❌ No |
-| **Interfaces** | Serialize interface references with polymorphism | ❌ No |
-| **Generic Classes** | Serialize List<CustomClass<T>> and nested generics | ⚠️ Limited |
-| **Nullable Types** | Serialize int?, float?, bool?, etc. | ❌ No |
-| **Tuples** | Serialize (int, string) and ValueTuple types | ❌ No |
-| **Multi-dimensional Arrays** | Serialize int[,] and jagged arrays | ⚠️ Limited |
-| **Cyclic References** | Handle circular object references safely | ❌ No (causes errors) |
+| Feature                      | Description                                                  | Vanilla Unity Support |
+| ---------------------------- | ------------------------------------------------------------ | --------------------- |
+| **Dictionaries**             | Serialize Dictionary<TKey, TValue>                           | ❌ No                 |
+| **Properties**               | Serialize auto-properties and properties with backing fields | ❌ No                 |
+| **Interfaces**               | Serialize interface references with polymorphism             | ❌ No                 |
+| **Generic Classes**          | Serialize List<CustomClass<T>> and nested generics           | ⚠️ Limited            |
+| **Nullable Types**           | Serialize int?, float?, bool?, etc.                          | ❌ No                 |
+| **Tuples**                   | Serialize (int, string) and ValueTuple types                 | ❌ No                 |
+| **Multi-dimensional Arrays** | Serialize int[,] and jagged arrays                           | ⚠️ Limited            |
+| **Cyclic References**        | Handle circular object references safely                     | ❌ No (causes errors) |
 
 ### Odin Inspector Attributes
 
-| Category | Key Attributes | Use Cases |
-|----------|---------------|-----------|
-| **Buttons** | `[Button]`, `[ButtonGroup]` | Dev tools, testing, asset generation |
-| **Validation** | `[Required]`, `[ValidateInput]`, `[AssetsOnly]` | Data integrity, null checks, reference validation |
-| **Conditional Display** | `[ShowIf]`, `[HideIf]`, `[EnableIf]`, `[DisableIf]` | Context-sensitive Inspector layout |
-| **Grouping** | `[FoldoutGroup]`, `[TabGroup]`, `[BoxGroup]`, `[HorizontalGroup]` | Organize complex components |
-| **Styling** | `[Title]`, `[InfoBox]`, `[GUIColor]`, `[LabelText]` | Improve Inspector readability |
-| **References** | `[AssetsOnly]`, `[SceneObjectsOnly]`, `[InlineEditor]` | Control reference types |
-| **Collections** | `[TableList]`, `[ListDrawerSettings]`, `[DictionaryDrawerSettings]` | Better collection editing |
-| **Custom Values** | `[ValueDropdown]`, `[EnumToggleButtons]`, `[FilePath]` | Designer-friendly value selection |
+| Category                | Key Attributes                                                      | Use Cases                                         |
+| ----------------------- | ------------------------------------------------------------------- | ------------------------------------------------- |
+| **Buttons**             | `[Button]`, `[ButtonGroup]`                                         | Dev tools, testing, asset generation              |
+| **Validation**          | `[Required]`, `[ValidateInput]`, `[AssetsOnly]`                     | Data integrity, null checks, reference validation |
+| **Conditional Display** | `[ShowIf]`, `[HideIf]`, `[EnableIf]`, `[DisableIf]`                 | Context-sensitive Inspector layout                |
+| **Grouping**            | `[FoldoutGroup]`, `[TabGroup]`, `[BoxGroup]`, `[HorizontalGroup]`   | Organize complex components                       |
+| **Styling**             | `[Title]`, `[InfoBox]`, `[GUIColor]`, `[LabelText]`                 | Improve Inspector readability                     |
+| **References**          | `[AssetsOnly]`, `[SceneObjectsOnly]`, `[InlineEditor]`              | Control reference types                           |
+| **Collections**         | `[TableList]`, `[ListDrawerSettings]`, `[DictionaryDrawerSettings]` | Better collection editing                         |
+| **Custom Values**       | `[ValueDropdown]`, `[EnumToggleButtons]`, `[FilePath]`              | Designer-friendly value selection                 |
 
 ---
 
@@ -384,18 +402,21 @@ graph TD
 ## 🎓 Learning Path
 
 ### Beginner (20 minutes)
+
 1. Read [Getting Started](01-GETTING-STARTED.md) — Learn what Odin solves
 2. Try serializing a dictionary
 3. Add your first `[Button]` method
 4. Browse [Common Patterns](04-COMMON-PATTERNS.md) for inspiration
 
 ### Intermediate (1 hour)
+
 1. Read [Core Features](02-CORE-FEATURES.md) — Master attributes
 2. Study [Common Patterns](04-COMMON-PATTERNS.md) — Learn proven recipes
 3. Review [Best Practices](05-BEST-PRACTICES.md) — Avoid pitfalls
 4. Implement a complete item database with validation
 
 ### Advanced (2+ hours)
+
 1. Deep dive into [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
 2. Create custom attribute processors
 3. Build designer-friendly tools with buttons
@@ -408,6 +429,7 @@ graph TD
 ### Most Common Patterns
 
 #### Serialize a Dictionary
+
 ```csharp
 using Sirenix.OdinInspector;
 
@@ -419,6 +441,7 @@ public class Example : SerializedMonoBehaviour
 ```
 
 #### Add Inspector Buttons
+
 ```csharp
 [Button]
 private void DoSomething()
@@ -431,6 +454,7 @@ private void DoSomethingElse() { }
 ```
 
 #### Conditional Visibility
+
 ```csharp
 [SerializeField] private bool _useAdvanced;
 
@@ -439,6 +463,7 @@ private void DoSomethingElse() { }
 ```
 
 #### Validation
+
 ```csharp
 [Required]
 [AssetsOnly]
@@ -449,6 +474,7 @@ private void DoSomethingElse() { }
 ```
 
 #### Grouping and Organization
+
 ```csharp
 [TabGroup("Stats")]
 [SerializeField] private int _health;
@@ -463,6 +489,7 @@ private void DoSomethingElse() { }
 ### Performance Best Practices
 
 ✅ **DO**:
+
 - Use `SerializedMonoBehaviour` instead of `MonoBehaviour` for Odin features
 - Use `[ShowInInspector]` sparingly (editor-only performance cost)
 - Mark heavy buttons with `[DisableInEditorMode]` if they shouldn't run outside play mode
@@ -470,6 +497,7 @@ private void DoSomethingElse() { }
 - Serialize dictionaries instead of parallel lists
 
 ❌ **DON'T**:
+
 - Use Odin serialization for every script (vanilla Unity is faster for simple cases)
 - Put expensive logic in `[ShowInInspector]` properties (they re-evaluate constantly)
 - Serialize huge dictionaries (>1000 entries) without testing performance
@@ -483,33 +511,32 @@ private void DoSomethingElse() { }
 ## 🎯 When to Use Odin vs Vanilla Unity
 
 ### Use Odin When:
-✅ You need to serialize dictionaries or other complex types
-✅ You want Inspector buttons for development tools
-✅ You need validation and conditional visibility
-✅ You're building designer-friendly systems
-✅ You want to serialize properties or interfaces
-✅ You need better Inspector organization (tabs, groups)
+
+✅ You need to serialize dictionaries or other complex types ✅ You want Inspector buttons for
+development tools ✅ You need validation and conditional visibility ✅ You're building
+designer-friendly systems ✅ You want to serialize properties or interfaces ✅ You need better
+Inspector organization (tabs, groups)
 
 ### Use Vanilla Unity When:
-✅ You're serializing simple fields only (int, float, string, GameObject)
-✅ Build size is critical (Odin adds ~2-5MB)
-✅ You need maximum serialization performance
-✅ You're working with Unity versions < 2020.3
-✅ Your team doesn't have Odin licenses
+
+✅ You're serializing simple fields only (int, float, string, GameObject) ✅ Build size is critical
+(Odin adds ~2-5MB) ✅ You need maximum serialization performance ✅ You're working with Unity
+versions < 2020.3 ✅ Your team doesn't have Odin licenses
 
 ### Use Both:
-✅ Odin for complex editor tools and data structures
-✅ Vanilla Unity for simple gameplay scripts
-✅ Odin for ScriptableObjects and config data
-✅ Vanilla Unity for runtime performance-critical code
+
+✅ Odin for complex editor tools and data structures ✅ Vanilla Unity for simple gameplay scripts ✅
+Odin for ScriptableObjects and config data ✅ Vanilla Unity for runtime performance-critical code
 
 ---
 
 ## 🔗 External Resources
 
 - **[Official Odin Website](https://odininspector.com/)** — Download and documentation
-- **[Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/odin-inspector-and-serializer-89041)** — Purchase page
-- **[Official Documentation](https://odininspector.com/documentation/sirenix.odininspector)** — Complete API reference
+- **[Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/odin-inspector-and-serializer-89041)**
+  — Purchase page
+- **[Official Documentation](https://odininspector.com/documentation/sirenix.odininspector)** —
+  Complete API reference
 - **[Attribute Examples](https://odininspector.com/attributes)** — Visual attribute gallery
 - **[Discord Community](https://discord.gg/SirenixDev)** — Community support
 
@@ -518,6 +545,7 @@ private void DoSomethingElse() { }
 ## 📊 Project Statistics
 
 Odin typically provides:
+
 - ✅ 50-70% reduction in serialization boilerplate code
 - ✅ 10x faster iteration for designer-facing tools
 - ✅ 90% fewer custom editor scripts needed
@@ -527,29 +555,26 @@ Odin typically provides:
 
 ## 🎯 Next Steps
 
-**New to Odin?**
-→ Start with [Getting Started](01-GETTING-STARTED.md)
+**New to Odin?** → Start with [Getting Started](01-GETTING-STARTED.md)
 
-**Need to serialize dictionaries or complex types?**
-→ Read [Core Features: Odin Serializer](02-CORE-FEATURES.md#odin-serializer)
+**Need to serialize dictionaries or complex types?** → Read
+[Core Features: Odin Serializer](02-CORE-FEATURES.md#odin-serializer)
 
-**Want Inspector buttons and validation?**
-→ Read [Core Features: Odin Inspector](02-CORE-FEATURES.md#odin-inspector)
+**Want Inspector buttons and validation?** → Read
+[Core Features: Odin Inspector](02-CORE-FEATURES.md#odin-inspector)
 
-**Need specific examples?**
-→ Browse [Common Patterns](04-COMMON-PATTERNS.md)
+**Need specific examples?** → Browse [Common Patterns](04-COMMON-PATTERNS.md)
 
-**Want full advanced techniques?**
-→ See [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
+**Want full advanced techniques?** → See [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
 
-**Avoiding mistakes?**
-→ Study [Best Practices & Pitfalls](05-BEST-PRACTICES.md)
+**Avoiding mistakes?** → Study [Best Practices & Pitfalls](05-BEST-PRACTICES.md)
 
 ---
 
 ## 🤝 Contributing to These Docs
 
 Found an issue or want to add an example? These docs live in:
+
 - `docs/odin/README.md` (this file)
 - `docs/odin/01-GETTING-STARTED.md`
 - `docs/odin/02-CORE-FEATURES.md`
@@ -567,10 +592,11 @@ Odin embodies three principles:
 2. **Empower Designers** — Make data editing delightful, not painful
 3. **Developer Velocity** — Spend time building features, not fighting the Inspector
 
-These docs follow the same philosophy: clear examples, real-world patterns, and pragmatic advice from production experience.
+These docs follow the same philosophy: clear examples, real-world patterns, and pragmatic advice
+from production experience.
 
 ---
 
 **Happy Serializing!** 🎉
 
-*Documentation last updated: 2025-10-15*
+_Documentation last updated: 2025-10-15_

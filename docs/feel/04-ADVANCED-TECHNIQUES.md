@@ -1,6 +1,7 @@
 # Advanced Techniques
 
-> **For Power Users**: Master scripting, custom feedbacks, performance optimization, and advanced patterns to unlock Feel's full potential.
+> **For Power Users**: Master scripting, custom feedbacks, performance optimization, and advanced
+> patterns to unlock Feel's full potential.
 
 ## Scripting with MMFeedbacks
 
@@ -84,6 +85,7 @@ public class DynamicFeedback : MonoBehaviour
 ```
 
 **Use Cases**:
+
 - Scale screen shake by explosion proximity
 - Adjust haptic intensity based on impact force
 - Vary particle density based on effect tier (common/rare/legendary)
@@ -173,6 +175,7 @@ public class FeedbackEventListener : MonoBehaviour
 ```
 
 **Use Cases**:
+
 - Chain multiple MMFeedbacks sequentially
 - Track feedback completion for achievements
 - Sync game logic with feedback timing
@@ -219,6 +222,7 @@ public class IndividualFeedbackControl : MonoBehaviour
 ```
 
 **Use Cases**:
+
 - Respect player settings (disable sound/haptics)
 - Randomize effect parameters each play
 - Enable/disable feedbacks based on game state
@@ -483,6 +487,7 @@ public class MMF_YourCustomFeedback : MMF_Feedback
 ```
 
 **Key Methods**:
+
 - `CustomInitialization`: Setup (called once)
 - `CustomPlayFeedback`: Execute feedback logic
 - `CustomStopFeedback`: Interrupt feedback early
@@ -495,6 +500,7 @@ public class MMF_YourCustomFeedback : MMF_Feedback
 Feel handles pooling internally, but you can optimize your usage:
 
 **❌ BAD: Creating MMFeedbacks at Runtime**
+
 ```csharp
 void OnHit()
 {
@@ -508,6 +514,7 @@ void OnHit()
 ```
 
 **✅ GOOD: Pre-Create and Reuse**
+
 ```csharp
 public class FeedbackPool : MonoBehaviour
 {
@@ -785,23 +792,27 @@ public class ProfiledFeedback : MonoBehaviour
 }
 ```
 
-**Use Cases**: Difficulty modes (easy = gentle feedback, hard = intense), accessibility profiles, per-character feedback styles.
+**Use Cases**: Difficulty modes (easy = gentle feedback, hard = intense), accessibility profiles,
+per-character feedback styles.
 
 ## Debugging and Troubleshooting
 
 ### Enable Feedback Debugging
 
 In MMFeedbacks Inspector:
+
 - **Debug Active**: Shows green indicator when playing
 - **Feedback Label**: Rename feedbacks for clarity ("PlayerDamage_Shake" instead of "Camera Shake")
 
 ### Inspector Play Button
 
-Use the **"▶ Play"** button in MMFeedbacks Inspector to test in Edit Mode (many feedbacks work outside Play Mode!).
+Use the **"▶ Play"** button in MMFeedbacks Inspector to test in Edit Mode (many feedbacks work
+outside Play Mode!).
 
 ### Performance Profiler
 
 Check feedback performance:
+
 1. Open Profiler (Window → Analysis → Profiler)
 2. Play your game
 3. Look for "MMFeedbacks.PlayFeedbacks" calls in CPU Usage
@@ -809,17 +820,16 @@ Check feedback performance:
 
 ### Common Pitfalls
 
-**Issue**: Feedback plays once then never again.
-**Solution**: Check "Cooldown" settings — you may have a long cooldown preventing replays.
+**Issue**: Feedback plays once then never again. **Solution**: Check "Cooldown" settings — you may
+have a long cooldown preventing replays.
 
-**Issue**: Transform feedback doesn't reset between plays.
-**Solution**: Use "ToDestinationThenBack" or add a second feedback to return to original state.
+**Issue**: Transform feedback doesn't reset between plays. **Solution**: Use "ToDestinationThenBack"
+or add a second feedback to return to original state.
 
-**Issue**: Feedback feels delayed.
-**Solution**: Check "Initial Delay" on individual feedbacks.
+**Issue**: Feedback feels delayed. **Solution**: Check "Initial Delay" on individual feedbacks.
 
-**Issue**: Post-processing feedback doesn't work.
-**Solution**: Ensure Volume component exists in scene with the relevant override enabled.
+**Issue**: Post-processing feedback doesn't work. **Solution**: Ensure Volume component exists in
+scene with the relevant override enabled.
 
 ## Next Steps
 
@@ -827,4 +837,5 @@ You're now a Feel power user! For final reference:
 
 1. **[Troubleshooting](05-TROUBLESHOOTING.md)** — Detailed solutions to edge cases
 
-**Pro Tip**: Share your custom feedbacks with the community! Feel has an active Discord and forum where users exchange scripts and techniques.
+**Pro Tip**: Share your custom feedbacks with the community! Feel has an active Discord and forum
+where users exchange scripts and techniques.

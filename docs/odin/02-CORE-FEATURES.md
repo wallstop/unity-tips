@@ -1,8 +1,11 @@
 # Core Features: Odin Serializer & Inspector
 
-> **TL;DR**: Odin Serializer lets you serialize anything (dictionaries, properties, interfaces). Odin Inspector gives you buttons, validation, conditional visibility, and beautiful UX—all with simple attributes.
+> **TL;DR**: Odin Serializer lets you serialize anything (dictionaries, properties, interfaces).
+> Odin Inspector gives you buttons, validation, conditional visibility, and beautiful UX—all with
+> simple attributes.
 
-This guide covers the two core systems: **Odin Serializer** (what you can serialize) and **Odin Inspector** (how you enhance the Inspector).
+This guide covers the two core systems: **Odin Serializer** (what you can serialize) and **Odin
+Inspector** (how you enhance the Inspector).
 
 ---
 
@@ -18,22 +21,23 @@ This guide covers the two core systems: **Odin Serializer** (what you can serial
 
 ## Odin Serializer
 
-Odin Serializer removes Unity's serialization limitations. It's a complete replacement serialization backend that supports **any C# type**.
+Odin Serializer removes Unity's serialization limitations. It's a complete replacement serialization
+backend that supports **any C# type**.
 
 ### What Odin Can Serialize
 
-| Type | Vanilla Unity | Odin | Example |
-|------|---------------|------|---------|
-| **Dictionaries** | ❌ | ✅ | `Dictionary<string, GameObject>` |
-| **Properties** | ❌ | ✅ | `public int Health { get; set; }` |
-| **Interfaces** | ❌ | ✅ | `IItem`, `IEnumerable<T>` |
-| **Nullable Types** | ❌ | ✅ | `int?`, `float?`, `bool?` |
-| **Tuples** | ❌ | ✅ | `(int, string)`, `ValueTuple<T1, T2>` |
-| **Multi-dimensional Arrays** | ⚠️ | ✅ | `int[,]`, `float[,,]` |
-| **Jagged Arrays** | ⚠️ | ✅ | `int[][]` |
-| **Generic Types** | ⚠️ | ✅ | `List<Dictionary<int, T>>` |
-| **Circular References** | ❌ | ✅ | Object A → Object B → Object A |
-| **Polymorphism** | ⚠️ | ✅ | Serialize derived types via base class |
+| Type                         | Vanilla Unity | Odin | Example                                |
+| ---------------------------- | ------------- | ---- | -------------------------------------- |
+| **Dictionaries**             | ❌            | ✅   | `Dictionary<string, GameObject>`       |
+| **Properties**               | ❌            | ✅   | `public int Health { get; set; }`      |
+| **Interfaces**               | ❌            | ✅   | `IItem`, `IEnumerable<T>`              |
+| **Nullable Types**           | ❌            | ✅   | `int?`, `float?`, `bool?`              |
+| **Tuples**                   | ❌            | ✅   | `(int, string)`, `ValueTuple<T1, T2>`  |
+| **Multi-dimensional Arrays** | ⚠️            | ✅   | `int[,]`, `float[,,]`                  |
+| **Jagged Arrays**            | ⚠️            | ✅   | `int[][]`                              |
+| **Generic Types**            | ⚠️            | ✅   | `List<Dictionary<int, T>>`             |
+| **Circular References**      | ❌            | ✅   | Object A → Object B → Object A         |
+| **Polymorphism**             | ⚠️            | ✅   | Serialize derived types via base class |
 
 ### 1. Dictionary Serialization
 
@@ -72,6 +76,7 @@ private Dictionary<string, GameObject> _items = new();
 ```
 
 **DisplayMode options:**
+
 - `OneLine` — Compact, one line per entry
 - `Foldout` — Collapsible foldout (default)
 - `ExpandedFoldout` — Starts expanded
@@ -126,7 +131,8 @@ public bool IsAlive => _health > 0;
 public string Status => IsAlive ? "Alive" : "Dead";
 ```
 
-**Note:** `[ShowInInspector]` makes properties visible but they re-evaluate often. Don't put expensive logic here!
+**Note:** `[ShowInInspector]` makes properties visible but they re-evaluate often. Don't put
+expensive logic here!
 
 ### 3. Interface Serialization
 
@@ -166,6 +172,7 @@ public class Inventory : SerializedMonoBehaviour
 ```
 
 **In the Inspector:**
+
 - Click "+" button
 - Choose from dropdown: Weapon, Potion, or any class implementing IItem
 - Edit derived class fields inline
@@ -245,16 +252,16 @@ Odin Inspector enhances the Unity Inspector with powerful attributes. No custom 
 
 ### Categories of Inspector Attributes
 
-| Category | Purpose | Key Attributes |
-|----------|---------|----------------|
-| **Actions** | Add buttons and interactive elements | `[Button]`, `[OnValueChanged]` |
-| **Validation** | Ensure data integrity | `[Required]`, `[ValidateInput]`, `[AssetsOnly]` |
-| **Conditional** | Show/hide fields dynamically | `[ShowIf]`, `[HideIf]`, `[EnableIf]`, `[DisableIf]` |
-| **Grouping** | Organize complex components | `[FoldoutGroup]`, `[TabGroup]`, `[BoxGroup]`, `[HorizontalGroup]` |
-| **Styling** | Improve readability | `[Title]`, `[InfoBox]`, `[GUIColor]`, `[LabelText]` |
-| **References** | Control object references | `[AssetsOnly]`, `[SceneObjectsOnly]`, `[InlineEditor]` |
-| **Collections** | Better list/array editing | `[TableList]`, `[ListDrawerSettings]` |
-| **Value Input** | Custom value editors | `[ValueDropdown]`, `[FilePath]`, `[FolderPath]` |
+| Category        | Purpose                              | Key Attributes                                                    |
+| --------------- | ------------------------------------ | ----------------------------------------------------------------- |
+| **Actions**     | Add buttons and interactive elements | `[Button]`, `[OnValueChanged]`                                    |
+| **Validation**  | Ensure data integrity                | `[Required]`, `[ValidateInput]`, `[AssetsOnly]`                   |
+| **Conditional** | Show/hide fields dynamically         | `[ShowIf]`, `[HideIf]`, `[EnableIf]`, `[DisableIf]`               |
+| **Grouping**    | Organize complex components          | `[FoldoutGroup]`, `[TabGroup]`, `[BoxGroup]`, `[HorizontalGroup]` |
+| **Styling**     | Improve readability                  | `[Title]`, `[InfoBox]`, `[GUIColor]`, `[LabelText]`               |
+| **References**  | Control object references            | `[AssetsOnly]`, `[SceneObjectsOnly]`, `[InlineEditor]`            |
+| **Collections** | Better list/array editing            | `[TableList]`, `[ListDrawerSettings]`                             |
+| **Value Input** | Custom value editors                 | `[ValueDropdown]`, `[FilePath]`, `[FolderPath]`                   |
 
 ---
 
@@ -781,32 +788,34 @@ private void ClearAll() { }
 
 ### Odin Serializer Performance
 
-| Aspect | Impact | Notes |
-|--------|--------|-------|
-| **Serialization Speed** | ~10-20% slower than Unity | Only affects editor, not runtime |
-| **Deserialization Speed** | Similar to Unity | Minimal impact |
-| **Build Size** | +2-5MB | Includes Odin runtime library |
-| **Runtime Performance** | Identical to Unity | Zero performance difference |
+| Aspect                    | Impact                    | Notes                            |
+| ------------------------- | ------------------------- | -------------------------------- |
+| **Serialization Speed**   | ~10-20% slower than Unity | Only affects editor, not runtime |
+| **Deserialization Speed** | Similar to Unity          | Minimal impact                   |
+| **Build Size**            | +2-5MB                    | Includes Odin runtime library    |
+| **Runtime Performance**   | Identical to Unity        | Zero performance difference      |
 
 ### Odin Inspector Performance
 
-| Feature | Cost | Recommendation |
-|---------|------|----------------|
-| `[ShowInInspector]` | Medium | Use sparingly; re-evaluates often |
-| `[Button]` | Low | No performance cost |
-| `[ValueDropdown]` | Low-Medium | Cache large lists |
-| Complex validation | Medium | Avoid in Update-like methods |
-| Table lists (1000+ items) | High | Paginate with `NumberOfItemsPerPage` |
+| Feature                   | Cost       | Recommendation                       |
+| ------------------------- | ---------- | ------------------------------------ |
+| `[ShowInInspector]`       | Medium     | Use sparingly; re-evaluates often    |
+| `[Button]`                | Low        | No performance cost                  |
+| `[ValueDropdown]`         | Low-Medium | Cache large lists                    |
+| Complex validation        | Medium     | Avoid in Update-like methods         |
+| Table lists (1000+ items) | High       | Paginate with `NumberOfItemsPerPage` |
 
 ### Best Practices
 
 ✅ **DO:**
+
 - Use `SerializedMonoBehaviour` only when needed
 - Cache expensive dropdown value providers
 - Use `[OnValueChanged]` instead of polling
 - Serialize dictionaries instead of parallel lists
 
 ❌ **DON'T:**
+
 - Put expensive logic in `[ShowInInspector]` properties
 - Serialize massive dictionaries (>10,000 items) without testing
 - Use Odin for every script (vanilla Unity is faster for simple cases)
@@ -822,6 +831,7 @@ private void ClearAll() { }
 ---
 
 **Key Takeaways:**
+
 - Odin Serializer: Serialize **anything** (dictionaries, properties, interfaces)
 - Odin Inspector: Enhance Inspector with **buttons, validation, conditional visibility**
 - Attributes can be **combined** for powerful effects

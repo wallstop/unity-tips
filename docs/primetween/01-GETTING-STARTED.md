@@ -1,10 +1,13 @@
 # Getting Started with PrimeTween
 
-> **Quick Start**: Add `using PrimeTween;` to your script, then call `Tween.Position(transform, endValue: new Vector3(10, 0, 0), duration: 1f);` — that's it!
+> **Quick Start**: Add `using PrimeTween;` to your script, then call
+> `Tween.Position(transform, endValue: new Vector3(10, 0, 0), duration: 1f);` — that's it!
 
 ## What is PrimeTween?
 
-PrimeTween is a **zero-allocation, high-performance animation library** for Unity. It lets you animate transforms, UI elements, materials, audio, cameras, and custom data with simple, one-line calls while keeping every animation configurable in the Inspector.
+PrimeTween is a **zero-allocation, high-performance animation library** for Unity. It lets you
+animate transforms, UI elements, materials, audio, cameras, and custom data with simple, one-line
+calls while keeping every animation configurable in the Inspector.
 
 ```csharp
 using PrimeTween;
@@ -17,11 +20,14 @@ Tween.Color(spriteRenderer, endValue: Color.red, duration: 0.3f);
 
 ## Installation
 
-PrimeTween is already installed in this project via Unity Package Manager. You can verify by checking:
+PrimeTween is already installed in this project via Unity Package Manager. You can verify by
+checking:
+
 - `Assets/Plugins/PrimeTween/` directory
 - Package Manager window → PrimeTween package
 
 For new projects, install via:
+
 1. Unity Package Manager → Add package from git URL
 2. Use: `https://github.com/KyryloKuzyk/PrimeTween.git`
 3. Or download from Unity Asset Store (FREE)
@@ -72,10 +78,13 @@ public class PulsingButton : MonoBehaviour
 
 ## Core Concepts (8 Total)
 
-PrimeTween has only **8 top-level concepts** — you can learn the entire API without reading extensive docs:
+PrimeTween has only **8 top-level concepts** — you can learn the entire API without reading
+extensive docs:
 
 ### 1. **Tween Methods**
+
 Static methods on the `Tween` class for animating everything:
+
 ```csharp
 Tween.Position()      // Move transforms
 Tween.Scale()         // Scale transforms
@@ -87,7 +96,9 @@ Tween.Delay()         // Wait before executing callback
 ```
 
 ### 2. **Tween Struct**
+
 Returned by every `Tween.*` call. It's a lightweight handle for controlling animations:
+
 ```csharp
 Tween myTween = Tween.Position(transform, targetPos, 1f);
 
@@ -97,6 +108,7 @@ myTween.isPaused = true;                  // Pause/resume
 ```
 
 ### 3. **Duration & Easing**
+
 ```csharp
 Tween.Scale(
     transform,
@@ -107,6 +119,7 @@ Tween.Scale(
 ```
 
 **Common Easing Curves:**
+
 - `Ease.Linear` — constant speed
 - `Ease.InOutSine` — smooth start and end
 - `Ease.OutBack` — overshoot effect (UI buttons!)
@@ -115,7 +128,9 @@ Tween.Scale(
 [View all 30+ easing functions](https://easings.net/)
 
 ### 4. **Callbacks**
+
 Execute code when animations complete or update:
+
 ```csharp
 Tween.Position(transform, targetPos, 1f)
     .OnComplete(() => Debug.Log("Animation finished!"));
@@ -126,7 +141,9 @@ Tween.Position(transform, targetPos, 1f)
 ```
 
 ### 5. **Sequences**
+
 Chain or group multiple animations:
+
 ```csharp
 Sequence.Create()
     .Chain(Tween.Position(transform, Vector3.up * 5, 1f))   // First
@@ -135,7 +152,9 @@ Sequence.Create()
 ```
 
 ### 6. **TweenSettings**
+
 Serialize animation parameters in the Inspector:
+
 ```csharp
 [SerializeField] private TweenSettings hoverSettings;
 
@@ -147,6 +166,7 @@ private void Start()
 ```
 
 In the Inspector, you'll see fields for:
+
 - Duration
 - Ease type
 - Start delay
@@ -154,7 +174,9 @@ In the Inspector, you'll see fields for:
 - Update type (Normal/Late/Fixed)
 
 ### 7. **Shake & Punch**
+
 Add impact effects:
+
 ```csharp
 // Camera shake on explosion
 Tween.ShakeCamera(Camera.main, strength: 0.5f, duration: 0.3f);
@@ -164,7 +186,9 @@ Tween.PunchScale(transform, strength: 0.3f, duration: 0.5f);
 ```
 
 ### 8. **Custom Tweens**
+
 Animate anything that's not a transform/color:
+
 ```csharp
 // Animate audio volume
 Tween.Custom(
@@ -181,6 +205,7 @@ Tween.Custom(0f, 1f, 1f, v => material.SetFloat("_Cutoff", v));
 ## Common Use Cases
 
 ### UI Button Feedback
+
 ```csharp
 void OnButtonClick()
 {
@@ -192,6 +217,7 @@ void OnButtonClick()
 ```
 
 ### Fade In UI Panel
+
 ```csharp
 void ShowPanel()
 {
@@ -203,6 +229,7 @@ void ShowPanel()
 ```
 
 ### Smooth Camera Follow
+
 ```csharp
 void Update()
 {
@@ -216,6 +243,7 @@ void Update()
 ```
 
 ### Object Drop with Bounce
+
 ```csharp
 void DropItem(Vector3 dropPosition)
 {
@@ -229,6 +257,7 @@ void DropItem(Vector3 dropPosition)
 ## Performance Best Practices
 
 ### ✅ DO: Store Tweens You Need to Control
+
 ```csharp
 Tween moveTween = Tween.Position(transform, targetPos, 1f);
 // Later...
@@ -236,6 +265,7 @@ if (moveTween.isAlive) moveTween.Stop();
 ```
 
 ### ✅ DO: Use `target:` Parameter for Zero Allocations
+
 ```csharp
 // ❌ Allocates (captures 'this')
 Tween.Position(transform, targetPos, 1f)
@@ -247,6 +277,7 @@ Tween.Position(transform, targetPos, 1f)
 ```
 
 ### ✅ DO: Serialize TweenSettings for Designer Control
+
 ```csharp
 [SerializeField] private TweenSettings jumpSettings;
 
@@ -257,6 +288,7 @@ void Jump()
 ```
 
 ### ❌ DON'T: Forget to Stop Tweens on Disable
+
 ```csharp
 private Tween activeTween;
 
@@ -273,6 +305,7 @@ void OnDisable()
 ```
 
 ### ❌ DON'T: Chain Callbacks for Sequences
+
 ```csharp
 // ❌ Hard to read and maintain
 Tween.Position(transform, pos1, 1f)
@@ -293,6 +326,7 @@ Sequence.Create()
 ## Debugging
 
 ### Inspect Active Tweens
+
 1. Enter Play Mode
 2. Find `PrimeTweenManager` under DontDestroyOnLoad in Hierarchy
 3. View inspector to see:
@@ -301,6 +335,7 @@ Sequence.Create()
    - **Pooled tweens capacity**
 
 ### Set Capacity Early
+
 ```csharp
 // In your game bootstrap/initializer
 void Awake()
@@ -313,9 +348,10 @@ void Awake()
 }
 ```
 
-*In IshoBoy: See `Assets/Scripts/Utils/Initializers.cs` for global PrimeTween configuration.*
+_In IshoBoy: See `Assets/Scripts/Utils/Initializers.cs` for global PrimeTween configuration._
 
 ### Enable Animation Curve Visualization
+
 ```csharp
 [SerializeField] private TweenSettings settings;
 
@@ -376,4 +412,5 @@ Tween.Custom(0f, 1f, 1f, value => DoSomething(value));
 
 ---
 
-**Pro Tip**: Look at `Assets/Scripts/Gameplay/Player/Actions/CarryComponent.cs` and `Assets/Scripts/Production/Gameplay/MainMenu/MainMenu.cs` for battle-tested patterns from IshoBoy.
+**Pro Tip**: Look at `Assets/Scripts/Gameplay/Player/Actions/CarryComponent.cs` and
+`Assets/Scripts/Production/Gameplay/MainMenu/MainMenu.cs` for battle-tested patterns from IshoBoy.

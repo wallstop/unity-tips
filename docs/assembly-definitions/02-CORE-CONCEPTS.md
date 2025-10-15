@@ -1,30 +1,29 @@
 # Core Concepts: Assembly Definitions
 
-> **Deep Dive:** Everything you need to know about `.asmdef` files, dependencies, platforms, and Unity's compilation pipeline.
+> **Deep Dive:** Everything you need to know about `.asmdef` files, dependencies, platforms, and
+> Unity's compilation pipeline.
 
 ## Assembly Definition Files (.asmdef)
 
-An Assembly Definition file is a JSON file that tells Unity how to compile a specific folder of scripts into a separate assembly (DLL).
+An Assembly Definition file is a JSON file that tells Unity how to compile a specific folder of
+scripts into a separate assembly (DLL).
 
 ### The .asmdef File Structure
 
 ```json
 {
-    "name": "MyGame.Core",
-    "rootNamespace": "MyGame.Core",
-    "references": [
-        "Unity.InputSystem",
-        "Unity.TextMeshPro"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.Core",
+  "rootNamespace": "MyGame.Core",
+  "references": ["Unity.InputSystem", "Unity.TextMeshPro"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -39,11 +38,13 @@ The name of the assembly that will be generated.
 ```
 
 **Rules:**
+
 - Must be unique across your project
 - Use namespaced naming: `CompanyName.ProjectName.Module`
 - Common convention: `MyGame.Core`, `MyGame.Gameplay`, `MyGame.UI`
 
 **Generated DLL:**
+
 ```
 Library/ScriptAssemblies/MyGame.Core.dll
 ```
@@ -57,6 +58,7 @@ Automatically wraps all scripts in this folder with a namespace.
 ```
 
 **Without rootNamespace:**
+
 ```csharp
 // You write:
 public class Database : MonoBehaviour { }
@@ -65,6 +67,7 @@ public class Database : MonoBehaviour { }
 ```
 
 **With rootNamespace:**
+
 ```csharp
 // You write:
 public class Database : MonoBehaviour { }
@@ -77,6 +80,7 @@ namespace MyGame.Core
 ```
 
 **Benefits:**
+
 - Avoids naming conflicts
 - Clearer where classes come from
 - Better code organization
@@ -95,6 +99,7 @@ Lists other assemblies this assembly depends on.
 ```
 
 **Effect:**
+
 ```csharp
 // Now you can use:
 using MyGame.Core;
@@ -110,6 +115,7 @@ public class Player : MonoBehaviour
 ```
 
 **Without the reference:**
+
 ```csharp
 using MyGame.Core;  // ❌ Compiler error: "The type or namespace name 'MyGame.Core' could not be found"
 ```
@@ -122,12 +128,13 @@ Control which platforms this assembly is compiled for.
 
 ```json
 {
-    "name": "MyGame.Mobile",
-    "includePlatforms": ["iOS", "Android"]
+  "name": "MyGame.Mobile",
+  "includePlatforms": ["iOS", "Android"]
 }
 ```
 
 **Effect:**
+
 - ✅ Compiles for iOS and Android
 - ❌ Excluded from Windows, Mac, Linux, Console, WebGL, etc.
 - Smaller build sizes for non-mobile platforms
@@ -137,12 +144,13 @@ Control which platforms this assembly is compiled for.
 
 ```json
 {
-    "name": "MyGame.Steamworks",
-    "excludePlatforms": ["iOS", "Android", "WebGL"]
+  "name": "MyGame.Steamworks",
+  "excludePlatforms": ["iOS", "Android", "WebGL"]
 }
 ```
 
 **Effect:**
+
 - ✅ Compiles for all platforms except iOS, Android, and WebGL
 - Useful for platform-specific plugins (e.g., Steam integration)
 
@@ -190,12 +198,14 @@ Enables `unsafe` code blocks (pointers, etc.).
 ```
 
 **When to use:**
+
 - High-performance code requiring pointers
 - Interop with native plugins
 - Direct memory manipulation
 - Unity DOTS/ECS code
 
 **Example:**
+
 ```csharp
 public unsafe void ProcessData(float* data, int length)
 {
@@ -214,23 +224,23 @@ Used for referencing precompiled DLLs (plugins).
 
 ```json
 {
-    "overrideReferences": true,
-    "precompiledReferences": [
-        "Newtonsoft.Json.dll",
-        "SomePlugin.dll"
-    ]
+  "overrideReferences": true,
+  "precompiledReferences": ["Newtonsoft.Json.dll", "SomePlugin.dll"]
 }
 ```
 
 **When to use:**
+
 - Referencing third-party DLLs
 - Custom compiled assemblies
 - Unity packages with precompiled code
 
 **Default behavior** (`overrideReferences: false`):
+
 - Automatically references all precompiled assemblies in the project
 
 **Override behavior** (`overrideReferences: true`):
+
 - Only references assemblies listed in `precompiledReferences`
 - Use this to avoid unwanted dependencies on large plugin DLLs
 
@@ -243,23 +253,27 @@ Controls whether other assemblies can reference this one by default.
 ```
 
 **When `true` (default):**
+
 - Any assembly can reference this one
 - Automatically available to all code
 
 **When `false`:**
+
 - Other assemblies must explicitly reference this one
 - Useful for optional/plugin assemblies
 
 **Example: Editor Tools**
+
 ```json
 {
-    "name": "MyGame.EditorTools",
-    "autoReferenced": false,
-    "includePlatforms": ["Editor"]
+  "name": "MyGame.EditorTools",
+  "autoReferenced": false,
+  "includePlatforms": ["Editor"]
 }
 ```
 
 Why `autoReferenced: false`?
+
 - Prevents accidental dependencies on editor-only code
 - Forces explicit opt-in for editor tool usage
 
@@ -269,22 +283,25 @@ Only compile this assembly if certain scripting defines are set.
 
 ```json
 {
-    "name": "MyGame.SteamFeatures",
-    "defineConstraints": ["STEAM_ENABLED"]
+  "name": "MyGame.SteamFeatures",
+  "defineConstraints": ["STEAM_ENABLED"]
 }
 ```
 
 **Effect:**
+
 - Assembly only compiles if `STEAM_ENABLED` is defined in Player Settings
 - Useful for optional features or plugins
 
 **Setting Defines:**
+
 ```
 Player Settings → Other Settings → Scripting Define Symbols
 Add: STEAM_ENABLED
 ```
 
 **Use Cases:**
+
 - Feature flags (enable/disable entire systems)
 - Platform-specific features beyond platforms
 - Debug-only assemblies
@@ -295,21 +312,23 @@ Create scripting defines based on package versions.
 
 ```json
 {
-    "versionDefines": [
-        {
-            "name": "com.unity.inputsystem",
-            "expression": "1.0.0",
-            "define": "INPUT_SYSTEM_INSTALLED"
-        }
-    ]
+  "versionDefines": [
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "1.0.0",
+      "define": "INPUT_SYSTEM_INSTALLED"
+    }
+  ]
 }
 ```
 
 **Effect:**
+
 - If Input System package version >= 1.0.0 is installed
 - Unity automatically defines `INPUT_SYSTEM_INSTALLED`
 
 **Use Case:**
+
 ```csharp
 #if INPUT_SYSTEM_INSTALLED
     using UnityEngine.InputSystem;
@@ -329,15 +348,18 @@ Excludes Unity engine references (advanced/rare).
 ```
 
 **Effect:**
+
 - Cannot use `UnityEngine` namespace
 - Pure C# assembly with no Unity dependencies
 
 **Use Cases:**
+
 - Shared code between Unity and non-Unity projects
 - Utility libraries
 - Game logic that should be engine-agnostic
 
 **Example:**
+
 ```csharp
 // ✅ Allowed
 using System;
@@ -382,17 +404,20 @@ Assets/Scripts/
 ```
 
 **MyGame.UI.asmref contents:**
+
 ```json
 {
-    "reference": "MyGame.UI"
+  "reference": "MyGame.UI"
 }
 ```
 
 **Effect:**
+
 - `UIHelper.cs` is now compiled as part of `MyGame.UI.dll`
 - Even though it's in a different folder!
 
 **Use Cases:**
+
 - Shared code folders
 - Generated code folders
 - Third-party assets that need to be in your assembly
@@ -427,6 +452,7 @@ graph TD
 ```
 
 **Rules:**
+
 1. **Core** has no dependencies (foundation layer)
 2. **Feature assemblies** depend only on Core
 3. **Editor** and **Tests** can depend on everything
@@ -463,7 +489,8 @@ graph TD
     style C fill:#87CEEB
 ```
 
-Move the shared code (interfaces, data classes, etc.) into `Core`, then both `UI` and `Gameplay` can depend on `Core`.
+Move the shared code (interfaces, data classes, etc.) into `Core`, then both `UI` and `Gameplay` can
+depend on `Core`.
 
 ### Finding Hidden Dependencies
 
@@ -474,6 +501,7 @@ Window → Analysis → Assembly Inspector
 ```
 
 This shows:
+
 - All assemblies in your project
 - What each assembly depends on
 - What depends on each assembly
@@ -484,6 +512,7 @@ This shows:
 ### Example: Mobile-Only Assembly
 
 **Folder Structure:**
+
 ```
 Assets/Scripts/
 ├── Mobile/
@@ -493,16 +522,18 @@ Assets/Scripts/
 ```
 
 **MyGame.Mobile.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Mobile",
-    "rootNamespace": "MyGame.Mobile",
-    "references": ["MyGame.Core"],
-    "includePlatforms": ["iOS", "Android"]
+  "name": "MyGame.Mobile",
+  "rootNamespace": "MyGame.Mobile",
+  "references": ["MyGame.Core"],
+  "includePlatforms": ["iOS", "Android"]
 }
 ```
 
 **TouchControls.cs:**
+
 ```csharp
 // No need for #if UNITY_IOS || UNITY_ANDROID
 // This entire assembly only exists on mobile!
@@ -525,6 +556,7 @@ namespace MyGame.Mobile
 ```
 
 **Benefits:**
+
 - No platform `#if` directives needed
 - Cleaner code
 - Smaller builds on non-mobile platforms
@@ -535,6 +567,7 @@ namespace MyGame.Mobile
 ### Example: Debug Tools
 
 **Folder Structure:**
+
 ```
 Assets/Editor/
 ├── MyGame.Editor.asmdef
@@ -543,25 +576,29 @@ Assets/Editor/
 ```
 
 **MyGame.Editor.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Editor",
-    "rootNamespace": "MyGame.Editor",
-    "references": ["MyGame.Core", "MyGame.Gameplay"],
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false
+  "name": "MyGame.Editor",
+  "rootNamespace": "MyGame.Editor",
+  "references": ["MyGame.Core", "MyGame.Gameplay"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
 }
 ```
 
 **Why `includePlatforms: ["Editor"]`?**
+
 - Only compiles in the Unity Editor
 - Never included in builds
 - Zero runtime overhead
 
 **Why `autoReferenced: false`?**
+
 - Prevents runtime code from accidentally depending on editor code
 
 **DatabaseEditor.cs:**
+
 ```csharp
 using UnityEditor;
 using MyGame.Core;
@@ -587,6 +624,7 @@ Unity has special support for test assemblies.
 ### Creating a Test Assembly
 
 **Folder Structure:**
+
 ```
 Assets/Tests/
 ├── MyGame.Tests.asmdef
@@ -595,32 +633,36 @@ Assets/Tests/
 ```
 
 **MyGame.Tests.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Tests",
-    "rootNamespace": "MyGame.Tests",
-    "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "MyGame.Core",
-        "MyGame.Gameplay"
-    ],
-    "includePlatforms": ["Editor"],
-    "optionalUnityReferences": ["TestAssemblies"]
+  "name": "MyGame.Tests",
+  "rootNamespace": "MyGame.Tests",
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "MyGame.Core",
+    "MyGame.Gameplay"
+  ],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
 }
 ```
 
 **Key Field:**
+
 ```json
 "optionalUnityReferences": ["TestAssemblies"]
 ```
 
 This tells Unity this is a test assembly. It:
+
 - Shows up in Test Runner window
 - Can use `[Test]` and `[UnityTest]` attributes
 - Runs with Unity's test framework
 
 **PlayerTests.cs:**
+
 ```csharp
 using NUnit.Framework;
 using MyGame.Gameplay;
@@ -644,6 +686,7 @@ namespace MyGame.Tests
 ### The Problem: Domain Reload
 
 By default, Unity does a **full domain reload** after every compilation:
+
 1. Recompiles changed assemblies
 2. Unloads ALL assemblies
 3. Reloads ALL assemblies
@@ -661,15 +704,18 @@ Edit → Project Settings → Editor → Enter Play Mode Settings
 ```
 
 **Benefits:**
+
 - Enter play mode **instantly** (no domain reload)
 - 10-50x faster iteration
 
 **Trade-offs:**
+
 - Static fields don't reset automatically
 - You must manually reset state
 - Requires careful initialization code
 
 **Best Practice:**
+
 ```csharp
 [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 static void ResetStatics()
@@ -685,6 +731,7 @@ static void ResetStatics()
 ### Unity's Plugin Import Settings
 
 When you import a `.dll` plugin, Unity automatically:
+
 - Detects platform compatibility
 - Assigns it to the correct assembly (usually `Assembly-CSharp-firstpass`)
 
@@ -694,15 +741,14 @@ When you import a `.dll` plugin, Unity automatically:
 
 ```json
 {
-    "name": "MyGame.Core",
-    "overrideReferences": true,
-    "precompiledReferences": [
-        "Newtonsoft.Json.dll"
-    ]
+  "name": "MyGame.Core",
+  "overrideReferences": true,
+  "precompiledReferences": ["Newtonsoft.Json.dll"]
 }
 ```
 
 **Effect:**
+
 - `MyGame.Core` ONLY references `Newtonsoft.Json.dll`
 - Doesn't reference other plugins in the project
 - Faster compilation
@@ -742,20 +788,18 @@ Assets/
 
 ```json
 {
-    "name": "MyGame.Core",
-    "rootNamespace": "MyGame.Core",
-    "references": [
-        "Unity.InputSystem"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.Core",
+  "rootNamespace": "MyGame.Core",
+  "references": ["Unity.InputSystem"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -763,20 +807,18 @@ Assets/
 
 ```json
 {
-    "name": "MyGame.Gameplay",
-    "rootNamespace": "MyGame.Gameplay",
-    "references": [
-        "MyGame.Core"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.Gameplay",
+  "rootNamespace": "MyGame.Gameplay",
+  "references": ["MyGame.Core"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -784,21 +826,18 @@ Assets/
 
 ```json
 {
-    "name": "MyGame.UI",
-    "rootNamespace": "MyGame.UI",
-    "references": [
-        "MyGame.Core",
-        "Unity.TextMeshPro"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.UI",
+  "rootNamespace": "MyGame.UI",
+  "references": ["MyGame.Core", "Unity.TextMeshPro"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -806,20 +845,18 @@ Assets/
 
 ```json
 {
-    "name": "MyGame.Mobile",
-    "rootNamespace": "MyGame.Mobile",
-    "references": [
-        "MyGame.Core"
-    ],
-    "includePlatforms": ["iOS", "Android"],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.Mobile",
+  "rootNamespace": "MyGame.Mobile",
+  "references": ["MyGame.Core"],
+  "includePlatforms": ["iOS", "Android"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -827,21 +864,18 @@ Assets/
 
 ```json
 {
-    "name": "MyGame.Editor",
-    "rootNamespace": "MyGame.Editor",
-    "references": [
-        "MyGame.Core",
-        "MyGame.Gameplay"
-    ],
-    "includePlatforms": ["Editor"],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": false,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyGame.Editor",
+  "rootNamespace": "MyGame.Editor",
+  "references": ["MyGame.Core", "MyGame.Gameplay"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
@@ -849,24 +883,24 @@ Assets/
 
 ```json
 {
-    "name": "MyGame.Tests",
-    "rootNamespace": "MyGame.Tests",
-    "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "MyGame.Core",
-        "MyGame.Gameplay"
-    ],
-    "includePlatforms": ["Editor"],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": false,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "optionalUnityReferences": ["TestAssemblies"],
-    "noEngineReferences": false
+  "name": "MyGame.Tests",
+  "rootNamespace": "MyGame.Tests",
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "MyGame.Core",
+    "MyGame.Gameplay"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "noEngineReferences": false
 }
 ```
 
@@ -890,4 +924,5 @@ Assets/
 
 ---
 
-**Pro Tip:** Use the Assembly Inspector (`Window → Analysis → Assembly Inspector`) to visualize your dependency graph and find optimization opportunities.
+**Pro Tip:** Use the Assembly Inspector (`Window → Analysis → Assembly Inspector`) to visualize your
+dependency graph and find optimization opportunities.

@@ -3,6 +3,7 @@
 > **Learn from Mistakes**: These are real issues developers encounter. Avoid them!
 
 ## Table of Contents
+
 - [Memory & Performance](#memory--performance)
 - [Tween Management](#tween-management)
 - [Sequences](#sequences)
@@ -16,7 +17,8 @@
 
 ### ❌ DON'T: Capture `this` in Lambda Callbacks
 
-**Problem**: Implicitly capturing `this` in lambdas allocates closures, defeating PrimeTween's zero-allocation promise.
+**Problem**: Implicitly capturing `this` in lambdas allocates closures, defeating PrimeTween's
+zero-allocation promise.
 
 ```csharp
 // ❌ BAD: Allocates closure
@@ -47,13 +49,15 @@ Tween.Scale(transform, 2f, 1f)
     });
 ```
 
-**Impact**: On hot paths (e.g., 100 tweens per second), this can save 10-50KB of GC allocations per second.
+**Impact**: On hot paths (e.g., 100 tweens per second), this can save 10-50KB of GC allocations per
+second.
 
 ---
 
 ### ❌ DON'T: Use `await` in Hot Paths
 
-**Problem**: `await tween` allocates a `Task`. It's fine for one-off cutscenes, but not for frequent gameplay animations.
+**Problem**: `await tween` allocates a `Task`. It's fine for one-off cutscenes, but not for frequent
+gameplay animations.
 
 ```csharp
 // ❌ BAD: Allocates Task every frame
@@ -87,6 +91,7 @@ Tween.Position(transform, targetPos, 1f)
 ```
 
 **When `await` is OK**:
+
 - One-time cutscenes or menu transitions
 - Editor tools or non-gameplay code
 - Prototyping (optimize later)
@@ -95,14 +100,16 @@ Tween.Position(transform, targetPos, 1f)
 
 ### ❌ DON'T: Forget to Set Tween Capacity
 
-**Problem**: If you exceed PrimeTween's internal capacity, it allocates new arrays mid-game, causing GC spikes.
+**Problem**: If you exceed PrimeTween's internal capacity, it allocates new arrays mid-game, causing
+GC spikes.
 
 ```csharp
 // ❌ BAD: Using default capacity (might be 100-200)
 // If you spawn 500 tweens, PrimeTween will allocate!
 ```
 
-**Solution**: Monitor max alive tweens in `PrimeTweenManager` inspector during stressful scenes, then set capacity in bootstrap.
+**Solution**: Monitor max alive tweens in `PrimeTweenManager` inspector during stressful scenes,
+then set capacity in bootstrap.
 
 ```csharp
 // ✅ GOOD: In game startup/initializer
@@ -114,11 +121,13 @@ void Awake()
 ```
 
 **IshoBoy Example**: `Assets/Scripts/Utils/Initializers.cs`
+
 ```csharp
 PrimeTweenConfig.SetTweensCapacity(1_000);
 ```
 
 **How to Check**:
+
 1. Enter Play Mode
 2. Find `PrimeTweenManager` in Hierarchy (under DontDestroyOnLoad)
 3. Observe "Max alive tweens" during intense scenes
@@ -167,7 +176,8 @@ void Update()
 
 ### ❌ DON'T: Forget to Stop Tweens on Disable/Destroy
 
-**Problem**: Tweens continue running even after `GameObject` is disabled or destroyed, causing null references or unexpected behavior.
+**Problem**: Tweens continue running even after `GameObject` is disabled or destroyed, causing null
+references or unexpected behavior.
 
 ```csharp
 // ❌ BAD: Tween keeps running after disable
@@ -210,6 +220,7 @@ void OnDisable()
 ```
 
 **IshoBoy Pattern**: Use `List<Tween>` with custom extensions.
+
 ```csharp
 private List<Tween> activeTweens = new();
 
@@ -259,13 +270,15 @@ void Jump()
 }
 ```
 
-**Why**: Tweens are lightweight handles, not reusable animation clips. Creating a new tween is cheap (microseconds).
+**Why**: Tweens are lightweight handles, not reusable animation clips. Creating a new tween is cheap
+(microseconds).
 
 ---
 
 ### ❌ DON'T: Mix Tweens on Same Property
 
-**Problem**: Starting a new tween on the same property (e.g., position) while another is running causes conflicts.
+**Problem**: Starting a new tween on the same property (e.g., position) while another is running
+causes conflicts.
 
 ```csharp
 // ❌ BAD: Two tweens fighting over position
@@ -279,6 +292,7 @@ void Start()
 **What Happens**: Both tweens run simultaneously, creating unpredictable movement.
 
 **Solution 1**: Stop the previous tween before starting a new one.
+
 ```csharp
 // ✅ GOOD: Replace previous tween
 private Tween moveTween;
@@ -291,6 +305,7 @@ void MoveTo(Vector3 target)
 ```
 
 **Solution 2**: Use a sequence if both movements are intentional.
+
 ```csharp
 // ✅ GOOD: Sequential movement
 Sequence.Create()
@@ -299,6 +314,7 @@ Sequence.Create()
 ```
 
 **Solution 3**: Animate different axes separately.
+
 ```csharp
 // ✅ GOOD: Independent axes
 Tween.PositionY(transform, 5f, 2f);   // Vertical
@@ -311,7 +327,8 @@ Tween.PositionX(transform, 5f, 2f);   // Horizontal
 
 ### ❌ DON'T: Chain Callbacks Instead of Using Sequences
 
-**Problem**: Nesting `.OnComplete` callbacks creates "callback hell" — hard to read, hard to maintain.
+**Problem**: Nesting `.OnComplete` callbacks creates "callback hell" — hard to read, hard to
+maintain.
 
 ```csharp
 // ❌ BAD: Callback pyramid of doom
@@ -343,6 +360,7 @@ Sequence.Create()
 ```
 
 **Benefits**:
+
 - Easier to read/modify
 - Can pause/stop entire sequence
 - Can adjust timing with `.Insert()`
@@ -428,6 +446,7 @@ void Start()
 ```
 
 **Solution 1**: Always null-check in callbacks.
+
 ```csharp
 // ✅ GOOD: Safe null check
 Tween.Position(transform, targetPos, 5f)
@@ -438,6 +457,7 @@ Tween.Position(transform, targetPos, 5f)
 ```
 
 **Solution 2**: Stop tweens on disable (preferred).
+
 ```csharp
 // ✅ BETTER: Prevent callback from firing
 private Tween moveTween;
@@ -517,6 +537,7 @@ void Jump()
 ```
 
 **Benefits**:
+
 - No recompilation needed
 - Designers can iterate independently
 - Easy A/B testing of animation feel
@@ -525,7 +546,8 @@ void Jump()
 
 ### ❌ DON'T: Create TweenSettings at Runtime
 
-**Problem**: `new TweenSettings { ... }` in hot paths can allocate (though PrimeTween tries to optimize this).
+**Problem**: `new TweenSettings { ... }` in hot paths can allocate (though PrimeTween tries to
+optimize this).
 
 ```csharp
 // ❌ AVOID: Creating settings at runtime
@@ -613,6 +635,7 @@ Tween.PositionY(transform, groundY, duration: 1f, ease: Ease.InQuad);
 ```
 
 **Easing Cheat Sheet**:
+
 - **UI buttons**: `Ease.OutBack` (overshoot)
 - **Jumps (up)**: `Ease.OutQuad` (decelerate at peak)
 - **Drops (down)**: `Ease.InQuad` (accelerate like gravity)
@@ -678,7 +701,8 @@ Tween.Position(child, new Vector3(5, 0, 0), duration: 1f, useLocalValue: true);
 
 ### ❌ DON'T: Forget `Time.timeScale` Considerations
 
-**Problem**: Tweens pause when `Time.timeScale = 0` (e.g., game paused), unless using `useUnscaledTime`.
+**Problem**: Tweens pause when `Time.timeScale = 0` (e.g., game paused), unless using
+`useUnscaledTime`.
 
 ```csharp
 // ❌ BAD: UI animation pauses when game is paused
@@ -758,16 +782,12 @@ void OnEnemyHit()
 
 **Before you ship, verify:**
 
-✅ All hot-path callbacks use `target:` parameter (zero allocations)
-✅ Tween capacity set based on "Max alive tweens" from `PrimeTweenManager`
-✅ All scripts clean up tweens in `OnDisable()`
-✅ No `await tween` in gameplay loops
-✅ Complex animations use `Sequence`, not nested callbacks
-✅ `TweenSettings` serialized for designer control
-✅ Camera shakes have cooldowns or stop previous shake
-✅ UI animations use `useUnscaledTime: true` during pause
-✅ Pooled objects stop tweens before returning to pool
-✅ No tweens started every frame without control
+✅ All hot-path callbacks use `target:` parameter (zero allocations) ✅ Tween capacity set based on
+"Max alive tweens" from `PrimeTweenManager` ✅ All scripts clean up tweens in `OnDisable()` ✅ No
+`await tween` in gameplay loops ✅ Complex animations use `Sequence`, not nested callbacks ✅
+`TweenSettings` serialized for designer control ✅ Camera shakes have cooldowns or stop previous
+shake ✅ UI animations use `useUnscaledTime: true` during pause ✅ Pooled objects stop tweens before
+returning to pool ✅ No tweens started every frame without control
 
 ---
 
@@ -779,4 +799,5 @@ void OnEnemyHit()
 
 ---
 
-**Remember**: PrimeTween's power comes from zero allocations. Don't throw that away with sloppy callback usage!
+**Remember**: PrimeTween's power comes from zero allocations. Don't throw that away with sloppy
+callback usage!

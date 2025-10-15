@@ -1,8 +1,11 @@
 # Hot Reload for Unity
 
-> **Edit code without compiling.** See your C# changes instantly in Play Mode, Edit Mode, and even on-device—no domain reload required.
+> **Edit code without compiling.** See your C# changes instantly in Play Mode, Edit Mode, and even
+> on-device—no domain reload required.
 
-Hot Reload is a C# compiler extension for Unity that eliminates the compile-wait-test loop. Make a code change, and see the result in milliseconds. Your game keeps running, your state stays intact, and you stay in flow.
+Hot Reload is a C# compiler extension for Unity that eliminates the compile-wait-test loop. Make a
+code change, and see the result in milliseconds. Your game keeps running, your state stays intact,
+and you stay in flow.
 
 ---
 
@@ -27,7 +30,8 @@ void Update()
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — *10-minute read*
+**🌱 [Getting Started](01-GETTING-STARTED.md)** — _10-minute read_
+
 - What is Hot Reload?
 - Installation (3 steps)
 - Your first hot reload
@@ -35,7 +39,8 @@ void Update()
 - Opening the Hot Reload window
 - Basic workflow
 
-**🎯 [Why Hot Reload?](02-WHY-HOT-RELOAD.md)** — *15-minute read*
+**🎯 [Why Hot Reload?](02-WHY-HOT-RELOAD.md)** — _15-minute read_
+
 - The compile-time problem
 - Time and cost savings ($300/month per developer)
 - Workflow comparison: Before vs After
@@ -43,7 +48,8 @@ void Update()
 - Supported vs unsupported changes
 - Alternative solutions (Fast Script Reload comparison)
 
-**🔧 [How to Use It](03-HOW-TO-USE.md)** — *15-minute read*
+**🔧 [How to Use It](03-HOW-TO-USE.md)** — _15-minute read_
+
 - Opening Hot Reload window (Alt+Shift+H)
 - Making hot reload changes
 - Manual recompile button
@@ -52,7 +58,8 @@ void Update()
 - Working in Edit Mode vs Play Mode
 - Integration with your workflow
 
-**⚠️ [Common Pitfalls & Troubleshooting](04-TROUBLESHOOTING.md)** — *Reference guide*
+**⚠️ [Common Pitfalls & Troubleshooting](04-TROUBLESHOOTING.md)** — _Reference guide_
+
 - Changes not applying? Here's why
 - "Auto Refresh" conflicts
 - When to use manual recompile
@@ -62,7 +69,8 @@ void Update()
 - Network/firewall issues
 - Step-by-step troubleshooting checklist
 
-**💡 [Best Practices & Examples](05-BEST-PRACTICES.md)** — *Cookbook*
+**💡 [Best Practices & Examples](05-BEST-PRACTICES.md)** — _Cookbook_
+
 - When to use Hot Reload vs full recompile
 - Workflow patterns for maximum productivity
 - Multi-developer team usage
@@ -114,11 +122,11 @@ graph LR
 
 ### Real-World Impact
 
-| Project Size | Compile Time | Hot Reload Time | **Time Saved per Change** |
-|--------------|--------------|-----------------|---------------------------|
-| Small (< 50 scripts) | 5-10s | 0.1s | **~9.9s** |
-| Medium (50-500 scripts) | 15-30s | 0.1s | **~29.9s** |
-| Large (500+ scripts) | 30-60s+ | 0.1s | **~59.9s** |
+| Project Size            | Compile Time | Hot Reload Time | **Time Saved per Change** |
+| ----------------------- | ------------ | --------------- | ------------------------- |
+| Small (< 50 scripts)    | 5-10s        | 0.1s            | **~9.9s**                 |
+| Medium (50-500 scripts) | 15-30s       | 0.1s            | **~29.9s**                |
+| Large (500+ scripts)    | 30-60s+      | 0.1s            | **~59.9s**                |
 
 **Average developer:** Makes ~100-200 code changes per day
 
@@ -135,11 +143,13 @@ Unity's compilation process is designed for safety and correctness, but it's slo
 3. **Scene reload** — In Play Mode, often requires re-entering the scene
 
 **Hot Reload bypasses this** by:
+
 - Only compiling the specific method that changed
 - Swapping the method implementation at runtime
 - Preserving all game state, static variables, and scene data
 
-This is similar to hot reload in web development (e.g., React Fast Refresh) or native mobile development (e.g., Flutter Hot Reload).
+This is similar to hot reload in web development (e.g., React Fast Refresh) or native mobile
+development (e.g., Flutter Hot Reload).
 
 ---
 
@@ -175,6 +185,7 @@ void Start()
 ### When Changes Don't Apply
 
 **Use the Recompile button** in the Hot Reload window for:
+
 - Adding new methods, fields, or classes
 - Changing method signatures
 - Adding/removing using statements
@@ -189,13 +200,15 @@ These changes require full compilation, but Hot Reload makes it one click away.
 ### ❌ Don't: Rely on it for structural changes
 
 Hot Reload **cannot** hot reload:
+
 - New classes
 - New methods (must recompile first, then subsequent edits are hot reload-able)
 - Changed method signatures
 - New fields or properties
 - Assembly definition changes
 
-**Solution:** Use the **Recompile button** in Hot Reload window. It's faster than Unity's default compile.
+**Solution:** Use the **Recompile button** in Hot Reload window. It's faster than Unity's default
+compile.
 
 ---
 
@@ -215,6 +228,7 @@ public class Player : MonoBehaviour
 ```
 
 **What works:**
+
 1. Add the field → Click Recompile
 2. Edit the method body → Hot Reload applies automatically
 
@@ -237,6 +251,7 @@ Hot Reload automatically enables/disables this as needed. **Don't touch it.**
 Hot Reload is for development only. It should **never** be in production builds.
 
 **Solution:** Hot Reload automatically excludes itself from builds, but verify by:
+
 - Checking build logs for Hot Reload files
 - Testing a development build
 - Using conditional compilation if needed
@@ -251,12 +266,12 @@ Hot Reload is for development only. It should **never** be in production builds.
 
 **Causes & Fixes:**
 
-| Cause | Solution |
-|-------|----------|
-| Unsupported change type | Click **Recompile** button in Hot Reload window |
-| Hot Reload isn't running | Open Hot Reload window: Alt+Shift+H |
-| Compilation error | Check Console for errors (Hot Reload can't apply invalid code) |
-| File save didn't register | Re-save the file (Ctrl+S) |
+| Cause                     | Solution                                                       |
+| ------------------------- | -------------------------------------------------------------- |
+| Unsupported change type   | Click **Recompile** button in Hot Reload window                |
+| Hot Reload isn't running  | Open Hot Reload window: Alt+Shift+H                            |
+| Compilation error         | Check Console for errors (Hot Reload can't apply invalid code) |
+| File save didn't register | Re-save the file (Ctrl+S)                                      |
 
 ---
 
@@ -267,6 +282,7 @@ Hot Reload is for development only. It should **never** be in production builds.
 **Cause:** Rider's "Automatically Refresh Assets in Unity" conflicts with Hot Reload.
 
 **Solution:**
+
 ```
 Rider → Settings → Languages & Frameworks → Unity Engine
 → Uncheck "Automatically Refresh Assets in Unity"
@@ -281,6 +297,7 @@ Rider → Settings → Languages & Frameworks → Unity Engine
 **Cause:** Hot Reload downloads a platform-specific binary (~50-100MB).
 
 **What's happening:**
+
 ```
 Hot Reload → Downloads server binary → Stores at:
 - Windows: %LocalAppData%/singularitygroup-hotreload/
@@ -322,6 +339,7 @@ public class GameManager : MonoBehaviour
 **Cause:** Usually not Hot Reload itself, but Unity's background compilation.
 
 **Solution:**
+
 - Close Hot Reload window when not actively iterating
 - Disable Unity's Assembly Recompilation if you're not changing assemblies
 - Use assembly definitions to isolate code
@@ -425,23 +443,23 @@ public class AIController : MonoBehaviour
 
 ### Performance
 
-| Metric | Hot Reload | Unity Default |
-|--------|------------|---------------|
-| Method edit apply time | ~100ms | 10-60+ seconds |
-| Memory overhead | Minimal (~10-50MB) | N/A |
-| Build time impact | None (excluded from builds) | N/A |
-| CPU usage while idle | Near zero | N/A |
+| Metric                 | Hot Reload                  | Unity Default  |
+| ---------------------- | --------------------------- | -------------- |
+| Method edit apply time | ~100ms                      | 10-60+ seconds |
+| Memory overhead        | Minimal (~10-50MB)          | N/A            |
+| Build time impact      | None (excluded from builds) | N/A            |
+| CPU usage while idle   | Near zero                   | N/A            |
 
 ### Compatibility
 
-| Platform | Supported | Notes |
-|----------|-----------|-------|
-| **Windows** | ✅ Yes | Fully supported |
-| **Mac (Intel)** | ✅ Yes | Fully supported |
-| **Mac (Apple Silicon)** | ✅ Yes | Native ARM support |
-| **Linux** | ✅ Yes | Fully supported |
-| **On-device iOS/Android** | ✅ Yes | Requires network connection |
-| **WebGL** | ❌ No | Not supported |
+| Platform                  | Supported | Notes                       |
+| ------------------------- | --------- | --------------------------- |
+| **Windows**               | ✅ Yes    | Fully supported             |
+| **Mac (Intel)**           | ✅ Yes    | Fully supported             |
+| **Mac (Apple Silicon)**   | ✅ Yes    | Native ARM support          |
+| **Linux**                 | ✅ Yes    | Fully supported             |
+| **On-device iOS/Android** | ✅ Yes    | Requires network connection |
+| **WebGL**                 | ❌ No     | Not supported               |
 
 ### Unity Version Support
 
@@ -456,16 +474,19 @@ public class AIController : MonoBehaviour
 ## 🎓 Learning Path
 
 ### Beginner (15 minutes)
+
 1. Read **[Getting Started](01-GETTING-STARTED.md)** — Install and make your first hot reload
 2. Try **Example 1** above — Edit a Debug.Log statement while in Play Mode
 3. Open the Hot Reload window (Alt+Shift+H) and explore
 
 ### Intermediate (30 minutes)
+
 1. Read **[Why Hot Reload?](02-WHY-HOT-RELOAD.md)** — Understand what's possible
 2. Read **[How to Use It](03-HOW-TO-USE.md)** — Master the workflow
 3. Try **Examples 2-3** above — Practice with your own project
 
 ### Advanced (1 hour)
+
 1. Read **[Troubleshooting](04-TROUBLESHOOTING.md)** — Prepare for edge cases
 2. Read **[Best Practices](05-BEST-PRACTICES.md)** — Optimize your workflow
 3. Experiment with on-device hot reload
@@ -476,23 +497,27 @@ public class AIController : MonoBehaviour
 
 - **[Official Website](https://hotreload.net/)** — Downloads, pricing, updates
 - **[Documentation](https://hotreload.net/documentation/getting-started)** — Official guides
-- **[Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/hot-reload-edit-code-without-compiling-254358)** — Reviews and updates
+- **[Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/hot-reload-edit-code-without-compiling-254358)**
+  — Reviews and updates
 - **[Unity Forum](https://forum.unity.com/)** — Community support
 
 **Open-source alternative:**
-- **[Fast Script Reload](https://github.com/handzlikchris/FastScriptReload)** — Free, GitHub-hosted alternative with similar functionality
+
+- **[Fast Script Reload](https://github.com/handzlikchris/FastScriptReload)** — Free, GitHub-hosted
+  alternative with similar functionality
 
 ---
 
 ## 💰 Cost & Value
 
-| Edition | Price | Target Audience |
-|---------|-------|-----------------|
-| **Free** | $0 | Hobbyists, small projects |
+| Edition   | Price         | Target Audience              |
+| --------- | ------------- | ---------------------------- |
+| **Free**  | $0            | Hobbyists, small projects    |
 | **Indie** | ~$10-15/month | Solo developers, small teams |
-| **Pro** | ~$30-40/month | Studios, large projects |
+| **Pro**   | ~$30-40/month | Studios, large projects      |
 
 **ROI Calculation:**
+
 - Average time saved: 2-3 hours/day
 - Developer hourly rate: $50-100/hour
 - **Value delivered:** ~$300-600/month per developer
@@ -503,26 +528,22 @@ public class AIController : MonoBehaviour
 
 ## 🎯 Next Steps
 
-**New to Hot Reload?**
-→ Start with **[Getting Started](01-GETTING-STARTED.md)**
+**New to Hot Reload?** → Start with **[Getting Started](01-GETTING-STARTED.md)**
 
-**Want to understand the limits?**
-→ Read **[Why Hot Reload?](02-WHY-HOT-RELOAD.md)**
+**Want to understand the limits?** → Read **[Why Hot Reload?](02-WHY-HOT-RELOAD.md)**
 
-**Ready to optimize your workflow?**
-→ Check out **[How to Use It](03-HOW-TO-USE.md)**
+**Ready to optimize your workflow?** → Check out **[How to Use It](03-HOW-TO-USE.md)**
 
-**Running into issues?**
-→ See **[Troubleshooting](04-TROUBLESHOOTING.md)**
+**Running into issues?** → See **[Troubleshooting](04-TROUBLESHOOTING.md)**
 
-**Want proven patterns?**
-→ Browse **[Best Practices](05-BEST-PRACTICES.md)**
+**Want proven patterns?** → Browse **[Best Practices](05-BEST-PRACTICES.md)**
 
 ---
 
 ## 🤝 Contributing to These Docs
 
 Found an issue or want to add an example? These docs live in:
+
 - `docs/hot-reload/README.md` (this file)
 - `docs/hot-reload/01-GETTING-STARTED.md`
 - `docs/hot-reload/02-WHY-HOT-RELOAD.md`
@@ -538,12 +559,14 @@ Hot Reload embodies one principle:
 
 **"Stay in flow."**
 
-Compilation breaks focus, disrupts iteration, and kills momentum. Hot Reload eliminates the wait, so you can stay immersed in building your game.
+Compilation breaks focus, disrupts iteration, and kills momentum. Hot Reload eliminates the wait, so
+you can stay immersed in building your game.
 
-These docs follow the same philosophy: clear examples, real-world patterns, and pragmatic advice for developers of all skill levels.
+These docs follow the same philosophy: clear examples, real-world patterns, and pragmatic advice for
+developers of all skill levels.
 
 ---
 
 **Happy Hot Reloading!** ⚡
 
-*Documentation last updated: 2025-10-15*
+_Documentation last updated: 2025-10-15_

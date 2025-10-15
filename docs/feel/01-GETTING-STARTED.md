@@ -1,12 +1,18 @@
 # Getting Started with Feel
 
-> **Quick Start**: Add an `MMFeedbacks` component to any GameObject, click "Add new feedback" in the Inspector, select a feedback (like "Camera Shake"), configure it, and call `PlayFeedbacks()` from your script or Unity Event — that's it!
+> **Quick Start**: Add an `MMFeedbacks` component to any GameObject, click "Add new feedback" in the
+> Inspector, select a feedback (like "Camera Shake"), configure it, and call `PlayFeedbacks()` from
+> your script or Unity Event — that's it!
 
 ## What is Feel?
 
-Feel is a **comprehensive game feel library** that makes your Unity game satisfying and responsive to play. It provides **150+ ready-to-use feedback effects** that you can drop into your game with minimal setup — no complex code, no performance worries, just instant juice.
+Feel is a **comprehensive game feel library** that makes your Unity game satisfying and responsive
+to play. It provides **150+ ready-to-use feedback effects** that you can drop into your game with
+minimal setup — no complex code, no performance worries, just instant juice.
 
-Think of Feel as your **"game feel toolbox"** — instead of writing custom code every time you want a screen shake, button pulse, or hit flash, you assemble pre-built, battle-tested effects that just work.
+Think of Feel as your **"game feel toolbox"** — instead of writing custom code every time you want a
+screen shake, button pulse, or hit flash, you assemble pre-built, battle-tested effects that just
+work.
 
 ```mermaid
 graph LR
@@ -23,6 +29,7 @@ graph LR
 ### The Problem: Game Feel is Hard and Time-Consuming
 
 Without Feel, adding simple feedback requires:
+
 ```csharp
 // ❌ Manual screen shake (30+ lines of code)
 public class ManualScreenShake : MonoBehaviour
@@ -63,6 +70,7 @@ public class ManualScreenShake : MonoBehaviour
 ### The Solution: Feel Does It All For You
 
 With Feel, the same screen shake becomes:
+
 ```csharp
 // ✅ With Feel (1 line of code)
 public class FeelScreenShake : MonoBehaviour
@@ -77,28 +85,38 @@ public class FeelScreenShake : MonoBehaviour
 ```
 
 Then in the Inspector:
+
 1. Click "Add new feedback" → Camera → Camera Shake
 2. Set duration: `0.3s`, intensity: `0.5`
 3. Done!
 
-**Feel handles:** Shake curves, damping, multi-axis control, performance optimization, cleanup, and works across all platforms.
+**Feel handles:** Shake curves, damping, multi-axis control, performance optimization, cleanup, and
+works across all platforms.
 
 ## Installation
 
 ### Option 1: Unity Asset Store (Recommended)
-1. Purchase Feel from [Unity Asset Store](https://assetstore.unity.com/packages/tools/particles-effects/feel-183370) (€46)
+
+1. Purchase Feel from
+   [Unity Asset Store](https://assetstore.unity.com/packages/tools/particles-effects/feel-183370)
+   (€46)
 2. Open Package Manager → My Assets → Feel
 3. Click Download, then Import
 4. Import all assets (or just the core if you have limited storage)
 
 ### Option 2: Free Version (MMFeedbacks)
+
 Feel's core feedback system is available for free as a standalone package:
-1. Download [MMFeedbacks](https://assetstore.unity.com/packages/tools/utilities/mmfeedbacks-155004) from Asset Store
+
+1. Download [MMFeedbacks](https://assetstore.unity.com/packages/tools/utilities/mmfeedbacks-155004)
+   from Asset Store
 2. Import via Package Manager (free!)
 3. ⚠️ Note: This is a subset of Feel with ~80 feedbacks instead of 150+
 
 ### Verify Installation
+
 After import, you should see:
+
 - `Assets/Feel/` directory (or `Assets/MMFeedbacks/`)
 - New "Add new feedback" options in MMFeedbacks components
 - Demo scenes at `Assets/Feel/Demos/`
@@ -108,6 +126,7 @@ After import, you should see:
 Let's make a UI button that feels **punchy and responsive** when clicked:
 
 ### Step 1: Set Up the Scene
+
 ```
 1. Create a new Scene
 2. Add UI → Button (creates Canvas + Button)
@@ -116,6 +135,7 @@ Let's make a UI button that feels **punchy and responsive** when clicked:
 ```
 
 ### Step 2: Add Feedbacks
+
 In the MMFeedbacks Inspector:
 
 ```
@@ -141,7 +161,9 @@ In the MMFeedbacks Inspector:
 ```
 
 ### Step 3: Wire It Up
+
 On the Button component (not MMFeedbacks):
+
 ```
 1. Scroll to "OnClick ()" event
 2. Click the "+" button
@@ -150,7 +172,9 @@ On the Button component (not MMFeedbacks):
 ```
 
 ### Step 4: Test It
+
 Press Play and click the button. You should see:
+
 - Button **squashes down** slightly (0.85 scale)
 - Then **bounces back** with overshoot (springs past 1.0)
 - Sound plays **instantly**
@@ -183,6 +207,7 @@ sequenceDiagram
 ## Core Concepts
 
 ### 1. MMFeedbacks Component
+
 The **central controller** for all feedback effects. Think of it as a "playlist" of juicy effects.
 
 ```csharp
@@ -199,26 +224,29 @@ void OnCollisionEnter(Collision collision)
 ```
 
 **Key Settings in Inspector:**
+
 - **Direction**: Top-to-Bottom (normal) or Bottom-to-Top (reverse)
 - **Intensity**: Global multiplier (0-1) affecting all feedbacks
 - **Initialization**: When to setup feedbacks (Start, Awake, Script)
 - **Safety Checks**: Prevent playing while already playing
 
 ### 2. Individual Feedbacks
+
 **Building blocks** that do one thing well. Over 150 types available:
 
-| Category | Examples | Use Cases |
-|----------|----------|-----------|
-| **Camera** | Shake, Zoom, Flash, Fade | Explosions, screen transitions, focus effects |
-| **Audio** | Sound, Pitch, Volume | SFX, dynamic music, audio feedback |
-| **Transform** | Position, Rotation, Scale | Movement, spinning, growing/shrinking |
-| **Particles** | Instantiate, Play, Stop | Dust, sparks, magic effects |
-| **UI** | Image Color, Canvas Group, Text | Menu transitions, health bars, notifications |
-| **Post Processing** | Bloom, Vignette, Chromatic Aberration | Hit flashes, dramatic moments |
-| **Time** | Slow Motion, Freeze Frame | Bullet time, impactful hits |
-| **Haptics** | Light, Medium, Heavy | Mobile vibration feedback |
+| Category            | Examples                              | Use Cases                                     |
+| ------------------- | ------------------------------------- | --------------------------------------------- |
+| **Camera**          | Shake, Zoom, Flash, Fade              | Explosions, screen transitions, focus effects |
+| **Audio**           | Sound, Pitch, Volume                  | SFX, dynamic music, audio feedback            |
+| **Transform**       | Position, Rotation, Scale             | Movement, spinning, growing/shrinking         |
+| **Particles**       | Instantiate, Play, Stop               | Dust, sparks, magic effects                   |
+| **UI**              | Image Color, Canvas Group, Text       | Menu transitions, health bars, notifications  |
+| **Post Processing** | Bloom, Vignette, Chromatic Aberration | Hit flashes, dramatic moments                 |
+| **Time**            | Slow Motion, Freeze Frame             | Bullet time, impactful hits                   |
+| **Haptics**         | Light, Medium, Heavy                  | Mobile vibration feedback                     |
 
 ### 3. Timing Controls
+
 Each feedback has fine-grained timing:
 
 ```
@@ -232,6 +260,7 @@ Each feedback has fine-grained timing:
 ```
 
 **Example: Staggered UI Panel Reveal**
+
 ```
 Feedback 1: Fade In Canvas Group
   - Initial Delay: 0s
@@ -249,16 +278,19 @@ Feedback 3: Slide Title Text
 ### 4. Initialization Modes
 
 **Start (Recommended)**
+
 - Feedbacks initialize when the scene starts
 - Safe for most use cases
 - Good for UI, gameplay objects
 
 **Awake (Advanced)**
+
 - Initializes immediately when GameObject is created
 - Use when you need to play feedbacks in `Start()` of other scripts
 - Required for very early game systems
 
 **Script (Expert)**
+
 - Manual initialization via `myFeedback.Initialization(gameObject);`
 - Use when dynamically spawning feedback objects
 - Gives full control but requires more code
@@ -281,6 +313,7 @@ public class DynamicFeedbackSpawner : MonoBehaviour
 ## Common Use Cases
 
 ### Screen Shake on Hit
+
 ```
 MMFeedbacks → Add Feedback → Camera → Camera Shake
   - Duration: 0.2s
@@ -289,6 +322,7 @@ MMFeedbacks → Add Feedback → Camera → Camera Shake
 ```
 
 ### Object Spawn with Pop-In
+
 ```
 MMFeedbacks → Multiple Feedbacks:
   1. Transform → Scale
@@ -308,6 +342,7 @@ MMFeedbacks → Multiple Feedbacks:
 ```
 
 ### Player Jump Feedback
+
 ```
 MMFeedbacks:
   1. Audio → Sound (jump sound)
@@ -317,6 +352,7 @@ MMFeedbacks:
 ```
 
 ### UI Health Bar Damage Flash
+
 ```
 MMFeedbacks:
   1. UI → Image Color
@@ -335,6 +371,7 @@ MMFeedbacks:
 ```
 
 ### Chest Open Sequence
+
 ```
 MMFeedbacks:
   1. Time → Slow Motion
@@ -361,6 +398,7 @@ MMFeedbacks:
 ## Practical Workflow Tips
 
 ### Organizing Feedbacks
+
 ```
 Create hierarchy:
   - Player
@@ -374,21 +412,26 @@ Create hierarchy:
 ```
 
 ### Testing Feedbacks Quickly
+
 1. Select GameObject with MMFeedbacks
 2. In Inspector, find the **"Play"** button at the top of MMFeedbacks
 3. Click it in Edit Mode to preview (works for many feedback types!)
 4. Use the **"Stop"** button to reset
 
 ### Copying Feedbacks Between Objects
+
 **✅ DO:**
+
 1. In MMFeedbacks Inspector, click the **three dots** menu
 2. Select "Copy all feedbacks"
 3. On target GameObject's MMFeedbacks, click three dots → "Paste all feedbacks"
 
 **❌ DON'T:**
+
 - Use Unity's "Copy Component Values" — this breaks references!
 
 ### Debugging When Feedbacks Don't Work
+
 ```mermaid
 flowchart TD
     A[Feedback not working?] --> B{Is MMFeedbacks initialized?}
@@ -404,14 +447,11 @@ flowchart TD
     J -->|Yes| L[Check if feedback supports<br/>current platform/pipeline]
 ```
 
-**Common Issues:**
-| Problem | Solution |
-|---------|----------|
-| Nothing happens | Check initialization mode (use Start) |
-| Feedback plays once then stops | Look for "Play Once" or "Number of Repeats" settings |
-| Target is null error | Assign the target GameObject/Component in Inspector |
-| Effect too subtle | Increase Intensity on MMFeedbacks (global multiplier) |
-| Post-processing feedbacks don't work | Ensure you have URP/HDRP Volume components in scene |
+**Common Issues:** | Problem | Solution | |---------|----------| | Nothing happens | Check
+initialization mode (use Start) | | Feedback plays once then stops | Look for "Play Once" or "Number
+of Repeats" settings | | Target is null error | Assign the target GameObject/Component in Inspector
+| | Effect too subtle | Increase Intensity on MMFeedbacks (global multiplier) | | Post-processing
+feedbacks don't work | Ensure you have URP/HDRP Volume components in scene |
 
 ## Next Steps
 
@@ -449,4 +489,5 @@ myFeedback.Events.OnComplete.AddListener(() => Debug.Log("Done!"));
 
 ---
 
-**Pro Tip**: Explore Feel's demo scenes at `Assets/Feel/Demos/` — they're interactive playgrounds showing every feedback type in action. The "Snake" demo is particularly impressive!
+**Pro Tip**: Explore Feel's demo scenes at `Assets/Feel/Demos/` — they're interactive playgrounds
+showing every feedback type in action. The "Snake" demo is particularly impressive!

@@ -1,12 +1,15 @@
 # PrimeTween API Reference
 
-> **Quick Navigation**: [Transform](#transform-animations) • [Color](#color-animations) • [UI](#ui-animations) • [Custom](#custom-tweens) • [Sequences](#sequences) • [Shake](#shake--punch) • [Control](#tween-control) • [Settings](#tween-settings)
+> **Quick Navigation**: [Transform](#transform-animations) • [Color](#color-animations) •
+> [UI](#ui-animations) • [Custom](#custom-tweens) • [Sequences](#sequences) • [Shake](#shake--punch)
+> • [Control](#tween-control) • [Settings](#tween-settings)
 
 ## Transform Animations
 
 ### Position
 
 #### `Tween.Position`
+
 Animate a transform's position over time.
 
 ```csharp
@@ -29,6 +32,7 @@ Tween.Position(
 ```
 
 #### `Tween.PositionX / Y / Z`
+
 Animate individual axes (more performant than full `Position`).
 
 ```csharp
@@ -49,6 +53,7 @@ Tween.PositionZ(transform, endValue: 20f, duration: 2f, useLocalValue: true);
 ### Rotation
 
 #### `Tween.Rotation`
+
 Animate rotation using either Euler angles or Quaternions.
 
 ```csharp
@@ -77,6 +82,7 @@ Tween.Rotation(
 ### Scale
 
 #### `Tween.Scale`
+
 Animate uniform or non-uniform scale.
 
 ```csharp
@@ -96,6 +102,7 @@ Tween.Scale(
 ```
 
 #### `Tween.ScaleX / Y / Z`
+
 Animate individual scale axes.
 
 ```csharp
@@ -113,6 +120,7 @@ Tween.ScaleX(transform, endValue: 1.5f, duration: 0.3f);
 ## Color Animations
 
 ### `Tween.Color`
+
 Animate color on `SpriteRenderer`, `Image`, `Material`, `CanvasGroup`, etc.
 
 ```csharp
@@ -132,6 +140,7 @@ Tween.Custom(0f, 1f, 1f, t => spriteRenderer.color = Color.Lerp(startColor, endC
 ```
 
 ### `Tween.Alpha`
+
 Fade transparency (more performant than full `Color`).
 
 ```csharp
@@ -212,6 +221,7 @@ public class ButtonFeedback : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 ## Custom Tweens
 
 ### `Tween.Custom`
+
 Animate anything not covered by built-in methods.
 
 ```csharp
@@ -285,6 +295,7 @@ Sequence.Create()
 ```
 
 ### `.Chain()` — Sequential
+
 Play animations one after another.
 
 ```csharp
@@ -294,6 +305,7 @@ Sequence.Create()
 ```
 
 ### `.Group()` — Parallel
+
 Play animations at the same time as the previous.
 
 ```csharp
@@ -304,6 +316,7 @@ Sequence.Create()
 ```
 
 ### `.ChainCallback()` / `.GroupCallback()`
+
 Execute code at specific points.
 
 ```csharp
@@ -315,6 +328,7 @@ Sequence.Create()
 ```
 
 ### `.Insert()` — Absolute Timing
+
 Insert animation at specific time offset.
 
 ```csharp
@@ -400,6 +414,7 @@ void DropItem(Vector3 dropPosition)
 ## Shake & Punch
 
 ### `Tween.ShakeCamera`
+
 Add impact to camera movement.
 
 ```csharp
@@ -416,6 +431,7 @@ Tween.ShakeCamera(Camera.main, 0.1f, 0.2f);
 ```
 
 ### `Tween.ShakeLocalPosition`
+
 Shake a transform's position.
 
 ```csharp
@@ -436,6 +452,7 @@ void ShowError()
 ```
 
 ### `Tween.PunchScale`
+
 Quick scale up and back down.
 
 ```csharp
@@ -454,6 +471,7 @@ Sequence.Create()
 ```
 
 ### `Tween.PunchRotation`
+
 Quick rotation shake.
 
 ```csharp
@@ -627,6 +645,7 @@ new TweenSettings
 ### Inspector Benefits
 
 When you serialize `TweenSettings`, designers can:
+
 - ✅ Tweak duration/easing without code changes
 - ✅ Visualize easing curves in Inspector
 - ✅ Share settings across multiple scripts
@@ -769,18 +788,18 @@ Tween.Position(
 
 ## Quick Reference Table
 
-| Method | Animates | Common Use |
-|--------|----------|------------|
-| `Tween.Position` | Transform position | Move objects |
-| `Tween.Scale` | Transform scale | Size transitions |
-| `Tween.Rotation` | Transform rotation | Spin objects |
-| `Tween.Color` | SpriteRenderer/Image/Material | Color transitions |
-| `Tween.Alpha` | Transparency | Fade in/out |
-| `Tween.Custom` | Anything | Audio, FOV, custom properties |
-| `Tween.Delay` | Nothing (callback only) | Timed events |
-| `Tween.ShakeCamera` | Camera position | Impact effects |
-| `Tween.PunchScale` | Scale (temporary) | Hit reactions |
-| `Sequence.Create` | Multiple tweens | Complex animations |
+| Method              | Animates                      | Common Use                    |
+| ------------------- | ----------------------------- | ----------------------------- |
+| `Tween.Position`    | Transform position            | Move objects                  |
+| `Tween.Scale`       | Transform scale               | Size transitions              |
+| `Tween.Rotation`    | Transform rotation            | Spin objects                  |
+| `Tween.Color`       | SpriteRenderer/Image/Material | Color transitions             |
+| `Tween.Alpha`       | Transparency                  | Fade in/out                   |
+| `Tween.Custom`      | Anything                      | Audio, FOV, custom properties |
+| `Tween.Delay`       | Nothing (callback only)       | Timed events                  |
+| `Tween.ShakeCamera` | Camera position               | Impact effects                |
+| `Tween.PunchScale`  | Scale (temporary)             | Hit reactions                 |
+| `Sequence.Create`   | Multiple tweens               | Complex animations            |
 
 ---
 
@@ -792,4 +811,5 @@ Tween.Position(
 
 ---
 
-**Pro Tip**: The PrimeTween API is designed to be discoverable. Just type `Tween.` in your IDE and explore the autocomplete suggestions!
+**Pro Tip**: The PrimeTween API is designed to be discoverable. Just type `Tween.` in your IDE and
+explore the autocomplete suggestions!

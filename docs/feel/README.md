@@ -1,12 +1,17 @@
 # Feel Documentation
 
-> **Ultimate guide to Feel** — Unity's most powerful game feel library. From absolute beginner to expert, everything you need to make your games feel amazing.
+> **Ultimate guide to Feel** — Unity's most powerful game feel library. From absolute beginner to
+> expert, everything you need to make your games feel amazing.
 
 ## What is Feel?
 
-Feel (by More Mountains) is a **comprehensive game feel library** for Unity that provides **150+ ready-to-use feedback effects**. It transforms flat, unresponsive games into juicy, satisfying experiences with **minimal code** and **maximum designer control**.
+Feel (by More Mountains) is a **comprehensive game feel library** for Unity that provides **150+
+ready-to-use feedback effects**. It transforms flat, unresponsive games into juicy, satisfying
+experiences with **minimal code** and **maximum designer control**.
 
-Instead of writing hundreds of lines of code for screen shakes, particle effects, camera zooms, audio triggers, and UI animations, you assemble pre-built feedbacks in the Inspector and call a single method: `PlayFeedbacks()`.
+Instead of writing hundreds of lines of code for screen shakes, particle effects, camera zooms,
+audio triggers, and UI animations, you assemble pre-built feedbacks in the Inspector and call a
+single method: `PlayFeedbacks()`.
 
 **Feel makes game feel accessible to everyone** — no programming expertise required.
 
@@ -28,7 +33,8 @@ void OnHit()
 }
 ```
 
-**Result**: Professional-quality screen shake with damping, multiple axes, and smooth curves — no complex code needed.
+**Result**: Professional-quality screen shake with damping, multiple axes, and smooth curves — no
+complex code needed.
 
 ---
 
@@ -39,6 +45,7 @@ void OnHit()
 **Start here if you've never used Feel before:**
 
 1. **[Getting Started](01-GETTING-STARTED.md)** ⭐ **Start Here**
+
    - What is Feel and what problems does it solve?
    - Installation guide (Asset Store or free MMFeedbacks)
    - Your first feedback: bouncy UI button walkthrough
@@ -58,7 +65,7 @@ void OnHit()
 
 **Once you understand the basics:**
 
-3. **[Feedback Catalog](03-FEEDBACK-CATALOG.md)** 📚 **Reference**
+1. **[Feedback Catalog](03-FEEDBACK-CATALOG.md)** 📚 **Reference**
    - Complete list of all 150+ feedbacks organized by category
    - What each feedback does
    - Common use cases
@@ -70,7 +77,7 @@ void OnHit()
 
 **Master advanced techniques:**
 
-4. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** 🚀 **Advanced**
+1. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** 🚀 **Advanced**
    - Scripting with MMFeedbacks (dynamic intensity, events, control)
    - Advanced timing and sequencing patterns
    - Creating custom feedbacks (extend Feel!)
@@ -82,7 +89,7 @@ void OnHit()
 
 **When things go wrong:**
 
-5. **[Troubleshooting](05-TROUBLESHOOTING.md)** 🔧 **Debug**
+1. **[Troubleshooting](05-TROUBLESHOOTING.md)** 🔧 **Debug**
    - Quick diagnostic flowchart
    - Common issues and solutions
    - Platform-specific problems
@@ -96,6 +103,7 @@ void OnHit()
 ### 🎮 150+ Built-In Feedbacks
 
 Feel includes feedbacks for:
+
 - **Camera**: Shake, Zoom, Flash, Fade, Field of View, Cinemachine
 - **Audio**: Sound, Pitch, Volume, Audio Mixer, Filters
 - **Transform**: Position, Rotation, Scale, Wiggle, Spring, Squash & Stretch
@@ -136,6 +144,7 @@ graph LR
 ### 🌍 Platform-Aware
 
 Feel automatically handles:
+
 - **Mobile**: iOS haptics (Taptic Engine), Android vibration
 - **Console**: Gamepad rumble
 - **PC**: Gracefully skips unsupported features
@@ -164,6 +173,7 @@ Created in 5 minutes via Inspector!
 ## Installation
 
 ### Option 1: Feel (Full Version) — €46
+
 - 150+ feedbacks
 - All rendering pipelines (Built-in, URP, HDRP)
 - Nice Vibrations haptics system
@@ -171,15 +181,19 @@ Created in 5 minutes via Inspector!
 - Complete source code
 - Free lifetime updates
 
-**Purchase**: [Unity Asset Store](https://assetstore.unity.com/packages/tools/particles-effects/feel-183370)
+**Purchase**:
+[Unity Asset Store](https://assetstore.unity.com/packages/tools/particles-effects/feel-183370)
 
 ### Option 2: MMFeedbacks (Free Version)
+
 - ~80 core feedbacks (Audio, Camera, Transform, Particles, UI)
 - Perfect for prototyping and small projects
 
-**Download**: [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/mmfeedbacks-155004)
+**Download**:
+[Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/mmfeedbacks-155004)
 
 ### Import Steps
+
 1. Open Package Manager → My Assets → Feel (or MMFeedbacks)
 2. Click Download, then Import
 3. Import all assets
@@ -191,6 +205,7 @@ Created in 5 minutes via Inspector!
 ## Learning Path
 
 ### Phase 1: Foundations (30 minutes)
+
 1. Read [Getting Started](01-GETTING-STARTED.md)
 2. Build the "Bouncy Button" tutorial
 3. Play Feel's demo scenes (`Assets/Feel/Demos/Snake`)
@@ -199,6 +214,7 @@ Created in 5 minutes via Inspector!
 **Goal**: Understand MMFeedbacks component and basic workflow.
 
 ### Phase 2: Application (2-4 hours)
+
 1. Read [Why Feel?](02-WHY-FEEL.md)
 2. Skim [Feedback Catalog](03-FEEDBACK-CATALOG.md) (don't memorize, just browse)
 3. Add 5-10 feedbacks to your game (jump, hit, UI clicks, etc.)
@@ -207,6 +223,7 @@ Created in 5 minutes via Inspector!
 **Goal**: Become comfortable adding feedback to your game.
 
 ### Phase 3: Mastery (ongoing)
+
 1. Read [Advanced Techniques](04-ADVANCED-TECHNIQUES.md)
 2. Try scripting with MMFeedbacks (dynamic intensity, events)
 3. Create a custom feedback for your game's unique needs
@@ -215,6 +232,7 @@ Created in 5 minutes via Inspector!
 **Goal**: Unlock Feel's full power for production games.
 
 ### Phase 4: Troubleshooting (as needed)
+
 1. Keep [Troubleshooting](05-TROUBLESHOOTING.md) bookmarked
 2. Reference when issues arise
 3. Use diagnostic flowcharts to quickly identify problems
@@ -226,6 +244,7 @@ Created in 5 minutes via Inspector!
 ## Common Use Cases
 
 ### UI/UX Polish
+
 - Button hover/click feedback (scale, sound, haptics)
 - Menu transitions (fade, slide, scale)
 - Notification popups (floating text, sound)
@@ -233,6 +252,7 @@ Created in 5 minutes via Inspector!
 - Loading screens (particle effects, animations)
 
 ### Player Actions
+
 - Jump (squash animation, dust particles, sound)
 - Attack (screen shake, slow-mo, camera punch)
 - Damage taken (red flash, haptics, vignette)
@@ -240,18 +260,21 @@ Created in 5 minutes via Inspector!
 - Death (freeze frame, fade to black, dramatic zoom)
 
 ### Environmental Effects
+
 - Door opens (rotation animation, sound, particles)
 - Chest unlocks (shake, glow, slow-mo reveal)
 - Switch activation (click sound, light flash, haptics)
 - Destructible objects (shake, particles, sound, slow-mo)
 
 ### Camera Effects
+
 - Explosions (heavy shake, flash, chromatic aberration)
 - Cutscene transitions (zoom, fade, time scale)
 - Focus shifts (zoom, depth of field)
 - Impact moments (freeze frame, shake)
 
 ### Audio Feedback
+
 - Footsteps on different surfaces (sounds, subtle shake)
 - Ambient effects (looping sounds, particle systems)
 - Music transitions (fade in/out, pitch shifts)
@@ -261,27 +284,29 @@ Created in 5 minutes via Inspector!
 
 ## Philosophy
 
-Feel is built on the principle that **game feel should be accessible to everyone**. You shouldn't need to be a graphics programmer to make your game feel great.
+Feel is built on the principle that **game feel should be accessible to everyone**. You shouldn't
+need to be a graphics programmer to make your game feel great.
 
 ### Core Beliefs
 
-**1. Iteration Speed > Control**
-Fast iteration beats perfect control. Feel prioritizes rapid prototyping so you can try 100 ideas and keep the 10 that work.
+**1. Iteration Speed > Control** Fast iteration beats perfect control. Feel prioritizes rapid
+prototyping so you can try 100 ideas and keep the 10 that work.
 
-**2. Designer Empowerment**
-Designers understand game feel better than programmers. Feel puts feedback control directly in their hands.
+**2. Designer Empowerment** Designers understand game feel better than programmers. Feel puts
+feedback control directly in their hands.
 
-**3. "Good Enough" is Great**
-Feel's 150+ feedbacks cover 95% of use cases. For the remaining 5%, you can extend Feel with custom feedbacks.
+**3. "Good Enough" is Great** Feel's 150+ feedbacks cover 95% of use cases. For the remaining 5%,
+you can extend Feel with custom feedbacks.
 
-**4. Composition Over Complexity**
-Stack simple feedbacks to create complex effects. No monolithic systems, just LEGO blocks.
+**4. Composition Over Complexity** Stack simple feedbacks to create complex effects. No monolithic
+systems, just LEGO blocks.
 
 ---
 
 ## Real-World Impact
 
 ### Before Feel
+
 ```
 Workflow:
   Designer: "Can we make the screen shake harder?"
@@ -296,6 +321,7 @@ Game feel: Mediocre (limited by programmer time)
 ```
 
 ### After Feel
+
 ```
 Workflow:
   Designer: *Opens Inspector*
@@ -309,25 +335,34 @@ Game feel: Excellent (unlimited designer iteration)
 ```
 
 **Real Quote from Indie Developer:**
-> "Feel transformed my game from 'meh' to 'wow' in days. I'm a solo dev — I don't have time to write custom feedback systems. Feel let me focus on level design while still having insanely juicy game feel."
+
+> "Feel transformed my game from 'meh' to 'wow' in days. I'm a solo dev — I don't have time to write
+> custom feedback systems. Feel let me focus on level design while still having insanely juicy game
+> feel."
 
 ---
 
 ## Community and Support
 
 ### Official Resources
-- **Documentation**: https://feel-docs.moremountains.com/
-- **Asset Store**: [Feel](https://assetstore.unity.com/packages/tools/particles-effects/feel-183370) | [MMFeedbacks (Free)](https://assetstore.unity.com/packages/tools/utilities/mmfeedbacks-155004)
+
+- **Documentation**: [Feel docs](https://feel-docs.moremountains.com/)
+- **Asset Store**: [Feel](https://assetstore.unity.com/packages/tools/particles-effects/feel-183370)
+  | [MMFeedbacks (Free)](https://assetstore.unity.com/packages/tools/utilities/mmfeedbacks-155004)
 - **Discord**: More Mountains community server
 - **Forum**: Unity Asset Store Q&A
 
 ### Community Resources
-- **GitHub Extensions**: [FeelExtensions](https://github.com/reunono/FeelExtensions) — Community-created feedback scripts
+
+- **GitHub Extensions**: [FeelExtensions](https://github.com/reunono/FeelExtensions) —
+  Community-created feedback scripts
 - **YouTube Tutorials**: Search "Feel Unity tutorial" or "MMFeedbacks tutorial"
 - **Reddit**: r/Unity3D has Feel discussions
 
 ### Getting Help
+
 When asking for help, include:
+
 1. Feel version and Unity version
 2. Rendering pipeline (Built-in, URP, HDRP)
 3. Platform (Editor, PC build, Mobile)
@@ -339,35 +374,36 @@ When asking for help, include:
 
 ## FAQ
 
-**Q: Is Feel worth €46?**
-A: If it saves you 2 days of work, yes. Most developers report 1-2 weeks saved on feedback systems. See [Why Feel?](02-WHY-FEEL.md) for cost-benefit analysis.
+**Q: Is Feel worth €46?** A: If it saves you 2 days of work, yes. Most developers report 1-2 weeks
+saved on feedback systems. See [Why Feel?](02-WHY-FEEL.md) for cost-benefit analysis.
 
-**Q: Can I use the free MMFeedbacks version?**
-A: Yes! It includes ~80 core feedbacks. Upgrade to Feel when you need post-processing, haptics, or advanced features.
+**Q: Can I use the free MMFeedbacks version?** A: Yes! It includes ~80 core feedbacks. Upgrade to
+Feel when you need post-processing, haptics, or advanced features.
 
-**Q: Does Feel work with DOTween/LeanTween?**
-A: Yes! They serve different purposes. Use DOTween for code-driven animations, Feel for game feel. Many projects use both.
+**Q: Does Feel work with DOTween/LeanTween?** A: Yes! They serve different purposes. Use DOTween for
+code-driven animations, Feel for game feel. Many projects use both.
 
-**Q: Does Feel work with URP/HDRP?**
-A: Yes, fully supported. Post-processing feedbacks require URP/HDRP with Volume components.
+**Q: Does Feel work with URP/HDRP?** A: Yes, fully supported. Post-processing feedbacks require
+URP/HDRP with Volume components.
 
-**Q: Can I extend Feel with custom feedbacks?**
-A: Absolutely! See [Advanced Techniques](04-ADVANCED-TECHNIQUES.md) → Creating Custom Feedbacks.
+**Q: Can I extend Feel with custom feedbacks?** A: Absolutely! See
+[Advanced Techniques](04-ADVANCED-TECHNIQUES.md) → Creating Custom Feedbacks.
 
-**Q: Does Feel impact performance?**
-A: Minimal impact. Zero allocations after warmup, object pooling included. See [Advanced Techniques](04-ADVANCED-TECHNIQUES.md) → Performance Optimization.
+**Q: Does Feel impact performance?** A: Minimal impact. Zero allocations after warmup, object
+pooling included. See [Advanced Techniques](04-ADVANCED-TECHNIQUES.md) → Performance Optimization.
 
-**Q: Does Feel work on mobile?**
-A: Yes! Includes mobile haptics for iOS (Taptic Engine) and Android. Automatically handles platform differences.
+**Q: Does Feel work on mobile?** A: Yes! Includes mobile haptics for iOS (Taptic Engine) and
+Android. Automatically handles platform differences.
 
-**Q: Can I use Feel in commercial games?**
-A: Yes, no royalties or restrictions. Buy once, use in unlimited projects.
+**Q: Can I use Feel in commercial games?** A: Yes, no royalties or restrictions. Buy once, use in
+unlimited projects.
 
 ---
 
 ## Quick Examples
 
 ### Example 1: Screen Shake on Hit
+
 ```
 1. Add MMFeedbacks component to Player
 2. Add Feedback → Camera → Camera Shake
@@ -376,6 +412,7 @@ A: Yes, no royalties or restrictions. Buy once, use in unlimited projects.
 ```
 
 ### Example 2: Floating Damage Numbers
+
 ```
 1. Add MMFeedbacks component to Enemy
 2. Add Feedback → UI → Floating Text
@@ -385,6 +422,7 @@ A: Yes, no royalties or restrictions. Buy once, use in unlimited projects.
 ```
 
 ### Example 3: Button Click Feedback
+
 ```
 1. Add MMFeedbacks component to Button
 2. Add Feedback → Transform → Scale
@@ -404,10 +442,8 @@ A: Yes, no royalties or restrictions. Buy once, use in unlimited projects.
 
 ## Version Compatibility
 
-**Feel**: v5.8+ (latest as of Oct 2025)
-**Unity**: 2019.4+ (all LTS versions supported)
-**Rendering Pipelines**: Built-in, URP, HDRP
-**Platforms**: PC, Mac, Linux, iOS, Android, Console, WebGL, VR
+**Feel**: v5.8+ (latest as of Oct 2025) **Unity**: 2019.4+ (all LTS versions supported) **Rendering
+Pipelines**: Built-in, URP, HDRP **Platforms**: PC, Mac, Linux, iOS, Android, Console, WebGL, VR
 
 ---
 
@@ -418,6 +454,7 @@ A: Yes, no royalties or restrictions. Buy once, use in unlimited projects.
 👉 **[Start with Getting Started](01-GETTING-STARTED.md)**
 
 Or jump to:
+
 - [Why Feel?](02-WHY-FEEL.md) — Convince yourself (or your team)
 - [Feedback Catalog](03-FEEDBACK-CATALOG.md) — Browse all 150+ feedbacks
 - [Advanced Techniques](04-ADVANCED-TECHNIQUES.md) — Power-user features
@@ -427,4 +464,5 @@ Or jump to:
 
 **Happy juicing! 🎮✨**
 
-*Documentation by the Unity community, for the Unity community. Feel is created by [More Mountains](https://moremountains.com/).*
+_Documentation by the Unity community, for the Unity community. Feel is created by
+[More Mountains](https://moremountains.com/)._

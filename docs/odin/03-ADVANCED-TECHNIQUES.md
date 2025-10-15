@@ -1,6 +1,7 @@
 # Advanced Techniques
 
-> **TL;DR**: Custom processors, editor-only workflows, complex validation, custom drawers, build pipeline considerations, and integration patterns.
+> **TL;DR**: Custom processors, editor-only workflows, complex validation, custom drawers, build
+> pipeline considerations, and integration patterns.
 
 This guide covers advanced Odin usage for power users and teams building complex editor tools.
 
@@ -532,12 +533,12 @@ public class GameManager : SerializedMonoBehaviour
 
 ### Build Size Management
 
-| Technique | Build Size Reduction |
-|-----------|---------------------|
-| Use `#if UNITY_EDITOR` for debug tools | ~100-500KB |
-| Don't serialize huge dictionaries | Varies |
-| Use `[NonSerialized]` for runtime-only data | ~10-100KB |
-| Strip unused Odin features (Tools → Odin → Preferences) | ~500KB-1MB |
+| Technique                                               | Build Size Reduction |
+| ------------------------------------------------------- | -------------------- |
+| Use `#if UNITY_EDITOR` for debug tools                  | ~100-500KB           |
+| Don't serialize huge dictionaries                       | Varies               |
+| Use `[NonSerialized]` for runtime-only data             | ~10-100KB            |
+| Strip unused Odin features (Tools → Odin → Preferences) | ~500KB-1MB           |
 
 ### Build Validation
 
@@ -711,6 +712,7 @@ public class GenericExample : SerializedMonoBehaviour
 ---
 
 **Key Takeaways:**
+
 - Custom attributes and drawers extend Odin's functionality
 - Editor-only workflows reduce build size and enable powerful tools
 - Complex validation ensures data integrity

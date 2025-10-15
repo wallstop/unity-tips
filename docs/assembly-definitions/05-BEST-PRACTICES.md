@@ -1,37 +1,44 @@
 # Best Practices & Pitfalls: Assembly Definitions
 
-> **Lessons Learned:** What to do, what NOT to do, and how to avoid common mistakes when using Assembly Definitions.
+> **Lessons Learned:** What to do, what NOT to do, and how to avoid common mistakes when using
+> Assembly Definitions.
 
 ## When to Use Assembly Definitions
 
 ### ✅ Use Assembly Definitions When:
 
 **1. Your project has 500+ scripts**
+
 - Compile times start becoming noticeable (>10 seconds)
 - Iteration speed matters
 
 **2. You want clean architecture**
+
 - Enforce separation between UI/Gameplay/Core
 - Prevent spaghetti dependencies
 - Make dependencies explicit
 
 **3. You're building for multiple platforms**
+
 - Mobile + PC + Console
 - Platform-specific code without `#if` everywhere
 - Smaller builds per platform
 
 **4. You have editor tools**
+
 - Debug menus
 - Level editors
 - Custom inspectors
 - Want zero runtime overhead
 
 **5. You're creating Unity packages**
+
 - Sharing code between projects
 - Distributing on Asset Store
 - Internal package libraries
 
 **6. Your team is growing**
+
 - Multiple developers working on different features
 - Need clear boundaries
 - Want to avoid merge conflicts in single giant assembly
@@ -41,26 +48,31 @@
 ### ❌ Skip Assembly Definitions When:
 
 **1. Your project is small (<100 scripts)**
+
 - Overhead not worth it
 - Compile times already fast
 - Keep it simple
 
 **2. You're prototyping rapidly**
+
 - Architecture changes frequently
 - Don't know final structure yet
 - Speed of development > compile speed
 
 **3. You're on a tight deadline**
+
 - Mid-production crunch
 - Don't have time to restructure
 - "If it ain't broke, don't fix it"
 
 **4. Your team is unfamiliar with assemblies**
+
 - Training overhead
 - Potential for mistakes
 - Might slow down development initially
 
 **5. You're just learning Unity**
+
 - One more thing to learn
 - Focus on game development first
 - Add later when project grows
@@ -72,11 +84,13 @@
 ### ❌ Too Few Assemblies
 
 **Example: Only 1 Assembly**
+
 ```
 Assets/Scripts/MyGame.Everything.asmdef  ← All 5000 scripts
 ```
 
 **Problems:**
+
 - No compile time improvement
 - Defeats the purpose
 - Same as not using assembly definitions
@@ -86,6 +100,7 @@ Assets/Scripts/MyGame.Everything.asmdef  ← All 5000 scripts
 ### ❌ Too Many Assemblies
 
 **Example: Every Folder is an Assembly**
+
 ```
 Assets/Scripts/
 ├── Player/
@@ -99,6 +114,7 @@ Assets/Scripts/
 ```
 
 **Problems:**
+
 - Management overhead (50+ `.asmdef` files)
 - Dependency complexity
 - Merge conflicts on `.asmdef` files
@@ -120,12 +136,14 @@ Assets/Scripts/
 ```
 
 **Benefits:**
+
 - Meaningful separation
 - Fast compile times
 - Easy to understand
 - Low management overhead
 
 **When to Split an Assembly:**
+
 - Compile time >5 seconds
 - Clear conceptual boundary (e.g., split Gameplay into Player + Enemies)
 - Different teams working on different parts
@@ -148,6 +166,7 @@ graph LR
 ```
 
 **Problem:**
+
 ```
 UI needs to call Gameplay.Player
 Gameplay needs to call UI.HealthBar
@@ -166,6 +185,7 @@ graph TD
 ```
 
 **Implementation:**
+
 ```csharp
 // In Core
 public interface IPlayerData
@@ -271,16 +291,18 @@ MyGame.Editor references MyGame.Gameplay
 ```
 
 **Solution:**
+
 ```json
 // MyGame.Editor should be autoReferenced: false
 {
-    "name": "MyGame.Editor",
-    "autoReferenced": false,
-    "includePlatforms": ["Editor"]
+  "name": "MyGame.Editor",
+  "autoReferenced": false,
+  "includePlatforms": ["Editor"]
 }
 ```
 
 Editor assemblies should almost always:
+
 - Be `autoReferenced: false`
 - Only be `includePlatforms: ["Editor"]`
 - Reference runtime assemblies (not vice versa)
@@ -292,6 +314,7 @@ Editor assemblies should almost always:
 ### Mistake 1: Migrating Everything at Once
 
 **❌ Don't:**
+
 ```
 Day 1: Create 20 assemblies for entire project
 Day 2: Fix 500 compile errors
@@ -299,6 +322,7 @@ Day 3: Give up, revert everything
 ```
 
 **✅ Do:**
+
 ```
 Week 1: Create MyGame.UI.asmdef (safest, most isolated)
 Week 2: Create MyGame.Core.asmdef (foundation)
@@ -313,28 +337,32 @@ Start with the **most isolated** code (usually UI or Editor tools).
 ### Mistake 2: Not Using Root Namespace
 
 **❌ Don't:**
+
 ```json
 {
-    "name": "MyGame.Core",
-    "rootNamespace": ""  // Empty!
+  "name": "MyGame.Core",
+  "rootNamespace": "" // Empty!
 }
 ```
 
 **Result:**
+
 ```csharp
 // Your scripts have no namespace
 public class Database { }  // Name collision likely!
 ```
 
 **✅ Do:**
+
 ```json
 {
-    "name": "MyGame.Core",
-    "rootNamespace": "MyGame.Core"
+  "name": "MyGame.Core",
+  "rootNamespace": "MyGame.Core"
 }
 ```
 
 **Result:**
+
 ```csharp
 namespace MyGame.Core
 {
@@ -347,24 +375,27 @@ namespace MyGame.Core
 ### Mistake 3: Forgetting to Add References
 
 **Symptom:**
+
 ```
 error CS0246: The type or namespace name 'MyGame' could not be found
 ```
 
 **Cause:**
+
 ```json
 // MyGame.Gameplay.asmdef
 {
-    "name": "MyGame.Gameplay",
-    "references": []  // Missing MyGame.Core!
+  "name": "MyGame.Gameplay",
+  "references": [] // Missing MyGame.Core!
 }
 ```
 
 **Fix:**
+
 ```json
 {
-    "name": "MyGame.Gameplay",
-    "references": ["MyGame.Core"]  // Add reference
+  "name": "MyGame.Gameplay",
+  "references": ["MyGame.Core"] // Add reference
 }
 ```
 
@@ -375,24 +406,27 @@ error CS0246: The type or namespace name 'MyGame' could not be found
 ### Mistake 4: Wrong Platform Settings
 
 **❌ Don't:**
+
 ```json
 // Editor assembly
 {
-    "name": "MyGame.Editor",
-    "includePlatforms": []  // Wrong! Will be in builds!
+  "name": "MyGame.Editor",
+  "includePlatforms": [] // Wrong! Will be in builds!
 }
 ```
 
 **✅ Do:**
+
 ```json
 {
-    "name": "MyGame.Editor",
-    "includePlatforms": ["Editor"],
-    "autoReferenced": false
+  "name": "MyGame.Editor",
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
 }
 ```
 
 **Always:**
+
 - Editor assemblies: `includePlatforms: ["Editor"]`
 - Mobile assemblies: `includePlatforms: ["iOS", "Android"]`
 - Verify with a test build!
@@ -404,11 +438,13 @@ error CS0246: The type or namespace name 'MyGame' could not be found
 ### Compile Time Optimization
 
 **1. Measure First**
+
 ```
 Window → Analysis → Assembly Inspector
 ```
 
 Look for:
+
 - Assemblies with >1000 scripts → Consider splitting
 - Long dependency chains → Consider flattening
 - Assemblies that compile every time → Check dependencies
@@ -416,13 +452,16 @@ Look for:
 **2. Reduce Dependency Depth**
 
 **❌ Deep Chain (Slow):**
+
 ```mermaid
 graph LR
     A[Core] --> B[System1] --> C[System2] --> D[System3] --> E[Gameplay]
 ```
+
 Change Core → All 5 recompile sequentially (slow!)
 
 **✅ Flat Structure (Fast):**
+
 ```mermaid
 graph TD
     A[Core] --> B[System1]
@@ -430,6 +469,7 @@ graph TD
     A --> D[System3]
     A --> E[Gameplay]
 ```
+
 Change Core → All 4 recompile in parallel (fast!)
 
 **3. Break Circular Dependencies Early**
@@ -440,8 +480,8 @@ Circular dependencies force Unity to recompile multiple times.
 
 ```json
 {
-    "name": "MyGame.DebugTools",
-    "autoReferenced": false
+  "name": "MyGame.DebugTools",
+  "autoReferenced": false
 }
 ```
 
@@ -454,16 +494,19 @@ Prevents unnecessary dependencies on debug/dev code.
 **Good News: Assembly Definitions have ZERO runtime overhead!**
 
 `.asmdef` files only affect:
+
 - ✅ Compile time (faster)
 - ✅ Dependencies (explicit)
 - ✅ Build size (smaller with platform filtering)
 
 They don't affect:
+
 - ❌ Runtime speed (same)
 - ❌ Memory usage (same)
 - ❌ Loading time (same)
 
 **Exception:** Platform filtering can reduce build size:
+
 - Mobile assembly excluded from PC build
 - Editor assembly never in builds
 - Smaller builds = faster loading
@@ -475,12 +518,14 @@ They don't affect:
 ### Best Practices for Teams
 
 **1. Establish Assembly Structure Early**
+
 ```
 Sprint 0: Define assembly structure
 Sprint 1+: Developers follow structure
 ```
 
 **2. Document the Structure**
+
 ```markdown
 # Assembly Structure
 
@@ -491,11 +536,13 @@ Sprint 1+: Developers follow structure
 ```
 
 **3. Code Review `.asmdef` Changes**
+
 - Adding dependencies? Discuss first
 - New assembly? Make sure it fits the architecture
 - Platform changes? Verify with test builds
 
 **4. Use Meaningful Names**
+
 ```
 ✅ MyGame.Gameplay.Player
 ✅ MyGame.UI.Menus
@@ -513,20 +560,23 @@ Sprint 1+: Developers follow structure
 **Problem:** Two developers add different dependencies to same `.asmdef`.
 
 **Developer A:**
+
 ```json
 {
-    "references": ["MyGame.Core", "Unity.InputSystem"]
+  "references": ["MyGame.Core", "Unity.InputSystem"]
 }
 ```
 
 **Developer B:**
+
 ```json
 {
-    "references": ["MyGame.Core", "Unity.TextMeshPro"]
+  "references": ["MyGame.Core", "Unity.TextMeshPro"]
 }
 ```
 
 **Merge Result (Broken):**
+
 ```json
 {
 <<<<<<< HEAD
@@ -538,17 +588,15 @@ Sprint 1+: Developers follow structure
 ```
 
 **Solution: Both Add**
+
 ```json
 {
-    "references": [
-        "MyGame.Core",
-        "Unity.InputSystem",
-        "Unity.TextMeshPro"
-    ]
+  "references": ["MyGame.Core", "Unity.InputSystem", "Unity.TextMeshPro"]
 }
 ```
 
 **Prevention:**
+
 - Communicate when adding dependencies
 - Use feature branches
 - Merge main frequently
@@ -561,6 +609,7 @@ Sprint 1+: Developers follow structure
 ### Platform Filtering for Smaller Builds
 
 **Before Assembly Definitions:**
+
 ```
 MyGame.exe (Windows):
 - Mobile code included ❌
@@ -572,6 +621,7 @@ Build size: 500 MB
 ```
 
 **After Assembly Definitions:**
+
 ```
 MyGame.exe (Windows):
 - Mobile code excluded ✅ (includePlatforms: ["iOS", "Android"])
@@ -589,14 +639,16 @@ Build size: 350 MB
 ### Conditional Features
 
 **Pattern:**
+
 ```json
 {
-    "name": "MyGame.Analytics",
-    "defineConstraints": ["ANALYTICS_ENABLED"]
+  "name": "MyGame.Analytics",
+  "defineConstraints": ["ANALYTICS_ENABLED"]
 }
 ```
 
 **Build Script:**
+
 ```csharp
 // Free version: No analytics
 PlayerSettings.SetScriptingDefineSymbolsForGroup(
@@ -612,6 +664,7 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ```
 
 **Benefits:**
+
 - Free version doesn't include analytics assembly
 - Smaller download size
 - Faster loading
@@ -623,6 +676,7 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ### Before Releasing Your Game
 
 **✅ 1. Verify Platform Settings**
+
 ```
 [ ] Mobile assemblies only on iOS/Android
 [ ] Editor assemblies only in Editor
@@ -630,6 +684,7 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ```
 
 **✅ 2. Test All Platform Builds**
+
 ```
 [ ] Windows build: No mobile/console code
 [ ] iOS build: No desktop/console code
@@ -637,10 +692,11 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ```
 
 **✅ 3. Remove Debug Assemblies**
+
 ```json
 // MyGame.DebugTools.asmdef
 {
-    "defineConstraints": ["DEVELOPMENT_BUILD"]
+  "defineConstraints": ["DEVELOPMENT_BUILD"]
 }
 ```
 
@@ -650,6 +706,7 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ```
 
 **✅ 4. Check Assembly Sizes**
+
 ```
 Window → Analysis → Assembly Inspector
 
@@ -658,6 +715,7 @@ Window → Analysis → Assembly Inspector
 ```
 
 **✅ 5. Verify Dependencies**
+
 ```
 [ ] No circular dependencies
 [ ] UI doesn't depend on Gameplay (if desired)
@@ -665,6 +723,7 @@ Window → Analysis → Assembly Inspector
 ```
 
 **✅ 6. Test Without Unity Editor**
+
 ```
 [ ] Build and run standalone
 [ ] No missing references
@@ -672,6 +731,7 @@ Window → Analysis → Assembly Inspector
 ```
 
 **✅ 7. Code Stripping**
+
 ```
 Player Settings → Managed Stripping Level
 
@@ -687,6 +747,7 @@ Player Settings → Managed Stripping Level
 ### Pitfall 1: Assembly Definition in Wrong Folder
 
 **Problem:**
+
 ```
 Assets/Scripts/
 ├── MyGame.Core.asmdef  ← Here
@@ -695,6 +756,7 @@ Assets/Scripts/
 ```
 
 **Solution:**
+
 ```
 Assets/Scripts/Core/
 ├── MyGame.Core.asmdef  ← Move here
@@ -708,6 +770,7 @@ Assets/Scripts/Core/
 ### Pitfall 2: Special Folders Behavior
 
 **Unity's Special Folders:**
+
 ```
 Plugins/     → Compiles first (Assembly-CSharp-firstpass)
 Standard Assets/ → Compiles first
@@ -715,31 +778,30 @@ Editor/      → Editor-only
 ```
 
 **Problem:**
+
 ```
 Assets/Plugins/MyCode/
 └── MyGame.Core.asmdef  ← Ignored in Plugins!
 ```
 
-**Solution:**
-Move out of special folders, or don't use `.asmdef` there.
+**Solution:** Move out of special folders, or don't use `.asmdef` there.
 
 ---
 
 ### Pitfall 3: Tests Not Running
 
 **Problem:**
+
 ```json
 {
-    "name": "MyGame.Tests",
-    "references": [
-        "UnityEngine.TestRunner",
-        "MyGame.Core"
-    ]
-    // Missing optionalUnityReferences!
+  "name": "MyGame.Tests",
+  "references": ["UnityEngine.TestRunner", "MyGame.Core"]
+  // Missing optionalUnityReferences!
 }
 ```
 
 **Solution:**
+
 ```json
 {
     "name": "MyGame.Tests",
@@ -759,6 +821,7 @@ Move out of special folders, or don't use `.asmdef` there.
 **Problem:** Domain reload still happening even with assembly definitions.
 
 **Solution: Disable Domain Reload**
+
 ```
 Edit → Project Settings → Editor → Enter Play Mode Settings
 ☑ Enter Play Mode Options (Experimental)
@@ -767,6 +830,7 @@ Edit → Project Settings → Editor → Enter Play Mode Settings
 ```
 
 **Trade-off:** Static fields don't reset. You must reset them manually:
+
 ```csharp
 [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 static void ResetStatics()
@@ -781,17 +845,20 @@ static void ResetStatics()
 ### Pitfall 5: Assembly Name Collisions
 
 **Problem:**
+
 ```
 Assets/MyProject/MyGame.Core.asmdef
 Packages/ThirdParty/MyGame.Core.asmdef  ← Collision!
 ```
 
 **Error:**
+
 ```
 Assembly with name 'MyGame.Core' already exists
 ```
 
 **Solution:** Use unique names
+
 ```
 Assets/MyProject/MyCompany.MyGame.Core.asmdef
 Packages/ThirdParty/TheirCompany.TheirGame.Core.asmdef
@@ -832,18 +899,21 @@ Packages/ThirdParty/TheirCompany.TheirGame.Core.asmdef
 ### When Things Go Wrong
 
 **Compile Errors After Adding Assembly:**
+
 1. Check `references` array
 2. Verify namespace imports
 3. Look for circular dependencies
 4. Check Assembly Inspector
 
 **Slow Compile Times:**
+
 1. Use Assembly Inspector to find bottlenecks
 2. Split large assemblies (>1000 scripts)
 3. Flatten dependency hierarchy
 4. Remove unnecessary dependencies
 
 **Runtime Errors:**
+
 1. Verify all assemblies in build
 2. Check platform settings
 3. Test without Editor
@@ -860,6 +930,8 @@ Packages/ThirdParty/TheirCompany.TheirGame.Core.asmdef
 
 ---
 
-**Final Advice:** Assembly Definitions are powerful but not magic. Start simple, measure results, and iterate. Focus on solving real problems (slow compile times, tangled dependencies) rather than perfect architecture.
+**Final Advice:** Assembly Definitions are powerful but not magic. Start simple, measure results,
+and iterate. Focus on solving real problems (slow compile times, tangled dependencies) rather than
+perfect architecture.
 
 **Happy Coding!** ⚡

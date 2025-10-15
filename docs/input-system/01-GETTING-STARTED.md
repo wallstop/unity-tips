@@ -1,10 +1,14 @@
 # Getting Started with Unity's Input System
 
-> **Quick Start**: Install the Input System package, create an Input Actions asset, add a PlayerInput component, and subscribe to action events — that's it!
+> **Quick Start**: Install the Input System package, create an Input Actions asset, add a
+> PlayerInput component, and subscribe to action events — that's it!
 
 ## What is the Input System?
 
-Unity's Input System is a **modern, flexible framework** for handling player input across all devices and platforms. Instead of writing polling code that checks for specific keys every frame, you define abstract "actions" that players trigger with any input device — and your code responds to events when those actions happen.
+Unity's Input System is a **modern, flexible framework** for handling player input across all
+devices and platforms. Instead of writing polling code that checks for specific keys every frame,
+you define abstract "actions" that players trigger with any input device — and your code responds to
+events when those actions happen.
 
 ```csharp
 // Old way (Input Manager)
@@ -92,8 +96,10 @@ void OnMove(InputAction.CallbackContext context)
 ```
 
 **Key Benefits:**
+
 - ⚡ **Better Performance**: Event-driven instead of polling every frame
-- 🎮 **Universal Device Support**: One action works on keyboard, gamepad, touch, and custom controllers
+- 🎮 **Universal Device Support**: One action works on keyboard, gamepad, touch, and custom
+  controllers
 - 🔧 **Runtime Rebinding**: Players can customize controls without code changes
 - 👥 **Native Multiplayer**: Each player gets their own input instance automatically
 - 🌍 **Cross-Platform**: Write once, works everywhere
@@ -114,7 +120,8 @@ Unity's Input System is distributed as a package via the Package Manager.
 6. Unity will prompt you to restart the Editor - click "Yes"
 ```
 
-**Why the restart?** The Input System replaces Unity's backend input handling, requiring an editor restart to switch.
+**Why the restart?** The Input System replaces Unity's backend input handling, requiring an editor
+restart to switch.
 
 ### Step 2: Enable the New Input System
 
@@ -129,7 +136,8 @@ After restarting, Unity needs to know which input backend to use.
    - "Both" - If you need to support old Input Manager code during migration
 ```
 
-**Recommendation**: Use "Input System Package (New)" for new projects to avoid confusion. Use "Both" only if migrating an existing project.
+**Recommendation**: Use "Input System Package (New)" for new projects to avoid confusion. Use "Both"
+only if migrating an existing project.
 
 ### Step 3: Verify Installation
 
@@ -154,11 +162,13 @@ public class InputSystemTest : MonoBehaviour
 }
 ```
 
-Attach this script to any GameObject and press Space or a gamepad button. If you see logs, the Input System is working!
+Attach this script to any GameObject and press Space or a gamepad button. If you see logs, the Input
+System is working!
 
 ## Your First Input Actions Asset
 
 The **Input Actions Asset** is the heart of the Input System. It's where you define:
+
 - **Actions**: What the player can do (Jump, Move, Fire, etc.)
 - **Bindings**: Which buttons/keys trigger those actions
 - **Control Schemes**: Device configurations (Keyboard, Gamepad, Touch)
@@ -189,21 +199,23 @@ The editor has three main sections:
 └─────────────┴─────────────┴────────────────────────────┘
 ```
 
-**Action Maps**: Different input contexts (e.g., "Player" for gameplay, "UI" for menus)
-**Actions**: Individual inputs the player can trigger
-**Properties**: The actual buttons/keys that trigger each action
+**Action Maps**: Different input contexts (e.g., "Player" for gameplay, "UI" for menus) **Actions**:
+Individual inputs the player can trigger **Properties**: The actual buttons/keys that trigger each
+action
 
 ### Building Your First Action Map
 
 Let's create a basic player control scheme:
 
 #### Step 1: Create an Action Map
+
 ```
 1. In the Input Actions Editor, the default "Action Map" is already created
 2. Rename it to "Player" (click the name to edit)
 ```
 
 #### Step 2: Add Actions
+
 ```
 1. Click the "+" next to Actions
 2. Add these actions:
@@ -282,7 +294,8 @@ This creates a type-safe class for easy access:
 6. Click "Save Asset"
 ```
 
-Unity will create a `PlayerControls.cs` file next to your Input Actions asset. This generated class provides IntelliSense and type safety!
+Unity will create a `PlayerControls.cs` file next to your Input Actions asset. This generated class
+provides IntelliSense and type safety!
 
 ### Understanding the Generated Class
 
@@ -410,6 +423,7 @@ public class PlayerController : MonoBehaviour
 ### Step 4: Test It!
 
 Press Play and:
+
 - **WASD** or **Left Stick** to move
 - **Space** or **Gamepad South Button** to jump
 
@@ -428,13 +442,16 @@ Let's break down the magic:
 
 ### Key Concepts Demonstrated
 
-**Event-Driven**: No `Update()` loop checking input every frame — callbacks fire only when input changes.
+**Event-Driven**: No `Update()` loop checking input every frame — callbacks fire only when input
+changes.
 
-**Device Agnostic**: The same action works for keyboard, gamepad, or any other device without extra code.
+**Device Agnostic**: The same action works for keyboard, gamepad, or any other device without extra
+code.
 
 **Type Safety**: The generated class provides IntelliSense and compile-time checking.
 
 **Lifecycle Management**:
+
 - `Awake()`: Create input instance and subscribe
 - `OnEnable()`: Enable input
 - `OnDisable()`: Disable input
@@ -442,7 +459,8 @@ Let's break down the magic:
 
 ## Alternative: Using PlayerInput Component
 
-If you prefer a component-based approach instead of writing code, Unity provides the **PlayerInput** component.
+If you prefer a component-based approach instead of writing code, Unity provides the **PlayerInput**
+component.
 
 ### Setup with PlayerInput
 
@@ -492,11 +510,13 @@ public class PlayerInputController : MonoBehaviour
 ```
 
 **Pros of PlayerInput Component:**
+
 - No need to manually subscribe/unsubscribe
 - Visual setup in Inspector
 - Perfect for prototyping
 
 **Cons:**
+
 - Less control over timing (only .performed equivalent)
 - Harder to debug (UnityEvents are less visible than code)
 - String-based method names (prone to typos)
@@ -546,6 +566,7 @@ Move (Action)
 ```
 
 This automatically:
+
 - Combines four keys into a single Vector2
 - Normalizes diagonal movement (prevents moving faster diagonally)
 - Works seamlessly with analog sticks
@@ -553,6 +574,7 @@ This automatically:
 ### ✅ DO: Generate C# Classes
 
 Always check "Generate C# Class" for:
+
 - IntelliSense support
 - Type safety
 - Refactoring safety (rename actions and get compile errors if missed)
@@ -633,69 +655,86 @@ void Awake()
 
 ### Use Input System When:
 
-✅ **Cross-platform support**: Your game targets PC, console, and/or mobile
-✅ **Gamepad support**: You want plug-and-play controller support
-✅ **Runtime rebinding**: Players need to customize controls
-✅ **Local multiplayer**: Multiple players on one device
-✅ **Complex input**: Combos, charge attacks, or context-sensitive controls
-✅ **Event-driven architecture**: You prefer callbacks over polling
-✅ **Future-proofing**: You want long-term Unity support
+✅ **Cross-platform support**: Your game targets PC, console, and/or mobile ✅ **Gamepad support**:
+You want plug-and-play controller support ✅ **Runtime rebinding**: Players need to customize
+controls ✅ **Local multiplayer**: Multiple players on one device ✅ **Complex input**: Combos,
+charge attacks, or context-sensitive controls ✅ **Event-driven architecture**: You prefer callbacks
+over polling ✅ **Future-proofing**: You want long-term Unity support
 
 ### Use Legacy Input Manager When:
 
-⚠️ **Rapid prototyping**: Very early concept testing (but consider learning curve)
-⚠️ **Legacy project**: Migrating isn't worth the effort (but consider technical debt)
-⚠️ **Simple PC-only game**: Keyboard-only with no special features
+⚠️ **Rapid prototyping**: Very early concept testing (but consider learning curve) ⚠️ **Legacy
+project**: Migrating isn't worth the effort (but consider technical debt) ⚠️ **Simple PC-only
+game**: Keyboard-only with no special features
 
 ### Don't Use Either — Use a Plugin When:
 
-🔌 **Rewired**: If you need even more features than Input System (MMO hotbars, admin consoles)
-🔌 **InControl**: Legacy projects that prefer a lightweight third-party solution
+🔌 **Rewired**: If you need even more features than Input System (MMO hotbars, admin consoles) 🔌
+**InControl**: Legacy projects that prefer a lightweight third-party solution
 
-**Recommendation**: For new projects in 2024+, use Unity's Input System. It's the official, supported, and most future-proof option.
+**Recommendation**: For new projects in 2024+, use Unity's Input System. It's the official,
+supported, and most future-proof option.
 
 ## Common Questions
 
 ### Q: Can I use both Input Manager and Input System?
 
-**A:** Yes, Unity allows "Both" mode in Project Settings, but it's **not recommended**. It's confusing for new developers and can cause unexpected behavior. Only use "Both" during migration, then switch to "Input System Package (New)" when done.
+**A:** Yes, Unity allows "Both" mode in Project Settings, but it's **not recommended**. It's
+confusing for new developers and can cause unexpected behavior. Only use "Both" during migration,
+then switch to "Input System Package (New)" when done.
 
 ### Q: Will the Input System work on mobile?
 
-**A:** Yes! The Input System supports touch input, accelerometer, gyroscope, and on-screen controls. See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#mobile-input) for details.
+**A:** Yes! The Input System supports touch input, accelerometer, gyroscope, and on-screen controls.
+See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#mobile-input) for details.
 
 ### Q: Can I rebind controls at runtime?
 
-**A:** Yes! The Input System has a full rebinding API. Players can remap any action to any button/key. See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#runtime-rebinding) for a complete guide.
+**A:** Yes! The Input System has a full rebinding API. Players can remap any action to any
+button/key. See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#runtime-rebinding) for a complete
+guide.
 
 ### Q: Does it work with Unity UI?
 
-**A:** Yes! The Input System integrates seamlessly with both legacy Unity UI and UI Toolkit. See [Common Patterns](./04-COMMON-PATTERNS.md#menu-navigation) for setup.
+**A:** Yes! The Input System integrates seamlessly with both legacy Unity UI and UI Toolkit. See
+[Common Patterns](./04-COMMON-PATTERNS.md#menu-navigation) for setup.
 
 ### Q: How do I handle multiple players?
 
-**A:** Use the **PlayerInputManager** component to spawn players dynamically, or manually create multiple **PlayerInput** components. See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#multiplayer) for details.
+**A:** Use the **PlayerInputManager** component to spawn players dynamically, or manually create
+multiple **PlayerInput** components. See
+[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#multiplayer) for details.
 
 ### Q: What about Steam Input API?
 
-**A:** The Input System can integrate with Steam Input for advanced controller glyphs and Steam Deck support. The IshoBoy project demonstrates this — see `KInputService.cs` for an example. More details in [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#steam-input).
+**A:** The Input System can integrate with Steam Input for advanced controller glyphs and Steam Deck
+support. The IshoBoy project demonstrates this — see `KInputService.cs` for an example. More details
+in [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#steam-input).
 
 ### Q: Is it slower than Input.GetKey()?
 
-**A:** No! In fact, event-driven input is typically **faster** because you only process input when it changes, rather than checking every frame. The Input System uses efficient native code for device polling.
+**A:** No! In fact, event-driven input is typically **faster** because you only process input when
+it changes, rather than checking every frame. The Input System uses efficient native code for device
+polling.
 
 ### Q: Can I use it with networked multiplayer?
 
-**A:** Yes, but you'll need to send input state over the network yourself. The Input System doesn't handle networking — it only manages local input. You typically serialize input actions and send them to the server, then replay on clients.
+**A:** Yes, but you'll need to send input state over the network yourself. The Input System doesn't
+handle networking — it only manages local input. You typically serialize input actions and send them
+to the server, then replay on clients.
 
 ## Next Steps
 
 Now that you've created your first Input Actions and built a basic player controller:
 
-1. **[Core Concepts](./02-CORE-CONCEPTS.md)** — Deep dive into Action Types, Control Schemes, Processors, and Interactions
-2. **[Common Patterns](./04-COMMON-PATTERNS.md)** — Ready-to-use patterns for movement, aiming, menus, and more
-3. **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** — Runtime rebinding, multiplayer, mobile, and Steam Input
-4. **[Troubleshooting](./05-TROUBLESHOOTING.md)** — Solutions to common problems and optimization tips
+1. **[Core Concepts](./02-CORE-CONCEPTS.md)** — Deep dive into Action Types, Control Schemes,
+   Processors, and Interactions
+2. **[Common Patterns](./04-COMMON-PATTERNS.md)** — Ready-to-use patterns for movement, aiming,
+   menus, and more
+3. **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** — Runtime rebinding, multiplayer, mobile,
+   and Steam Input
+4. **[Troubleshooting](./05-TROUBLESHOOTING.md)** — Solutions to common problems and optimization
+   tips
 
 ## Quick Reference Card
 
@@ -735,4 +774,5 @@ void OnDestroy()
 
 ---
 
-**Ready to dive deeper?** Continue to [Core Concepts](./02-CORE-CONCEPTS.md) to understand how the Input System really works!
+**Ready to dive deeper?** Continue to [Core Concepts](./02-CORE-CONCEPTS.md) to understand how the
+Input System really works!

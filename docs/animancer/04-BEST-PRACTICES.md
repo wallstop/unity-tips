@@ -2,11 +2,14 @@
 
 Learn from common mistakes and follow proven patterns to make the most of Animancer.
 
-> **⚡ TL;DR:** Always check `IsPlaying()`, clear `OwnedEvents`, separate animation from game logic, disable when idle, use NormalizedTime for sync, set ActionOnDisable for pooling. [Skip to Common Pitfalls](#common-pitfalls)
+> **⚡ TL;DR:** Always check `IsPlaying()`, clear `OwnedEvents`, separate animation from game logic,
+> disable when idle, use NormalizedTime for sync, set ActionOnDisable for pooling.
+> [Skip to Common Pitfalls](#common-pitfalls)
 
 ---
 
 ## Table of Contents
+
 1. [Do's and Don'ts](#dos-and-donts)
 2. [Common Pitfalls](#common-pitfalls)
 3. [Performance Best Practices](#performance-best-practices)
@@ -585,6 +588,7 @@ void Update()
 ### 2. Visualize in Inspector
 
 Enable Animancer's **Live Inspector** (Pro feature) to see:
+
 - Current state
 - Weight
 - Time
@@ -697,16 +701,12 @@ public class CharacterAnimator : MonoBehaviour
 
 ## Key Takeaways
 
-✅ **Always check IsPlaying()** to avoid restart stuttering
-✅ **Clear OwnedEvents** before adding new ones
-✅ **Separate animation from gameplay logic**
-✅ **Disable AnimancerComponent** when not animating
-✅ **Cache animation clip references** (don't load at runtime)
-✅ **Use NormalizedTime** to sync multi-sprite characters
-✅ **Set ActionOnDisable** for pooled objects
-✅ **Keep layer count low** (1-2 is usually enough)
-✅ **Use named methods** for event callbacks (easier debugging)
-✅ **Validate clip assignments** in Awake/Start
+✅ **Always check IsPlaying()** to avoid restart stuttering ✅ **Clear OwnedEvents** before adding
+new ones ✅ **Separate animation from gameplay logic** ✅ **Disable AnimancerComponent** when not
+animating ✅ **Cache animation clip references** (don't load at runtime) ✅ **Use NormalizedTime**
+to sync multi-sprite characters ✅ **Set ActionOnDisable** for pooled objects ✅ **Keep layer count
+low** (1-2 is usually enough) ✅ **Use named methods** for event callbacks (easier debugging) ✅
+**Validate clip assignments** in Awake/Start
 
 ---
 
@@ -718,4 +718,5 @@ public class CharacterAnimator : MonoBehaviour
 
 ---
 
-**Official Documentation:** [kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)
+**Official Documentation:**
+[kybernetik.com.au/animancer/docs/](https://kybernetik.com.au/animancer/docs/)

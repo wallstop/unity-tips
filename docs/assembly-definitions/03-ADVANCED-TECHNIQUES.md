@@ -1,6 +1,7 @@
 # Advanced Techniques: Assembly Definitions
 
-> **Master Level:** Complex dependency hierarchies, version defines, conditional compilation, and advanced build pipeline integration.
+> **Master Level:** Complex dependency hierarchies, version defines, conditional compilation, and
+> advanced build pipeline integration.
 
 ## Complex Dependency Hierarchies
 
@@ -32,77 +33,85 @@ graph TD
 ```
 
 **Infrastructure Layer** (MyGame.Infrastructure.asmdef)
+
 ```json
 {
-    "name": "MyGame.Infrastructure",
-    "rootNamespace": "MyGame.Infrastructure",
-    "references": []  // No dependencies - pure utilities
+  "name": "MyGame.Infrastructure",
+  "rootNamespace": "MyGame.Infrastructure",
+  "references": [] // No dependencies - pure utilities
 }
 ```
+
 Contains:
+
 - Math utilities
 - Data structures
 - Extension methods
 - Pure C# code (no Unity dependencies if possible)
 
 **Domain Layer** (MyGame.Domain.asmdef)
+
 ```json
 {
-    "name": "MyGame.Domain",
-    "rootNamespace": "MyGame.Domain",
-    "references": ["MyGame.Infrastructure"]
+  "name": "MyGame.Domain",
+  "rootNamespace": "MyGame.Domain",
+  "references": ["MyGame.Infrastructure"]
 }
 ```
+
 Contains:
+
 - Game rules/logic
 - Business entities
 - Domain events
 - Game state
 
 **Data Layer** (MyGame.Data.asmdef)
+
 ```json
 {
-    "name": "MyGame.Data",
-    "rootNamespace": "MyGame.Data",
-    "references": ["MyGame.Infrastructure", "MyGame.Domain"]
+  "name": "MyGame.Data",
+  "rootNamespace": "MyGame.Data",
+  "references": ["MyGame.Infrastructure", "MyGame.Domain"]
 }
 ```
+
 Contains:
+
 - Save/load systems
 - Databases
 - Serialization
 - Data access
 
 **Application Layer** (MyGame.Application.asmdef)
+
 ```json
 {
-    "name": "MyGame.Application",
-    "rootNamespace": "MyGame.Application",
-    "references": [
-        "MyGame.Infrastructure",
-        "MyGame.Domain",
-        "MyGame.Data"
-    ]
+  "name": "MyGame.Application",
+  "rootNamespace": "MyGame.Application",
+  "references": ["MyGame.Infrastructure", "MyGame.Domain", "MyGame.Data"]
 }
 ```
+
 Contains:
+
 - Game systems
 - Services
 - Managers
 - Gameplay logic
 
 **Presentation Layer** (MyGame.Presentation.asmdef)
+
 ```json
 {
-    "name": "MyGame.Presentation",
-    "rootNamespace": "MyGame.Presentation",
-    "references": [
-        "MyGame.Infrastructure",
-        "MyGame.Application"
-    ]
+  "name": "MyGame.Presentation",
+  "rootNamespace": "MyGame.Presentation",
+  "references": ["MyGame.Infrastructure", "MyGame.Application"]
 }
 ```
+
 Contains:
+
 - UI
 - Rendering
 - Input handling
@@ -111,14 +120,17 @@ Contains:
 ### Benefits of Layered Architecture
 
 1. **Clear Separation of Concerns**
+
    - Each layer has a specific responsibility
    - Easy to reason about where code belongs
 
 2. **Testability**
+
    - Domain layer can be tested without Unity
    - Infrastructure has no external dependencies
 
 3. **Compile Time**
+
    - Change UI → Only Presentation recompiles
    - Change gameplay → Application + Presentation recompile
    - Domain rarely changes → Fast iteration
@@ -138,25 +150,27 @@ Version defines let you conditionally compile code based on package versions.
 **Solution: Version Defines**
 
 **MyGame.Core.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Core",
-    "versionDefines": [
-        {
-            "name": "com.unity.inputsystem",
-            "expression": "1.0.0",
-            "define": "INPUT_SYSTEM_1_0_OR_NEWER"
-        },
-        {
-            "name": "com.unity.inputsystem",
-            "expression": "1.5.0",
-            "define": "INPUT_SYSTEM_1_5_OR_NEWER"
-        }
-    ]
+  "name": "MyGame.Core",
+  "versionDefines": [
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "1.0.0",
+      "define": "INPUT_SYSTEM_1_0_OR_NEWER"
+    },
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "1.5.0",
+      "define": "INPUT_SYSTEM_1_5_OR_NEWER"
+    }
+  ]
 }
 ```
 
 **Usage in Code:**
+
 ```csharp
 using UnityEngine;
 
@@ -200,27 +214,28 @@ public class InputManager : MonoBehaviour
 
 ```json
 {
-    "versionDefines": [
-        {
-            "name": "com.unity.inputsystem",
-            "expression": "1.0.0",
-            "define": "HAS_INPUT_SYSTEM"
-        },
-        {
-            "name": "com.unity.textmeshpro",
-            "expression": "3.0.0",
-            "define": "HAS_TEXTMESHPRO"
-        },
-        {
-            "name": "com.unity.addressables",
-            "expression": "1.0.0",
-            "define": "HAS_ADDRESSABLES"
-        }
-    ]
+  "versionDefines": [
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "1.0.0",
+      "define": "HAS_INPUT_SYSTEM"
+    },
+    {
+      "name": "com.unity.textmeshpro",
+      "expression": "3.0.0",
+      "define": "HAS_TEXTMESHPRO"
+    },
+    {
+      "name": "com.unity.addressables",
+      "expression": "1.0.0",
+      "define": "HAS_ADDRESSABLES"
+    }
+  ]
 }
 ```
 
 **Code:**
+
 ```csharp
 #if HAS_INPUT_SYSTEM
     // Use Input System
@@ -250,14 +265,16 @@ public class InputManager : MonoBehaviour
 When you set `rootNamespace`, Unity wraps all scripts in that namespace.
 
 **MyGame.UI.asmdef:**
+
 ```json
 {
-    "name": "MyGame.UI",
-    "rootNamespace": "MyGame.UI"
+  "name": "MyGame.UI",
+  "rootNamespace": "MyGame.UI"
 }
 ```
 
 **MainMenu.cs (you write):**
+
 ```csharp
 using UnityEngine;
 
@@ -268,6 +285,7 @@ public class MainMenu : MonoBehaviour
 ```
 
 **MainMenu.cs (Unity compiles):**
+
 ```csharp
 using UnityEngine;
 
@@ -285,6 +303,7 @@ namespace MyGame.UI
 You can still add nested namespaces:
 
 **MainMenu.cs:**
+
 ```csharp
 using UnityEngine;
 
@@ -298,6 +317,7 @@ namespace Menus
 ```
 
 **Compiled as:**
+
 ```csharp
 namespace MyGame.UI.Menus  // Nested!
 {
@@ -305,17 +325,20 @@ namespace MyGame.UI.Menus  // Nested!
 }
 ```
 
-### Benefits
+### Benefits of Root Namespaces
 
 1. **No Manual Namespace Typing**
+
    - Unity adds it automatically
    - Fewer mistakes
 
 2. **Consistent Naming**
+
    - All scripts in assembly have same root namespace
    - Easy to find code
 
 3. **Refactoring**
+
    - Change root namespace in one place
    - All scripts updated
 
@@ -329,16 +352,18 @@ namespace MyGame.UI.Menus  // Nested!
 
 ```json
 {
-    "name": "MyGame.Core",
-    "autoReferenced": true  // Default
+  "name": "MyGame.Core",
+  "autoReferenced": true // Default
 }
 ```
 
 **Effect:**
+
 - Any new assembly can use this one without explicitly referencing it
 - Similar to how Unity's default assemblies work
 
 **Use When:**
+
 - Core utilities everyone needs
 - Foundation code
 
@@ -346,16 +371,18 @@ namespace MyGame.UI.Menus  // Nested!
 
 ```json
 {
-    "name": "MyGame.OptionalFeature",
-    "autoReferenced": false
+  "name": "MyGame.OptionalFeature",
+  "autoReferenced": false
 }
 ```
 
 **Effect:**
+
 - Other assemblies must explicitly reference this one
 - Not automatically available
 
 **Use When:**
+
 - Optional features (mods, DLC)
 - Editor-only assemblies
 - Platform-specific code
@@ -364,26 +391,29 @@ namespace MyGame.UI.Menus  // Nested!
 **Example: Optional Steam Integration**
 
 **MyGame.SteamIntegration.asmdef:**
+
 ```json
 {
-    "name": "MyGame.SteamIntegration",
-    "autoReferenced": false,
-    "defineConstraints": ["STEAM_ENABLED"]
+  "name": "MyGame.SteamIntegration",
+  "autoReferenced": false,
+  "defineConstraints": ["STEAM_ENABLED"]
 }
 ```
 
 **MyGame.Application.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Application",
-    "references": [
-        "MyGame.Core"
-        // NOT referencing MyGame.SteamIntegration
-    ]
+  "name": "MyGame.Application",
+  "references": [
+    "MyGame.Core"
+    // NOT referencing MyGame.SteamIntegration
+  ]
 }
 ```
 
 **Conditional Usage:**
+
 ```csharp
 // In MyGame.Application
 #if STEAM_ENABLED
@@ -412,20 +442,23 @@ Unity lets you override assembly settings per platform in Player Settings.
 **Solution: Define Constraints + Platform Settings**
 
 **MyGame.Core.asmdef:**
+
 ```json
 {
-    "name": "MyGame.Core",
-    "defineConstraints": [],
-    "versionDefines": []
+  "name": "MyGame.Core",
+  "defineConstraints": [],
+  "versionDefines": []
 }
 ```
 
 **Player Settings → Scripting Define Symbols:**
+
 - **iOS:** `PLATFORM_IOS;MOBILE`
 - **Android:** `PLATFORM_ANDROID;MOBILE`
 - **PC:** `PLATFORM_PC;DESKTOP`
 
 **Code:**
+
 ```csharp
 #if MOBILE
 using MobilePlugin;
@@ -443,6 +476,7 @@ using DesktopPlugin;
 **Solution: Build Callbacks**
 
 **MyGame.Editor/BuildProcessor.cs:**
+
 ```csharp
 using UnityEditor;
 using UnityEditor.Build;
@@ -479,14 +513,16 @@ public class AssemblyStripper : IPreprocessBuildWithReport
 ### Conditional Assembly Compilation
 
 **MyGame.DebugTools.asmdef:**
+
 ```json
 {
-    "name": "MyGame.DebugTools",
-    "defineConstraints": ["ENABLE_DEBUG_TOOLS"]
+  "name": "MyGame.DebugTools",
+  "defineConstraints": ["ENABLE_DEBUG_TOOLS"]
 }
 ```
 
 **Build Script:**
+
 ```csharp
 // Development build
 PlayerSettings.SetScriptingDefineSymbolsForGroup(
@@ -506,6 +542,7 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ### Creating a Package with Assembly Definitions
 
 **Folder Structure:**
+
 ```
 Packages/
 └── com.mycompany.mygamepackage/
@@ -526,71 +563,77 @@ Packages/
 ```
 
 **package.json:**
+
 ```json
 {
-    "name": "com.mycompany.mygamepackage",
-    "version": "1.0.0",
-    "displayName": "My Game Package",
-    "description": "A package for my game",
-    "unity": "2021.3",
-    "dependencies": {
-        "com.unity.inputsystem": "1.0.0"
-    }
+  "name": "com.mycompany.mygamepackage",
+  "version": "1.0.0",
+  "displayName": "My Game Package",
+  "description": "A package for my game",
+  "unity": "2021.3",
+  "dependencies": {
+    "com.unity.inputsystem": "1.0.0"
+  }
 }
 ```
 
 **Runtime/MyCompany.MyGamePackage.asmdef:**
+
 ```json
 {
-    "name": "MyCompany.MyGamePackage",
-    "rootNamespace": "MyCompany.MyGamePackage",
-    "references": [],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.inputsystem",
-            "expression": "1.0.0",
-            "define": "MYPACKAGE_HAS_INPUT_SYSTEM"
-        }
-    ],
-    "noEngineReferences": false
+  "name": "MyCompany.MyGamePackage",
+  "rootNamespace": "MyCompany.MyGamePackage",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "1.0.0",
+      "define": "MYPACKAGE_HAS_INPUT_SYSTEM"
+    }
+  ],
+  "noEngineReferences": false
 }
 ```
 
 **Editor/MyCompany.MyGamePackage.Editor.asmdef:**
+
 ```json
 {
-    "name": "MyCompany.MyGamePackage.Editor",
-    "rootNamespace": "MyCompany.MyGamePackage.Editor",
-    "references": ["MyCompany.MyGamePackage"],
-    "includePlatforms": ["Editor"],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": false,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "MyCompany.MyGamePackage.Editor",
+  "rootNamespace": "MyCompany.MyGamePackage.Editor",
+  "references": ["MyCompany.MyGamePackage"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
 ```
 
-### Benefits
+### Benefits of Splitting Runtime and Editor Assemblies
 
 1. **Isolated Dependencies**
+
    - Package assemblies don't pollute project assemblies
    - Clear separation
 
 2. **Versioning**
+
    - Version defines let you support multiple Unity versions
 
 3. **Testing**
+
    - Separate test assemblies for runtime and editor
 
 4. **Distribution**
@@ -602,6 +645,7 @@ Packages/
 ### Assembly Validation in CI
 
 **CI Script (C#):**
+
 ```csharp
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -664,6 +708,7 @@ public static class AssemblyValidator
 ```
 
 **CI Command:**
+
 ```bash
 unity-editor \
   -batchmode \
@@ -680,6 +725,7 @@ unity-editor \
 **Solution: Cache Compiled Assemblies**
 
 **CI Configuration (GitHub Actions):**
+
 ```yaml
 - name: Cache Library folder
   uses: actions/cache@v2
@@ -700,6 +746,7 @@ unity-editor \
 ```
 
 **Benefits:**
+
 - Only changed assemblies recompile
 - 5-10x faster CI builds
 
@@ -712,6 +759,7 @@ unity-editor \
 **Solution: Wrap It**
 
 **Folder Structure:**
+
 ```
 Assets/Plugins/
 ├── ThirdPartyPlugin/  ← No .asmdef
@@ -722,26 +770,27 @@ Assets/Plugins/
 ```
 
 **MyGame.ThirdPartyWrapper.asmdef:**
+
 ```json
 {
-    "name": "MyGame.ThirdPartyWrapper",
-    "rootNamespace": "MyGame.ThirdPartyWrapper",
-    "references": [],
-    "autoReferenced": false
+  "name": "MyGame.ThirdPartyWrapper",
+  "rootNamespace": "MyGame.ThirdPartyWrapper",
+  "references": [],
+  "autoReferenced": false
 }
 ```
 
 **Usage:**
+
 ```json
 // In your code assemblies
 {
-    "references": [
-        "MyGame.ThirdPartyWrapper"
-    ]
+  "references": ["MyGame.ThirdPartyWrapper"]
 }
 ```
 
 **Benefits:**
+
 - Explicit dependency on plugin
 - Easier to swap plugins later
 - Compile isolation
@@ -749,6 +798,7 @@ Assets/Plugins/
 ### Feature Flags with Assembly Definitions
 
 **Folder Structure:**
+
 ```
 Assets/Scripts/
 ├── Features/
@@ -764,14 +814,16 @@ Assets/Scripts/
 ```
 
 **Each feature assembly:**
+
 ```json
 {
-    "name": "MyGame.Multiplayer",
-    "defineConstraints": ["FEATURE_MULTIPLAYER"]
+  "name": "MyGame.Multiplayer",
+  "defineConstraints": ["FEATURE_MULTIPLAYER"]
 }
 ```
 
 **Build Script:**
+
 ```csharp
 // Enable features for this build
 var enabledFeatures = new[] { "FEATURE_MULTIPLAYER", "FEATURE_ANALYTICS" };
@@ -783,6 +835,7 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 ```
 
 **Benefits:**
+
 - Enable/disable features per build
 - Smaller builds (disabled features not included)
 - A/B testing infrastructure
@@ -809,4 +862,5 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 
 ---
 
-**Pro Tip:** Don't over-engineer from the start. Begin with a simple 3-4 assembly structure, then add complexity only when you need it.
+**Pro Tip:** Don't over-engineer from the start. Begin with a simple 3-4 assembly structure, then
+add complexity only when you need it.

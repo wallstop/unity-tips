@@ -1,6 +1,7 @@
 # Common Patterns
 
-> **Cookbook**: Copy-paste solutions for the most common Odin use cases. These are battle-tested patterns from real production codebases.
+> **Cookbook**: Copy-paste solutions for the most common Odin use cases. These are battle-tested
+> patterns from real production codebases.
 
 ---
 
@@ -837,6 +838,7 @@ public class GameEventSystem : SerializedMonoBehaviour
 ---
 
 **Key Takeaways:**
+
 - Dictionaries excel at key-value data (items, configs, localization)
 - Buttons streamline dev tools and asset generation
 - Validation ensures data integrity before runtime

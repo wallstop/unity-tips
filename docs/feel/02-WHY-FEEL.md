@@ -1,16 +1,21 @@
 # Why Feel?
 
-> **TL;DR**: Feel is the fastest, most designer-friendly way to add game feel to Unity projects. It replaces hundreds of lines of animation code with Inspector-based workflows, includes 150+ battle-tested effects, and just works across all platforms.
+> **TL;DR**: Feel is the fastest, most designer-friendly way to add game feel to Unity projects. It
+> replaces hundreds of lines of animation code with Inspector-based workflows, includes 150+
+> battle-tested effects, and just works across all platforms.
 
 ## The Game Feel Problem
 
-Great games feel **responsive, punchy, and satisfying**. Bad games feel **flat, unresponsive, and lifeless**.
+Great games feel **responsive, punchy, and satisfying**. Bad games feel **flat, unresponsive, and
+lifeless**.
 
-The difference? **Feedback**. Every player action should have immediate, clear visual and audio responses.
+The difference? **Feedback**. Every player action should have immediate, clear visual and audio
+responses.
 
 ### What is "Game Feel"?
 
-Game feel (also called "juice" or "game juice") is the **sensory feedback** players receive from their actions:
+Game feel (also called "juice" or "game juice") is the **sensory feedback** players receive from
+their actions:
 
 ```mermaid
 graph LR
@@ -27,13 +32,15 @@ graph LR
     style F fill:#90EE90
 ```
 
-Without feedback (C, D, E, F), jumping feels **mechanical and boring**. With feedback, it feels **alive and satisfying**.
+Without feedback (C, D, E, F), jumping feels **mechanical and boring**. With feedback, it feels
+**alive and satisfying**.
 
 ## Why Not Just Code It Yourself?
 
 You absolutely can! But consider what you need for a simple screen shake:
 
 ### DIY Approach (100+ lines)
+
 ```csharp
 using UnityEngine;
 
@@ -102,6 +109,7 @@ public class CameraShake : MonoBehaviour
 ```
 
 Now multiply this by:
+
 - **Audio feedback** (pooling AudioSources, managing clips)
 - **Particle effects** (pooling, positioning, cleanup)
 - **UI animations** (color flashes, scale pulses)
@@ -109,6 +117,7 @@ Now multiply this by:
 - **Time effects** (slow motion, freeze frames)
 
 You'd need **thousands of lines** of boilerplate code, plus:
+
 - Performance optimization
 - Edge case handling (disabled objects, scene transitions)
 - Designer-friendly Inspector interfaces
@@ -125,34 +134,36 @@ You'd need **thousands of lines** of boilerplate code, plus:
 4. Call `PlayFeedbacks()` from your script
 5. Done!
 
-**Result**: Same shake effect in 60 seconds, with advanced features like noise modes, direction controls, and platform-specific tweaks built-in.
+**Result**: Same shake effect in 60 seconds, with advanced features like noise modes, direction
+controls, and platform-specific tweaks built-in.
 
 ## Comparison: Feel vs Alternatives
 
 ### Feel vs Manual Code
 
-| Aspect | Manual Code | Feel |
-|--------|-------------|------|
-| **Setup Time** | Hours to days per effect type | Seconds |
-| **Code Maintenance** | 100-1000+ lines per system | 1 line: `PlayFeedbacks()` |
-| **Designer Iteration** | Requires programmer | Full Inspector control |
-| **Platform Support** | Manual per-platform code | Handled automatically |
-| **Performance** | Manual optimization required | Optimized and pooled |
-| **Bug Risk** | High (edge cases, GC, references) | Low (battle-tested) |
+| Aspect                 | Manual Code                       | Feel                      |
+| ---------------------- | --------------------------------- | ------------------------- |
+| **Setup Time**         | Hours to days per effect type     | Seconds                   |
+| **Code Maintenance**   | 100-1000+ lines per system        | 1 line: `PlayFeedbacks()` |
+| **Designer Iteration** | Requires programmer               | Full Inspector control    |
+| **Platform Support**   | Manual per-platform code          | Handled automatically     |
+| **Performance**        | Manual optimization required      | Optimized and pooled      |
+| **Bug Risk**           | High (edge cases, GC, references) | Low (battle-tested)       |
 
 ### Feel vs Unity Animator
 
 Unity's Animator is great for character animations, but awkward for game feel:
 
-| Aspect | Animator | Feel |
-|--------|----------|------|
-| **Setup Complexity** | Requires Animation Clips, Animator Controller, State Machine | Add component, add feedback, done |
-| **Combining Effects** | Separate Animation Controllers or complex layers | Single MMFeedbacks component |
-| **Dynamic Values** | Requires scripting Animator parameters | Intensity slider in Inspector |
-| **Sound/Particles/Camera** | Requires Animation Events + code | Built-in feedbacks |
-| **Reusability** | Animator Controllers are asset-specific | Copy/paste feedbacks anywhere |
+| Aspect                     | Animator                                                     | Feel                              |
+| -------------------------- | ------------------------------------------------------------ | --------------------------------- |
+| **Setup Complexity**       | Requires Animation Clips, Animator Controller, State Machine | Add component, add feedback, done |
+| **Combining Effects**      | Separate Animation Controllers or complex layers             | Single MMFeedbacks component      |
+| **Dynamic Values**         | Requires scripting Animator parameters                       | Intensity slider in Inspector     |
+| **Sound/Particles/Camera** | Requires Animation Events + code                             | Built-in feedbacks                |
+| **Reusability**            | Animator Controllers are asset-specific                      | Copy/paste feedbacks anywhere     |
 
 **Example: Button Click**
+
 ```
 Animator Approach:
 1. Create Animation Clip for scale down (10 keyframes)
@@ -176,32 +187,33 @@ Feel Approach:
 
 DOTween and LeanTween are excellent **code-first** tweening libraries. Feel is **designer-first**.
 
-| Aspect | DOTween/LeanTween | Feel |
-|--------|-------------------|------|
-| **Approach** | Code-driven tweening | Component-driven feedback |
-| **Use Case** | Precise animation control via scripting | Rapid prototyping, designer control |
-| **Inspector Editing** | Requires TweenSettings wrappers | Native Inspector workflow |
-| **Non-Tween Effects** | Requires separate systems (audio, particles, camera) | All built-in (150+ feedbacks) |
-| **Learning Curve** | Learn API, write sequences in code | Drag-drop in Inspector |
-| **Performance** | Excellent | Excellent |
+| Aspect                | DOTween/LeanTween                                    | Feel                                |
+| --------------------- | ---------------------------------------------------- | ----------------------------------- |
+| **Approach**          | Code-driven tweening                                 | Component-driven feedback           |
+| **Use Case**          | Precise animation control via scripting              | Rapid prototyping, designer control |
+| **Inspector Editing** | Requires TweenSettings wrappers                      | Native Inspector workflow           |
+| **Non-Tween Effects** | Requires separate systems (audio, particles, camera) | All built-in (150+ feedbacks)       |
+| **Learning Curve**    | Learn API, write sequences in code                   | Drag-drop in Inspector              |
+| **Performance**       | Excellent                                            | Excellent                           |
 
 **When to use DOTween**: Complex, code-driven animation systems with dynamic runtime targets.
 
 **When to use Feel**: Game feel, UI feedback, quick prototyping, designer-driven content.
 
-**Can you use both?** Absolutely! Many projects use DOTween for core animation systems and Feel for juice/polish.
+**Can you use both?** Absolutely! Many projects use DOTween for core animation systems and Feel for
+juice/polish.
 
 ### Feel vs Timeline
 
 Unity's Timeline is fantastic for **cinematic sequences** and cutscenes, but overkill for game feel:
 
-| Aspect | Timeline | Feel |
-|--------|----------|------|
-| **Purpose** | Cinematic sequences, cutscenes | Instant feedback, game feel |
-| **Playback** | Timeline Asset + Playable Director | Single method call |
-| **Setup Time** | Minutes per sequence | Seconds per feedback |
-| **Reusability** | Timeline-specific | Feedback components work anywhere |
-| **Runtime Control** | Scrubbing, pausing entire sequence | Individual feedback control |
+| Aspect              | Timeline                           | Feel                              |
+| ------------------- | ---------------------------------- | --------------------------------- |
+| **Purpose**         | Cinematic sequences, cutscenes     | Instant feedback, game feel       |
+| **Playback**        | Timeline Asset + Playable Director | Single method call                |
+| **Setup Time**      | Minutes per sequence               | Seconds per feedback              |
+| **Reusability**     | Timeline-specific                  | Feedback components work anywhere |
+| **Runtime Control** | Scrubbing, pausing entire sequence | Individual feedback control       |
 
 **Use Timeline for**: Opening cinematics, boss intros, dramatic story moments.
 
@@ -212,6 +224,7 @@ Unity's Timeline is fantastic for **cinematic sequences** and cutscenes, but ove
 ### 1. Designer Empowerment
 
 **Before Feel:**
+
 ```
 Designer: "Can we make the screen shake harder on critical hits?"
 Programmer: "Sure, let me adjust the shake script... recompile... test... adjust... recompile..."
@@ -222,6 +235,7 @@ Programmer: *sighs* "Let me add those systems..."
 ```
 
 **With Feel:**
+
 ```
 Designer: *Opens MMFeedbacks Inspector*
 Designer: *Adjusts Camera Shake intensity from 0.5 to 1.2*
@@ -238,6 +252,7 @@ Designer: "Perfect! Shipped."
 Feel feedbacks are **LEGO blocks** — mix and match to create complex effects:
 
 **Example: Epic Sword Slash**
+
 ```
 MMFeedbacks (SwordSlash):
   ├─ Audio → Sound (whoosh sound)
@@ -265,12 +280,14 @@ You don't write `#if UNITY_IOS` blocks — Feel does it internally.
 ### 4. Performance Optimized
 
 Feel includes:
+
 - **Object pooling** for particles and audio sources
 - **Zero-allocation** feedback playback after warmup
 - **Automatic cleanup** of effects when objects are destroyed
 - **Conditional execution** (chance %, range checks) to reduce overhead
 
 Example performance test:
+
 ```
 Playing 100 MMFeedbacks simultaneously:
 - Frame time: ~2ms
@@ -281,6 +298,7 @@ Playing 100 MMFeedbacks simultaneously:
 ### 5. Battle-Tested
 
 Feel powers:
+
 - More Mountains' own games (Corgi Engine, Top-Down Engine)
 - Hundreds of shipped indie games
 - Mobile games with millions of downloads
@@ -295,22 +313,27 @@ Feel is incredibly versatile, but not the best tool for everything:
 ### Don't Use Feel For:
 
 **Complex Character Animation**
+
 - Use Unity's Animator or Spine/DragonBones
 - Feel is for **feedback**, not locomotion/combat state machines
 
 **Cutscenes and Cinematics**
+
 - Use Unity's Timeline
 - Feel is for **instant effects**, not 30-second orchestrated sequences
 
 **Precise, Code-Driven Animation Systems**
+
 - Use DOTween or LeanTween
 - Feel prioritizes designer control over programmatic precision
 
 **Real-Time Animation Blending**
+
 - Use Animation Rigging or Animator layers
 - Feel doesn't handle IK or blend trees
 
 **Performance-Critical Inner Loops**
+
 - Feel is fast, but if you're animating 10,000 objects at 60fps, use jobs/burst
 - Feel targets **dozens** of simultaneous effects, not thousands
 
@@ -326,7 +349,9 @@ Feel is incredibly versatile, but not the best tool for everything:
 ## Cost-Benefit Analysis
 
 ### Feel Full Version: €46
+
 **You Get:**
+
 - 150+ ready-to-use feedbacks
 - All rendering pipelines supported (Built-in, URP, HDRP)
 - Nice Vibrations haptics system
@@ -336,6 +361,7 @@ Feel is incredibly versatile, but not the best tool for everything:
 - Documentation and community support
 
 **Estimated Time Saved:**
+
 - Building equivalent systems from scratch: **80-200 hours** (2-5 weeks)
 - At freelancer rate of $50/hr: **$4,000-10,000 value**
 - At studio developer salary (~$60k/yr, ~$30/hr): **$2,400-6,000 value**
@@ -343,18 +369,22 @@ Feel is incredibly versatile, but not the best tool for everything:
 **Break-even point**: If Feel saves you **2 days** of work, it's paid for itself.
 
 ### MMFeedbacks Free Version: $0
+
 **You Get:**
+
 - ~80 core feedbacks (Audio, Camera, Transform, Particles, UI)
 - Basic documentation
 - Free updates
 
 **Perfect for:**
+
 - Hobby projects
 - Prototyping
 - Learning game feel principles
 - Small indie games
 
 **Upgrade to Feel when:**
+
 - You need post-processing feedbacks (bloom, vignette, etc.)
 - You want haptic support for mobile
 - You need advanced features (Springs, Shaders, Physics)
@@ -364,50 +394,60 @@ Feel is incredibly versatile, but not the best tool for everything:
 
 ### Case Study: Indie Platformer
 
-**Project**: 2D pixel art platformer
-**Team Size**: 1 developer, 1 artist
+**Project**: 2D pixel art platformer **Team Size**: 1 developer, 1 artist
 
 **Before Feel:**
+
 - Jump felt floaty and unresponsive
 - Hit reactions were instant teleports (no animation)
 - Screen shake was hardcoded with jittery results
 - Total feedback iteration time: ~40 hours over 2 months
 
 **After Feel (2 weeks later):**
+
 - Jump: Squash on takeoff + dust particles + sound + camera kick
 - Hit: Knockback + red flash + screen shake + sound + slow-mo
 - Landing: Squash animation + dust + thud sound
 - Death: Multi-stage sequence with particles, sound, slow-mo, camera zoom
 
 **Playtest Results:**
+
 - "Feels like a AAA game now" — common feedback
 - Player retention increased 35% (players stayed engaged longer)
 - Wishlists increased 2x after posting new gameplay GIF
 
 **Developer Quote:**
-> "Feel transformed my game from 'meh' to 'wow' in days. I'm a solo dev — I don't have time to write custom feedback systems. Feel let me focus on level design while still having insanely juicy game feel."
+
+> "Feel transformed my game from 'meh' to 'wow' in days. I'm a solo dev — I don't have time to write
+> custom feedback systems. Feel let me focus on level design while still having insanely juicy game
+> feel."
 
 ### Case Study: Mobile Puzzle Game
 
-**Project**: Match-3 style puzzle game
-**Team Size**: 3 developers, 2 artists, 1 designer
+**Project**: Match-3 style puzzle game **Team Size**: 3 developers, 2 artists, 1 designer
 
-**Challenge**: Designer couldn't iterate on feedback without programmer help. Iteration cycle: 2-3 days per change.
+**Challenge**: Designer couldn't iterate on feedback without programmer help. Iteration cycle: 2-3
+days per change.
 
 **Solution**: Replaced custom feedback code with Feel.
 
 **Results:**
+
 - Designer went from **10 feedback tweaks per week** to **50+ per day**
 - Programmer freed up to work on core features
 - UI feel improved dramatically (buttons, transitions, match effects)
 - Shipped 2 weeks early due to faster polish phase
 
 **Designer Quote:**
-> "Feel gave me superpowers. I can try crazy ideas instantly without bothering the programmers. Half my experiments fail, but the other half make it into the game — that's the magic of fast iteration."
+
+> "Feel gave me superpowers. I can try crazy ideas instantly without bothering the programmers. Half
+> my experiments fail, but the other half make it into the game — that's the magic of fast
+> iteration."
 
 ## The Bottom Line
 
 **Choose Feel if:**
+
 - You want game feel **now**, not after weeks of coding
 - Your designers need direct control over feedback
 - You're building UI-heavy games (mobile, casual, puzzle)
@@ -415,6 +455,7 @@ Feel is incredibly versatile, but not the best tool for everything:
 - You value **iteration speed** over absolute control
 
 **Skip Feel if:**
+
 - You're building hyper-optimized systems for thousands of objects
 - You already have mature, custom feedback systems you're happy with
 - You prefer code-first workflows for everything
@@ -428,4 +469,5 @@ Convinced? Let's dive into the full catalog of feedbacks:
 2. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** — Power-user features
 3. **[Troubleshooting](05-TROUBLESHOOTING.md)** — Common issues and solutions
 
-Not convinced? Try the **free MMFeedbacks** version first — it's enough to get a taste of the workflow without spending anything!
+Not convinced? Try the **free MMFeedbacks** version first — it's enough to get a taste of the
+workflow without spending anything!

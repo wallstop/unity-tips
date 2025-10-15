@@ -1,13 +1,16 @@
 # Getting Started with Odin Inspector & Serializer
 
-> **Quick Start**: Change `MonoBehaviour` to `SerializedMonoBehaviour`, then serialize a `Dictionary<string, int>` — that's it!
+> **Quick Start**: Change `MonoBehaviour` to `SerializedMonoBehaviour`, then serialize a
+> `Dictionary<string, int>` — that's it!
 
 ## What is Odin?
 
 Odin Inspector & Serializer is a Unity plugin that **solves two critical problems**:
 
-1. **Odin Serializer**: Serialize types that Unity can't handle (dictionaries, properties, interfaces, nullable types, etc.)
-2. **Odin Inspector**: Add powerful Inspector features (buttons, validation, conditional visibility, custom drawers) with simple attributes
+1. **Odin Serializer**: Serialize types that Unity can't handle (dictionaries, properties,
+   interfaces, nullable types, etc.)
+2. **Odin Inspector**: Add powerful Inspector features (buttons, validation, conditional visibility,
+   custom drawers) with simple attributes
 
 ```csharp
 using Sirenix.OdinInspector;
@@ -37,31 +40,25 @@ public class Example : SerializedMonoBehaviour
 Unity's built-in serialization system has strict limitations:
 
 #### What Unity CAN Serialize
-✅ Primitive types (int, float, bool, string)
-✅ UnityEngine objects (GameObject, Transform, Material)
-✅ Simple classes marked with `[System.Serializable]`
-✅ Arrays and Lists of supported types
+
+✅ Primitive types (int, float, bool, string) ✅ UnityEngine objects (GameObject, Transform,
+Material) ✅ Simple classes marked with `[System.Serializable]` ✅ Arrays and Lists of supported
+types
 
 #### What Unity CANNOT Serialize
-❌ **Dictionaries** (Dictionary<TKey, TValue>)
-❌ **Properties** (auto-properties or properties with custom get/set)
-❌ **Interfaces** (IEnumerable, IItem, etc.)
-❌ **Nullable types** (int?, float?, bool?)
-❌ **Tuples** ((int, string) or ValueTuple)
-❌ **Generic classes** (beyond List<T>)
-❌ **Multi-dimensional arrays** (int[,])
-❌ **Circular references** (objects referencing each other)
+
+❌ **Dictionaries** (Dictionary<TKey, TValue>) ❌ **Properties** (auto-properties or properties with
+custom get/set) ❌ **Interfaces** (IEnumerable, IItem, etc.) ❌ **Nullable types** (int?, float?,
+bool?) ❌ **Tuples** ((int, string) or ValueTuple) ❌ **Generic classes** (beyond List<T>) ❌
+**Multi-dimensional arrays** (int[,]) ❌ **Circular references** (objects referencing each other)
 
 **Odin Serializer removes ALL these limitations.**
 
 ### Problem #2: Unity's Inspector is Inflexible
 
-Unity's Inspector is purely data-driven. You can't:
-❌ Add buttons to call methods
-❌ Add validation warnings
-❌ Show/hide fields conditionally
-❌ Group fields into tabs or foldouts easily
-❌ Display read-only computed properties
+Unity's Inspector is purely data-driven. You can't: ❌ Add buttons to call methods ❌ Add validation
+warnings ❌ Show/hide fields conditionally ❌ Group fields into tabs or foldouts easily ❌ Display
+read-only computed properties
 
 **Odin Inspector adds ALL these features with simple attributes.**
 
@@ -70,18 +67,21 @@ Unity's Inspector is purely data-driven. You can't:
 ## Installation
 
 ### Prerequisites
+
 - Unity 2020.3 or newer (2021.3+ recommended)
 - Odin Inspector & Serializer asset (purchased from Unity Asset Store)
 
 ### Steps
 
 1. **Import Odin**
+
    - Window → Package Manager
    - Click "Packages: In Project"
    - Find "Odin Inspector and Serializer"
    - Click "Import"
 
 2. **Verify Installation**
+
    - Check for `Assets/Plugins/Sirenix/` directory
    - Open any script and add `using Sirenix.OdinInspector;`
    - If no errors, installation succeeded!
@@ -138,11 +138,13 @@ public class ItemManager : SerializedMonoBehaviour  // ← Changed!
 ```
 
 **What changed?**
+
 1. Added `using Sirenix.OdinInspector;`
 2. Changed `MonoBehaviour` to `SerializedMonoBehaviour`
 3. **That's it!** Dictionary now serializes perfectly.
 
 **In the Inspector, you'll see:**
+
 - ✅ Add/remove entries with buttons
 - ✅ Edit keys and values inline
 - ✅ Drag & drop support for GameObject values
@@ -207,12 +209,14 @@ public class LevelGenerator : SerializedMonoBehaviour
 ```
 
 **In the Inspector, you'll see:**
+
 - ✅ Clickable "Generate Level" button (large, blue)
 - ✅ Clickable "Reset Level" button (red tint)
 - ✅ Works in **Edit Mode** and **Play Mode**
 - ✅ No need to enter play mode to test!
 
-**This changes development forever.** Test methods instantly, generate assets in edit mode, run validation checks—all with zero setup.
+**This changes development forever.** Test methods instantly, generate assets in edit mode, run
+validation checks—all with zero setup.
 
 ---
 
@@ -222,12 +226,12 @@ The key to Odin's power is **SerializedMonoBehaviour**.
 
 ### When to Use SerializedMonoBehaviour
 
-| Your Script Uses... | Use... |
-|---------------------|--------|
-| Only simple fields (int, float, GameObject, etc.) | `MonoBehaviour` (vanilla Unity) |
+| Your Script Uses...                                  | Use...                           |
+| ---------------------------------------------------- | -------------------------------- |
+| Only simple fields (int, float, GameObject, etc.)    | `MonoBehaviour` (vanilla Unity)  |
 | Dictionaries, properties, interfaces, nullable types | `SerializedMonoBehaviour` (Odin) |
-| Any Odin Inspector attribute | `SerializedMonoBehaviour` (Odin) |
-| Both Odin features and Unity's serialization | `SerializedMonoBehaviour` (Odin) |
+| Any Odin Inspector attribute                         | `SerializedMonoBehaviour` (Odin) |
+| Both Odin features and Unity's serialization         | `SerializedMonoBehaviour` (Odin) |
 
 **Rule of thumb:** If you're importing `Sirenix.OdinInspector`, use `SerializedMonoBehaviour`.
 
@@ -466,6 +470,7 @@ public class PlayerInventory : SerializedMonoBehaviour
 ```
 
 **In the Inspector, you'll see:**
+
 - 📦 Editable dictionary of item quantities
 - 💰 Editable dictionary of item prices
 - 📊 Read-only display of total items and total value
@@ -473,13 +478,9 @@ public class PlayerInventory : SerializedMonoBehaviour
 - 🎨 Color-coded buttons (blue = safe, red = destructive)
 - 📝 Info boxes explaining each section
 
-**This single script demonstrates:**
-✅ Dictionary serialization (two dictionaries!)
-✅ Inspector buttons (three buttons!)
-✅ Read-only computed properties (two properties!)
-✅ Validation logic
-✅ Custom labels and organization
-✅ Color-coded UX
+**This single script demonstrates:** ✅ Dictionary serialization (two dictionaries!) ✅ Inspector
+buttons (three buttons!) ✅ Read-only computed properties (two properties!) ✅ Validation logic ✅
+Custom labels and organization ✅ Color-coded UX
 
 ---
 
@@ -490,6 +491,7 @@ public class PlayerInventory : SerializedMonoBehaviour
 If you just want Inspector buttons and validation:
 
 **Before:**
+
 ```csharp
 using UnityEngine;
 
@@ -500,6 +502,7 @@ public class Enemy : MonoBehaviour
 ```
 
 **After:**
+
 ```csharp
 using UnityEngine;
 using Sirenix.OdinInspector;  // ← Add this
@@ -522,6 +525,7 @@ public class Enemy : SerializedMonoBehaviour  // ← Change this
 If you're currently using parallel lists to fake dictionaries:
 
 **Before (Painful):**
+
 ```csharp
 using UnityEngine;
 using System.Collections.Generic;
@@ -557,6 +561,7 @@ public class ItemManager : MonoBehaviour
 ```
 
 **After (Clean):**
+
 ```csharp
 using UnityEngine;
 using Sirenix.OdinInspector;
@@ -577,6 +582,7 @@ public class ItemManager : SerializedMonoBehaviour
 ```
 
 **Result:**
+
 - ❌ Removed 15+ lines of boilerplate
 - ❌ Removed custom serializable class
 - ❌ Removed runtime conversion logic
@@ -590,6 +596,7 @@ public class ItemManager : SerializedMonoBehaviour
 ### Q: Do I need to replace ALL MonoBehaviours with SerializedMonoBehaviour?
 
 **A: No!** Only use `SerializedMonoBehaviour` when you need:
+
 - Dictionaries or other complex types
 - Odin Inspector attributes
 
@@ -598,6 +605,7 @@ For simple scripts with basic fields, stick with vanilla `MonoBehaviour`.
 ### Q: Does Odin work with prefabs?
 
 **A: Yes!** Odin fully supports:
+
 - ✅ Prefab variants
 - ✅ Prefab overrides
 - ✅ Nested prefabs
@@ -606,21 +614,25 @@ For simple scripts with basic fields, stick with vanilla `MonoBehaviour`.
 ### Q: What about performance?
 
 **A:** Odin Serializer is slightly slower than Unity's serializer (~10-20%), but:
+
 - Serialization only happens in the editor (not runtime)
 - The productivity gains far outweigh the negligible performance cost
 - Runtime performance is identical to vanilla Unity
 
 ### Q: Can I use Odin with source control (Git, Perforce)?
 
-**A: Yes!** Odin generates clean text-based scene and prefab files that work perfectly with version control.
+**A: Yes!** Odin generates clean text-based scene and prefab files that work perfectly with version
+control.
 
 ### Q: Do I need Odin on build machines?
 
-**A:** Odin is **required** in the project for builds. The compiled game includes Odin's runtime serializer (adds ~2-5MB to build size).
+**A:** Odin is **required** in the project for builds. The compiled game includes Odin's runtime
+serializer (adds ~2-5MB to build size).
 
 ### Q: What if my team doesn't have Odin licenses?
 
 **A:** Odin requires a license **per seat**. Every developer needs their own license. However:
+
 - One license works across unlimited projects
 - Builds don't require additional licenses
 - Very cost-effective for the productivity gains
@@ -631,8 +643,10 @@ For simple scripts with basic fields, stick with vanilla `MonoBehaviour`.
 
 Now that you understand the basics:
 
-1. **[Core Features](02-CORE-FEATURES.md)** — Deep dive into Odin Serializer and Inspector attributes
-2. **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world recipes for dictionaries, buttons, validation
+1. **[Core Features](02-CORE-FEATURES.md)** — Deep dive into Odin Serializer and Inspector
+   attributes
+2. **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world recipes for dictionaries, buttons,
+   validation
 3. **[Best Practices](05-BEST-PRACTICES.md)** — Avoid pitfalls and optimize performance
 4. **[Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — Custom processors and advanced workflows
 
@@ -683,4 +697,5 @@ public class Example : SerializedMonoBehaviour
 
 ---
 
-**Pro Tip**: Create a new test script with `SerializedMonoBehaviour`, add a dictionary and a button, and see the magic for yourself. Once you experience Odin's workflow, you'll never want to go back!
+**Pro Tip**: Create a new test script with `SerializedMonoBehaviour`, add a dictionary and a button,
+and see the magic for yourself. Once you experience Odin's workflow, you'll never want to go back!
