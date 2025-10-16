@@ -490,43 +490,32 @@ void Update() {
 
 ### Feature 5: Editor Tools Suite
 
-Automate tedious editor tasks.
+Unity Helpers includes powerful editor tools for automating tedious tasks. These tools are accessed
+through Unity's editor menus and windows, not called directly from code.
 
 #### Sprite Automation
 
-```csharp
-// Auto-crop transparent pixels from sprites
-[MenuItem("Tools/Unity Helpers/Crop All Sprites")]
-public static void CropSprites() {
-    SpriteTools.CropTransparency(Selection.objects);
-}
+Access sprite tools through the Unity editor menu:
 
-// Generate sprite atlas from folder
-[MenuItem("Tools/Unity Helpers/Create Atlas")]
-public static void CreateAtlas() {
-    SpriteTools.GenerateAtlas("Assets/Sprites/Characters");
-}
-```
+- **Crop All Sprites** - `Tools → Unity Helpers → Crop All Sprites` - Automatically removes
+  transparent pixels from selected sprites
+- **Create Atlas** - `Tools → Unity Helpers → Create Atlas` - Generates optimized sprite atlases
+  from folders
+- **Batch Sprite Settings** - Opens editor window to adjust import settings for multiple sprites
 
 #### Prefab Validation
 
-```csharp
-// Validate all prefabs have required components
-[MenuItem("Tools/Unity Helpers/Validate Prefabs")]
-public static void ValidatePrefabs() {
-    PrefabValidator.EnsureComponent<Rigidbody>("Assets/Prefabs/Enemies");
-}
-```
+- **Validate Prefabs** - `Tools → Unity Helpers → Validate Prefabs` - Ensures prefabs have required
+  components
 
 #### Bulk Animation Creation
 
-```csharp
-// Create animations from sprite sequences
-[MenuItem("Tools/Unity Helpers/Create Animations")]
-public static void CreateAnimations() {
-    AnimationTools.GenerateFromSpriteSheets("Assets/Sprites/Animations");
-}
-```
+- **Create Animations** - `Tools → Unity Helpers → Create Animations` - Opens editor window to
+  generate animations from sprite sheet sequences
+
+**Note:** These are editor GUI tools accessed through Unity's menu system, similar to Unity's
+built-in tools like the Animation window or Sprite Packer. They are not script APIs to be called
+from your game code.
 
 ---
 
