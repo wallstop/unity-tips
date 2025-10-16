@@ -1,5 +1,47 @@
 # Unity Object Pool Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** Your game spawns 100 bullets per second. Each `Instantiate()` takes 0.5-2ms. That's
+50-200ms per second just spawning bullets—causing visible frame drops.
+
+**Why Instantiate is Slow:**
+
+- Allocates memory for new GameObject
+- Calls Awake() on all components
+- Registers with Unity's scene hierarchy
+- Triggers garbage collection when destroyed
+
+**Performance Comparison:**
+
+- `Instantiate()`: 0.5-2ms per object + GC spikes every few seconds
+- `Pool.Get()`: 0.001-0.01ms per object + zero GC
+- **Speed improvement: 50-2000x faster**
+
+**Real-World Example:**
+
+```csharp
+// ❌ Without pooling - Player shoots 10 bullets/sec
+void Shoot() {
+    Instantiate(bulletPrefab, position, rotation);
+    // 10 bullets/sec × 0.5ms = 5ms/sec minimum
+    // After 1000 bullets: GC spike = 50-100ms freeze
+}
+
+// ✅ With pooling
+void Shoot() {
+    var bullet = bulletPool.Get();
+    bullet.transform.SetPositionAndRotation(position, rotation);
+    // 10 bullets/sec × 0.01ms = 0.1ms/sec
+    // Zero GC spikes = smooth gameplay
+}
+```
+
+**The Solution:** Object pooling reuses GameObjects instead of creating/destroying them. Pre-create
+100 bullets at game start, recycle them as needed. Zero runtime allocations, 50-2000x faster.
+
+---
+
 ## Table of Contents
 
 - [What are Object Pools?](#what-are-object-pools)

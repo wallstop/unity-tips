@@ -3,6 +3,41 @@
 > **Faster compile times. Better code organization. Clearer dependencies.** Take control of Unity's
 > compilation process.
 
+## What Problem Does This Solve?
+
+**The Problem:** You change one line of code and Unity recompiles for 30-60 seconds. With 100+
+scripts, every tiny change means waiting. You lose flow state. Productivity drops.
+
+**Why This Happens:** By default, Unity treats your entire project as one giant code library. Change
+ANY script, Unity recompiles ALL scripts—even ones that don't depend on your change.
+
+**What is "Compiling"?** (For Beginners) Unity converts your C# code into instructions the computer
+can run. Without Assembly Definitions, Unity re-converts EVERYTHING every time you change ANYTHING.
+
+**Performance Impact:**
+
+- **Small projects (500 scripts):** 5-10s → 2-3s (2-3x faster)
+- **Medium projects (2000 scripts):** 15-30s → 2-5s (5-10x faster)
+- **Large projects (8000+ scripts):** 60-120s → 3-8s (10-20x faster)
+- **Productivity gain:** 80-95% faster iteration
+
+**Real Numbers:**
+
+```
+Before: Change 1 script → Wait 45s → Test → Repeat
+        100 changes/day × 45s = 75 minutes waiting
+
+After:  Change 1 script → Wait 3s → Test → Repeat
+        100 changes/day × 3s = 5 minutes waiting
+
+Time saved: 70 minutes per day = 5.8 hours per week
+```
+
+**The Solution:** Assembly Definitions split your project into separate modules. Unity only
+recompiles changed modules, not the whole project.
+
+---
+
 Assembly Definitions (asmdef files) are Unity's solution to slow compile times and tangled
 dependencies. They let you split your codebase into separate assemblies (DLLs), giving you **10-100x
 faster iteration times** on large projects, explicit dependency management, and the ability to

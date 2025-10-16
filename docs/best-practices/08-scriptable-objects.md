@@ -1,5 +1,56 @@
 # Unity ScriptableObjects Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** You have 50 enemy types. Each enemy MonoBehaviour stores its own stats (health,
+damage, speed). To change goblin health from 50 to 60, you must update 50 prefabs in your project.
+Designers can't balance the game without programmer help.
+
+**Without ScriptableObjects (The Painful Way):**
+
+```csharp
+public class Enemy : MonoBehaviour {
+    public int health = 50;      // Duplicated in every enemy prefab
+    public int damage = 10;      // Change requires updating all prefabs
+    public float speed = 5f;     // 50 prefabs = 50 places to edit
+}
+```
+
+**Problems:**
+
+- Change goblin health: Edit 50 prefabs
+- Add new stat: Edit 50 prefabs
+- Designer needs programmer to change values
+- Merge conflicts in prefab files
+
+**With ScriptableObjects (The Data-Driven Way):**
+
+```csharp
+[CreateAssetMenu]
+public class EnemyData : ScriptableObject {
+    public int health = 50;
+    public int damage = 10;
+    public float speed = 5f;
+}
+
+public class Enemy : MonoBehaviour {
+    public EnemyData data;      // Reference ONE asset
+    // All goblins reference "GoblinData" asset
+}
+```
+
+**Benefits:**
+
+- Change goblin health: Edit ONE asset, all goblins update
+- Designer can edit assets directly
+- Clean git diffs (data files, not binary prefabs)
+- Decouple data from behavior
+
+**The Solution:** ScriptableObjects centralize shared data. Change one asset, update all instances.
+Designers can balance without touching prefabs.
+
+---
+
 ## What are ScriptableObjects?
 
 ScriptableObjects are data containers that exist independently of scenes and GameObjects. They're

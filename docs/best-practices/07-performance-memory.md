@@ -1,5 +1,36 @@
 # Unity Performance & Memory Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** Your game runs smoothly at 60 FPS most of the time, but every few seconds it
+freezes for 50-100ms. Players notice. Reviews mention "stuttering."
+
+**Why This Happens:** C#'s garbage collector (GC) periodically stops your game to clean up unused
+memory. Every `new` allocation in `Update()` creates garbage. With 60 FPS, that's 60 allocations per
+second, 3,600 per minute. Eventually, GC kicks in and freezes your game.
+
+**Performance Impact:**
+
+- Small GC collection: 5-20ms freeze
+- Large GC collection: 50-200ms freeze
+- On mobile: 100-500ms freeze
+- **Result:** Visible stuttering, bad reviews, frustrated players
+
+**Example:**
+
+```csharp
+// ❌ This innocent-looking code creates 3600 allocations per minute
+void Update() {
+    string message = "Score: " + score;  // 60 allocations/sec
+    healthText.text = message;
+}
+```
+
+**The Solution:** Eliminate allocations in frequently-called code (Update, FixedUpdate) through
+object pooling, caching, and avoiding string operations.
+
+---
+
 ## ⚠️ Critical Rules
 
 **The biggest performance killers:**
