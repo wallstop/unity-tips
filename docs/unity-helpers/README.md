@@ -497,25 +497,42 @@ through Unity's editor menus and windows, not called directly from code.
 
 Access sprite tools through the Unity editor menu:
 
-- **Crop All Sprites** - `Tools → Unity Helpers → Crop All Sprites` - Automatically removes
-  transparent pixels from selected sprites
-- **Create Atlas** - `Tools → Unity Helpers → Create Atlas` - Generates optimized sprite atlases
-  from folders
-- **Batch Sprite Settings** - Opens editor window to adjust import settings for multiple sprites
+- **Sprite Cropper** - `Tools → Wallstop Studios → Unity Helpers → Sprite Cropper` - Automatically
+  removes transparent pixels from selected sprites
+- **Sprite Atlas Generator** - `Tools → Wallstop Studios → Unity Helpers → Sprite Atlas Generator` -
+  Generates optimized sprite atlases from folders
+- **Sprite Settings Applier** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Settings Applier` - Opens editor window to
+  batch adjust sprite import settings
+- **Texture Settings Applier** -
+  `Tools → Wallstop Studios → Unity Helpers → Texture Settings Applier` - Opens editor window to
+  batch adjust texture import settings
+- **Sprite Pivot Adjuster** - `Tools → Wallstop Studios → Unity Helpers → Sprite Pivot Adjuster` -
+  Adjust sprite pivot points
+- **Texture Resizer** - `Tools → Wallstop Studios → Unity Helpers → Texture Resizer` - Resize
+  textures
+
+#### Animation Tools
+
+- **Animation Creator** - `Tools → Wallstop Studios → Unity Helpers → Animation Creator` - Create
+  animations from sprite sequences
+- **Sprite Sheet Animation Creator** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Sheet Animation Creator` - Generate animations
+  from sprite sheets
+- **Animation Copier** - `Tools → Wallstop Studios → Unity Helpers → Animation Copier` - Copy
+  animations between objects
+- **Sprite Animation Editor** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Animation Editor` - Visual editor for sprite
+  animations
 
 #### Prefab Validation
 
-- **Validate Prefabs** - `Tools → Unity Helpers → Validate Prefabs` - Ensures prefabs have required
-  components
+- **Prefab Checker** - `Tools → Wallstop Studios → Unity Helpers → Prefab Checker` - Ensures prefabs
+  have required components
 
-#### Bulk Animation Creation
-
-- **Create Animations** - `Tools → Unity Helpers → Create Animations` - Opens editor window to
-  generate animations from sprite sheet sequences
-
-**Note:** These are editor GUI tools accessed through Unity's menu system, similar to Unity's
-built-in tools like the Animation window or Sprite Packer. They are not script APIs to be called
-from your game code.
+**Note:** These are editor GUI tools accessed through Unity's menu system (under
+`Tools → Wallstop Studios → Unity Helpers`), similar to Unity's built-in tools like the Animation
+window or Sprite Packer. They are not script APIs to be called from your game code.
 
 ---
 

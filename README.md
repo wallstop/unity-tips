@@ -113,16 +113,23 @@ every project.
 
 Unity Helpers provides powerful editor tools accessible through Unity's menu system:
 
-- **Bulk Animation Creator** - `Tools → Unity Helpers → Create Animations` - Generate animations
+- **Animation Creator** - `Tools → Wallstop Studios → Unity Helpers → Animation Creator` - Create
+  animations from sprite sequences
+- **Sprite Sheet Animation Creator** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Sheet Animation Creator` - Generate animations
   from sprite sheets
-- **Sprite Auto-Cropper** - `Tools → Unity Helpers → Crop All Sprites` - Remove transparent pixels
-  from sprites
-- **Sprite Atlas Generator** - `Tools → Unity Helpers → Create Atlas` - Generate optimized sprite
-  atlases
-- **Batch Sprite Settings** - Editor window for adjusting import settings on multiple sprites
+- **Sprite Cropper** - `Tools → Wallstop Studios → Unity Helpers → Sprite Cropper` - Remove
+  transparent pixels from sprites
+- **Sprite Atlas Generator** - `Tools → Wallstop Studios → Unity Helpers → Sprite Atlas Generator` -
+  Generate optimized sprite atlases
+- **Sprite Settings Applier** - `Tools → Wallstop Studios → Unity Helpers → Sprite Settings Applier`
+  - Batch adjust sprite import settings
+- **Prefab Checker** - `Tools → Wallstop Studios → Unity Helpers → Prefab Checker` - Validate
+  prefabs have required components
 
-These are editor GUI tools accessed through Unity's menu system, similar to Unity's built-in
-Animation window or Sprite Packer.
+These are editor GUI tools accessed through Unity's menu system (under
+`Tools → Wallstop Studios → Unity Helpers`), similar to Unity's built-in Animation window or Sprite
+Packer.
 
 **How to use:** Install via Package Manager, use the provided attributes and utilities in your
 scripts.
