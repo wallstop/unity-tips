@@ -1,5 +1,31 @@
 # Unity Physics Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** You move a Rigidbody in `Update()` and it jitters, tunnels through walls, or
+behaves inconsistently on different frame rates.
+
+**Why This Happens:** Unity's physics engine runs at a fixed 50 times per second (by default), but
+`Update()` runs at your frame rate (30-300 FPS). If you modify physics in `Update()`, you're
+changing physics 60 times per second while physics simulates 50 times per second—causing desynced,
+jittery motion.
+
+**Analogy:** Imagine a train (physics simulation) running on a fixed schedule (50 times/sec) but
+passengers (your code) trying to board at random times (variable frame rate). Some passengers miss
+the train, some board twice. Result: chaos.
+
+**The Solution:** Always modify physics (velocity, forces, position) in `FixedUpdate()`, which runs
+synchronized with physics simulation.
+
+**Real-World Impact:**
+
+- ✅ Eliminates jittery physics movement
+- ✅ Consistent behavior across all frame rates
+- ✅ Prevents tunneling through walls
+- ✅ Makes multiplayer physics deterministic
+
+---
+
 ## ⚠️ Critical Rules
 
 **The most common physics mistakes:**

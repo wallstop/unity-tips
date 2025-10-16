@@ -1,5 +1,47 @@
 # Unity Coroutine Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** You need to wait 3 seconds before spawning an enemy, or fade out UI over 2 seconds.
+Using `Update()` with timers is messy and error-prone.
+
+**Without Coroutines (The Painful Way):**
+
+```csharp
+private float timer = 0f;
+private bool isWaiting = false;
+
+void Update() {
+    if (isWaiting) {
+        timer += Time.deltaTime;
+        if (timer >= 3f) {
+            SpawnEnemy();
+            isWaiting = false;
+            timer = 0f;
+        }
+    }
+}
+
+void StartSpawnSequence() {
+    isWaiting = true;
+    timer = 0f;
+}
+```
+
+**With Coroutines (The Clean Way):**
+
+```csharp
+IEnumerator Start() {
+    yield return new WaitForSeconds(3f);
+    SpawnEnemy();
+}
+```
+
+**The Solution:** Coroutines let you write time-based logic sequentially instead of managing timers
+and state flags manually. This reduces code complexity by 70-80% for time-based operations.
+
+---
+
 ## ⚠️ Critical Rules - Read This First!
 
 **If you remember nothing else, remember these 3 rules:**

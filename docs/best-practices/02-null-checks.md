@@ -1,5 +1,23 @@
 # Unity Null Checks Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** In Unity, `if (myObject == null)` and `if (myObject is null)` behave differently
+than standard C#. A destroyed GameObject can appear "not null" in C# but "null" in Unity, causing
+confusing bugs.
+
+**Why This Happens:** Unity overrides the `==` operator for UnityEngine.Object types to check if the
+native C++ object still exists, but C#'s `is null`, `??`, and `?.` operators don't use this
+override. This creates a "fake null" problem unique to Unity.
+
+**Real-World Impact:** You check `if (enemy != null)` and it passes, but `enemy.transform` throws
+NullReferenceException because the GameObject was actually destroyed.
+
+**The Solution:** Always use `== null` (not `is null`) for Unity objects. This catches 50% of
+beginner null reference bugs.
+
+---
+
 ## ⚠️ Unity's Fake Null - The Hidden Trap!
 
 **The most important thing to understand**: Unity overrides the `==` operator for

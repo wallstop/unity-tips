@@ -1,5 +1,27 @@
 # Unity Serialization Best Practices
 
+## What Problem Does This Solve?
+
+**The Problem:** You mark a field `[SerializeField]` but it doesn't appear in the Inspector. Or it
+shows in Inspector but resets to default after saving. Unity's serialization system has strict rules
+that aren't obvious.
+
+**Why This Happens:** Unity's serialization system is designed for performance and editor
+integration, not flexibility. It only supports specific types and structures to ensure fast scene
+loading and reliable Inspector editing.
+
+**Common Frustrations:**
+
+- Dictionaries don't serialize (most requested feature for 10+ years)
+- Properties don't serialize (only fields do)
+- Polymorphic fields don't serialize correctly
+- Using `public` fields everywhere breaks encapsulation
+
+**The Solution:** Understanding Unity's serialization rules prevents hours of debugging "Why isn't
+this saving?" problems and helps you write maintainable code with proper encapsulation.
+
+---
+
 ## ⚠️ Critical Rules
 
 **The most common serialization mistakes:**
