@@ -322,6 +322,385 @@ Sequence.Create()
 
 ### Development Workflow
 
+#### CSharpier | Automatic Code Formatting | FREE
+
+**Website:** [Csharpier](https://csharpier.com/)
+
+**What it solves:** Inconsistent code formatting, merge conflicts from whitespace changes, and time
+wasted on style debates.
+
+**Why it exists:** Stop thinking about formatting. Type code however you want, hit save, and
+CSharpier instantly makes it beautiful and consistent. No configuration, no debates, just pretty
+code.
+
+**The magic:** CSharpier is like having an automatic car wash for your code. Drive in messy, drive
+out sparkling clean. Write your code any way you want - sloppy indentation, inconsistent spacing,
+whatever - and when you save, it's instantly formatted perfectly. Every single time.
+
+**Key benefits:**
+
+- **Zero mental overhead** - Never think about formatting again
+- **Automatic everywhere** - Format-on-save in editor, pre-commit hooks, CI/CD
+- **No merge conflicts** - Everyone's code looks identical
+- **No style debates** - One deterministic format, no options to argue about
+- **Works with your editor** - Plugins for VS Code, Rider, Visual Studio
+
+```csharp
+// You type this mess:
+public class Player:MonoBehaviour{
+private int health=100;public void TakeDamage(int amount){health-=amount;
+if(health<=0)Die();}}
+
+// CSharpier auto-formats to:
+public class Player : MonoBehaviour
+{
+    private int health = 100;
+
+    public void TakeDamage(int amount)
+    {
+        health -= amount;
+        if (health <= 0)
+            Die();
+    }
+}
+```
+
+**How to set up (5 minutes):**
+
+1. **Install as .NET tool** (project-wide consistency):
+
+   ```bash
+   # Create .config directory if it doesn't exist
+   mkdir -p .config
+
+   # Create dotnet-tools.json
+   cat > .config/dotnet-tools.json << 'EOF'
+   {
+     "version": 1,
+     "isRoot": true,
+     "tools": {
+       "CSharpier": {
+         "version": "1.1.2",
+         "commands": ["csharpier"]
+       }
+     }
+   }
+   EOF
+
+   # Install the tool
+   dotnet tool restore
+   ```
+
+1. **Add pre-commit hook** (auto-format before commits):
+
+   ```bash
+   # Install pre-commit framework (if not installed)
+   pip install pre-commit
+
+   # Create .pre-commit-config.yaml
+   cat > .pre-commit-config.yaml << 'EOF'
+   repos:
+     - repo: local
+       hooks:
+         - id: dotnet-tool-restore
+           name: Install .NET tools
+           entry: dotnet tool restore
+           language: system
+           always_run: true
+           pass_filenames: false
+           stages: [pre-commit]
+         - id: csharpier
+           name: Run CSharpier on C# files
+           entry: dotnet csharpier
+           language: system
+           types: [c#]
+   EOF
+
+   # Install the hooks
+   pre-commit install
+   ```
+
+1. **Add to CI/CD** (enforce formatting in builds):
+
+   ```yaml
+   # In your GitHub Actions workflow:
+   - name: Check code formatting
+     run: |
+       dotnet tool restore
+       dotnet csharpier --check .
+   ```
+
+1. **Editor plugin** (format-on-save):
+   - **VS Code:** Install "CSharpier" extension → Enable format-on-save
+   - **Rider:** Install "CSharpier" plugin → Enable format-on-save in settings
+   - **Visual Studio:** Install "CSharpier" extension → Enable format-on-save
+
+**Cost:** FREE (MIT license)
+
+---
+
+#### EditorConfig | Style Enforcement | FREE
+
+**Website:** [Editorconfig](https://editorconfig.org/)
+
+**What it solves:** Inconsistent naming (camelCase vs PascalCase), style violations, and "which
+convention should we use?" debates.
+
+**Why it exists:** CSharpier formats your code's structure (braces, spacing), but EditorConfig
+enforces naming conventions and style rules. It's your team's style guide, automatically enforced by
+every IDE.
+
+**Key benefits:**
+
+- **Enforced naming conventions** - Interfaces start with `I`, private fields are `camelCase`, etc.
+- **Always use braces** - Enforce `if (x) { }` instead of `if (x) statement;`
+- **IDE integration** - Works in VS Code, Rider, Visual Studio automatically
+- **Prevents bugs** - Deterministic rules (always do X) are safer than flexible ones (sometimes do
+  X)
+- **Team consistency** - Everyone's code follows the same rules automatically
+
+```csharp
+// Without EditorConfig: Inconsistent naming causes confusion
+public interface player { }  // ❌ Should be IPlayer
+private int HealthValue;      // ❌ Should be healthValue (camelCase)
+public event Action click;    // ❌ Should be OnClick
+
+// With EditorConfig: IDE shows warnings/errors for violations
+public interface IPlayer { }  // ✅ Correct!
+private int healthValue;      // ✅ Correct!
+public event Action OnClick;  // ✅ Correct!
+
+// Enforces braces for safety:
+if (health <= 0)              // ❌ Warning: Missing braces
+    Die();
+
+if (health <= 0)              // ✅ Correct!
+{
+    Die();
+}
+```
+
+**Why deterministic rules matter:**
+
+```csharp
+// "Sometimes use braces" rule (BAD):
+if (health <= 0) Die();  // Works fine
+
+// Later, someone adds logging:
+if (health <= 0)
+    Debug.Log("Player died");
+    Die();  // 🐛 BUG! This ALWAYS runs, not just when health <= 0!
+
+// "Always use braces" rule (GOOD):
+if (health <= 0)
+{
+    Die();
+}
+
+// Adding logging is safe:
+if (health <= 0)
+{
+    Debug.Log("Player died");
+    Die();  // ✅ Correct! Always runs when health <= 0
+}
+```
+
+**How to set up (2 minutes):**
+
+1. **Create `.editorconfig` at project root:**
+
+   ```ini
+   # Example Unity .editorconfig (simplified for clarity)
+
+   # Top-most EditorConfig file
+   root = true
+
+   # All files
+   [*]
+   charset = utf-8-bom
+   indent_style = space
+   indent_size = 4
+   trim_trailing_whitespace = true
+   insert_final_newline = true
+
+   # C# files
+   [*.cs]
+
+   # Always use braces for control flow (CRITICAL!)
+   csharp_prefer_braces = true:warning
+
+   # Naming conventions
+   # Interfaces: IPlayer, IEnemy
+   dotnet_naming_rule.interfaces_rule.severity = warning
+   dotnet_naming_rule.interfaces_rule.symbols = interface
+   dotnet_naming_rule.interfaces_rule.style = begins_with_i
+   dotnet_naming_symbols.interface.applicable_kinds = interface
+   dotnet_naming_style.begins_with_i.capitalization = pascal_case
+   dotnet_naming_style.begins_with_i.required_prefix = I
+
+   # Events: OnClick, OnPlayerDied
+   dotnet_naming_rule.events_rule.severity = warning
+   dotnet_naming_rule.events_rule.symbols = event
+   dotnet_naming_rule.events_rule.style = begins_with_on
+   dotnet_naming_symbols.event.applicable_kinds = event
+   dotnet_naming_style.begins_with_on.capitalization = pascal_case
+   dotnet_naming_style.begins_with_on.required_prefix = On
+
+   # Private fields: health, playerSpeed (camelCase)
+   dotnet_naming_rule.private_fields_rule.severity = warning
+   dotnet_naming_rule.private_fields_rule.symbols = private_fields
+   dotnet_naming_rule.private_fields_rule.style = camel_case
+   dotnet_naming_symbols.private_fields.applicable_kinds = field
+   dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+   dotnet_naming_style.camel_case.capitalization = camel_case
+
+   # Public fields: Health, PlayerSpeed (PascalCase)
+   dotnet_naming_rule.public_fields_rule.severity = warning
+   dotnet_naming_rule.public_fields_rule.symbols = public_fields
+   dotnet_naming_rule.public_fields_rule.style = pascal_case
+   dotnet_naming_symbols.public_fields.applicable_kinds = field
+   dotnet_naming_symbols.public_fields.applicable_accessibilities = public
+   dotnet_naming_style.pascal_case.capitalization = pascal_case
+   ```
+
+1. **For a comprehensive production-ready config**, search for "Unity .editorconfig" examples with
+   160+ lines of rules covering all edge cases
+
+**Common Unity naming conventions to enforce:**
+
+- ✅ Interfaces must start with `I` (IPlayer, IEnemy)
+- ✅ Events must start with `On` (OnClick, OnPlayerDied)
+- ✅ Type parameters must start with `T` (TComponent, TValue)
+- ✅ Private fields use camelCase (health, playerSpeed)
+- ✅ Public fields use PascalCase (Health, PlayerSpeed)
+- ✅ Always use braces for `if`, `for`, `while`, etc.
+
+**How CSharpier and EditorConfig work together:**
+
+1. **CSharpier** (Format Structure):
+
+   - Handles spacing, indentation, line breaks
+   - "How does the code look?"
+   - Runs: On save, pre-commit, CI/CD
+
+2. **EditorConfig** (Enforce Rules):
+   - Handles naming, conventions, style rules
+   - "What are the code's rules?"
+   - Runs: Continuously in IDE (live warnings/errors)
+
+Together, they mean: **Write code however you want → Save → Perfect, consistent, rule-compliant code
+automatically**
+
+**Cost:** FREE (built into most IDEs)
+
+---
+
+**⚠️ CRITICAL UNITY GOTCHA: Null-Conditional Operators on Unity Objects**
+
+Unity's null handling is broken with C#'s null-conditional (`?.`) and null-coalescing (`??`)
+operators. This causes **silent bugs** that are hard to track down.
+
+**The Problem:**
+
+Unity overrides `== null` to detect destroyed objects, but C# operators like `?.` and `??` use the
+built-in C# null check, which **doesn't know about destroyed Unity objects**.
+
+```csharp
+// ❌ DANGEROUS: Null-conditional operator on Unity objects
+GameObject player = destroyedGameObject; // Destroyed but not null!
+int? health = player?.GetComponent<Health>()?.currentHealth;
+// 🐛 BUG! This throws NullReferenceException instead of returning null!
+// Unity thinks it's destroyed, but C# thinks it's not null
+
+// ❌ DANGEROUS: Null-coalescing operator
+Transform target = destroyedTransform ?? fallbackTransform;
+// 🐛 BUG! Uses destroyedTransform instead of fallback!
+// C# doesn't see it as null even though it's destroyed
+
+// ✅ SAFE: Explicit Unity null check
+if (player != null) // Unity's overridden == operator
+{
+    Health health = player.GetComponent<Health>();
+    if (health != null)
+    {
+        int currentHealth = health.currentHealth;
+    }
+}
+
+// ✅ SAFE: Null-coalescing with explicit check
+Transform target = (destroyedTransform != null) ? destroyedTransform : fallbackTransform;
+```
+
+**Real-world example of the bug:**
+
+```csharp
+public class PlayerController : MonoBehaviour
+{
+    private GameObject target;
+
+    void Update()
+    {
+        // Enemy gets destroyed during gameplay
+        // target is destroyed but not "null" in C#
+
+        // ❌ DANGEROUS: Looks safe, but throws NullReferenceException!
+        Vector3? position = target?.transform.position;
+
+        // ❌ DANGEROUS: Uses destroyed object instead of fallback!
+        Transform finalTarget = target?.transform ?? defaultTarget;
+
+        // ✅ SAFE: Unity's null check works correctly
+        if (target != null)
+        {
+            Vector3 position = target.transform.position;
+        }
+
+        // ✅ SAFE: Explicit check before coalescing
+        Transform finalTarget = (target != null) ? target.transform : defaultTarget;
+    }
+}
+```
+
+**Why this happens:**
+
+- Unity objects are C# wrappers around native C++ objects
+- When `Destroy()` is called, the C++ object is destroyed, but the C# wrapper still exists
+- Unity overrides `==` and `!=` to check if the native object exists
+- C#'s `?.` and `??` operators **don't use overloaded operators**, they use the built-in null check
+- Result: Destroyed Unity objects fail the built-in null check → crashes and bugs
+
+**The Rule: NEVER use `?.` or `??` with Unity object types**
+
+**Unity object types include:**
+
+- `GameObject`, `Transform`, `Component`
+- Any class inheriting from `MonoBehaviour`
+- Any class inheriting from `ScriptableObject`
+- Any class inheriting from `UnityEngine.Object`
+
+**Safe to use `?.` and `??` with:**
+
+- Plain C# classes (`class Foo { }`)
+- Structs (`Vector3`, `Quaternion`, your own structs)
+- Interfaces (but be careful if they're implemented by Unity objects!)
+- C# primitives (`int?`, `string`, etc.)
+
+**EditorConfig can help prevent this:**
+
+```ini
+# Add to your .editorconfig to warn about this pattern
+[*.cs]
+# Unfortunately, there's no built-in rule for this specific issue
+# Best practice: Code review + team education
+# Consider using a custom analyzer or Roslyn rule
+```
+
+**Bottom line:** When working with Unity objects (GameObject, Component, MonoBehaviour, etc.),
+**always use explicit `!= null` checks**. Never use `?.` or `??` operators. This is one of Unity's
+most dangerous quirks.
+
+---
+
 #### [Assembly Definitions](./docs/assembly-definitions/README.md) ⚡ **COMPILE TIME SAVER**
 
 **What it solves:** Changing one script recompiles your entire project (30-120+ seconds).
@@ -533,6 +912,8 @@ new TakeDamage(50).EmitComponentTargeted(player);
 
 - [Best Practices](./docs/best-practices/README.md) - Foundation
 - [Unity Helpers](./docs/unity-helpers/README.md) - Boilerplate elimination + 2D editor tools
+- [CSharpier](#csharpier--automatic-code-formatting--free) - Automatic formatting (FREE!)
+- [EditorConfig](#editorconfig--style-enforcement--free) - Enforce naming conventions (FREE!)
 - [Animancer](./docs/animancer/README.md) - Character animation control
 - [PrimeTween](./docs/primetween/README.md) - UI and gameplay tweens
 - [Feel](./docs/feel/README.md) - Game feel and juice
@@ -555,6 +936,8 @@ new TakeDamage(50).EmitComponentTargeted(player);
 
 - [Best Practices](./docs/best-practices/README.md) - Performance critical
 - [Unity Helpers](./docs/unity-helpers/README.md) - Object pooling, serialization
+- [CSharpier](#csharpier--automatic-code-formatting--free) - Automatic formatting (FREE!)
+- [EditorConfig](#editorconfig--style-enforcement--free) - Enforce naming conventions (FREE!)
 - [Graphy](./docs/graphy/README.md) - On-device performance testing
 - [Better Build Info PRO](./docs/better-build-info/README.md) - Build size optimization
 - [PrimeTween](./docs/primetween/README.md) - Zero-allocation animations
@@ -572,6 +955,8 @@ new TakeDamage(50).EmitComponentTargeted(player);
 **Essential:**
 
 - [Best Practices](./docs/best-practices/README.md) - Team standards
+- [CSharpier](#csharpier--automatic-code-formatting--free) - Consistent formatting (FREE!)
+- [EditorConfig](#editorconfig--style-enforcement--free) - Team style rules (FREE!)
 - [Assembly Definitions](./docs/assembly-definitions/README.md) - Manage dependencies
 - [Odin Inspector](./docs/odin/README.md) - Designer empowerment
 - [DxMessaging](./docs/dxmessaging/README.md) - Decouple systems
@@ -591,6 +976,8 @@ new TakeDamage(50).EmitComponentTargeted(player);
 **Start Here:**
 
 - [Best Practices](./docs/best-practices/README.md) - Build solid foundation
+- [CSharpier](#csharpier--automatic-code-formatting--free) - Never think about formatting (FREE!)
+- [EditorConfig](#editorconfig--style-enforcement--free) - Learn good naming conventions (FREE!)
 - [Unity Helpers](./docs/unity-helpers/README.md) - Learn good patterns
 - [Graphy](./docs/graphy/README.md) - Understand performance (FREE!)
 
@@ -673,13 +1060,15 @@ new TakeDamage(50).EmitComponentTargeted(player);
 If you're on a budget, these FREE tools will take you 80% of the way:
 
 1. ✅ **[Best Practices](./docs/best-practices/README.md)** - FREE knowledge that prevents bugs
-2. ✅ **[Graphy](./docs/graphy/README.md)** - FREE performance monitor (Unity Awards winner!)
-3. ✅ **[PrimeTween](./docs/primetween/README.md)** - FREE zero-allocation animations
-4. ✅ **[Input System](./docs/input-system/README.md)** - FREE official Unity package
-5. ✅ **[Assembly Definitions](./docs/assembly-definitions/README.md)** - FREE built-in Unity
+2. ✅ **[CSharpier](#csharpier--automatic-code-formatting--free)** - FREE automatic code formatting
+3. ✅ **[EditorConfig](#editorconfig--style-enforcement--free)** - FREE style enforcement
+4. ✅ **[Graphy](./docs/graphy/README.md)** - FREE performance monitor (Unity Awards winner!)
+5. ✅ **[PrimeTween](./docs/primetween/README.md)** - FREE zero-allocation animations
+6. ✅ **[Input System](./docs/input-system/README.md)** - FREE official Unity package
+7. ✅ **[Assembly Definitions](./docs/assembly-definitions/README.md)** - FREE built-in Unity
    feature
-6. ✅ **[DxMessaging](./docs/dxmessaging/README.md)** - FREE open-source messaging
-7. ✅ **[Asset Usage Detector](https://github.com/yasirkula/UnityAssetUsageDetector)** - FREE
+8. ✅ **[DxMessaging](./docs/dxmessaging/README.md)** - FREE open-source messaging
+9. ✅ **[Asset Usage Detector](https://github.com/yasirkula/UnityAssetUsageDetector)** - FREE
    alternative to Asset Usage Finder
 
 **Add when budget allows:**
