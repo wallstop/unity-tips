@@ -250,12 +250,12 @@ public class ItemDatabase : SerializedMonoBehaviour
 {
     [ValidateInput(nameof(ValidateNoDuplicateIDs), "Duplicate item IDs detected!")]
     [DictionaryDrawerSettings(KeyLabel = "Item ID", ValueLabel = "Item Data")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, ItemData> _items = new();
 
     [ValidateInput(nameof(ValidateAllPricesPositive), "All prices must be positive!")]
     [DictionaryDrawerSettings(KeyLabel = "Item ID", ValueLabel = "Price")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _prices = new();
 
     private bool ValidateNoDuplicateIDs(Dictionary<string, ItemData> dict)
@@ -397,7 +397,7 @@ using UnityEngine;
 public class ConfigManager : SerializedMonoBehaviour
 {
     [DictionaryDrawerSettings(KeyLabel = "Setting Name", ValueLabel = "Value")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, string> _settings = new();
 
     [FoldoutGroup("Import/Export")]
@@ -633,7 +633,7 @@ public class HealAbility : IAbility
 public class AbilityManager : SerializedMonoBehaviour
 {
     [ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "Name")]
-    [SerializeField]
+    [OdinSerialize]
     private List<IAbility> _abilities = new();
 
     [Button("Execute All Abilities")]
@@ -662,7 +662,7 @@ public class Node
 
 public class Graph : SerializedMonoBehaviour
 {
-    [SerializeField]
+    [OdinSerialize]
     private Node _rootNode;
 
     [Button]
@@ -689,13 +689,13 @@ public class Container<T>
 
 public class GenericExample : SerializedMonoBehaviour
 {
-    [SerializeField]
+    [OdinSerialize]
     private Container<int> _intContainer;
 
-    [SerializeField]
+    [OdinSerialize]
     private Container<GameObject> _prefabContainer;
 
-    [SerializeField]
+    [OdinSerialize]
     private List<Container<string>> _stringContainers;
 
     // Odin serializes these perfectly!

@@ -52,13 +52,13 @@ using System.Collections.Generic;
 public class Example : SerializedMonoBehaviour
 {
     // Just works!
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _stringToInt = new();
 
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<int, GameObject> _idToPrefab = new();
 
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, List<int>> _stringToList = new();
 }
 ```
@@ -71,7 +71,7 @@ public class Example : SerializedMonoBehaviour
     ValueLabel = "Item Prefab",
     DisplayMode = DictionaryDisplayOptions.ExpandedFoldout
 )]
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, GameObject> _items = new();
 ```
 
@@ -85,7 +85,7 @@ private Dictionary<string, GameObject> _items = new();
 
 ```csharp
 // Dictionary of dictionaries
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, Dictionary<string, int>> _nestedDict = new();
 
 // Dictionary with complex values
@@ -97,7 +97,7 @@ public class ItemData
     public Sprite icon;
 }
 
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, ItemData> _itemDatabase = new();
 ```
 
@@ -164,7 +164,7 @@ public class Potion : IItem
 public class Inventory : SerializedMonoBehaviour
 {
     // Serialize list of interfaces!
-    [SerializeField]
+    [OdinSerialize]
     private List<IItem> _items = new();
 
     // In Inspector, you can select which implementation to create
@@ -180,13 +180,13 @@ public class Inventory : SerializedMonoBehaviour
 ### 4. Nullable Type Serialization
 
 ```csharp
-[SerializeField]
+[OdinSerialize]
 private int? _optionalCount = null;
 
-[SerializeField]
+[OdinSerialize]
 private float? _optionalMultiplier = null;
 
-[SerializeField]
+[OdinSerialize]
 private bool? _useFeature = null;
 
 void Start()
@@ -201,13 +201,13 @@ void Start()
 ### 5. Tuple Serialization
 
 ```csharp
-[SerializeField]
+[OdinSerialize]
 private (int x, int y) _position = (0, 0);
 
-[SerializeField]
+[OdinSerialize]
 private (string name, int level, float health) _playerData;
 
-[SerializeField]
+[OdinSerialize]
 private List<(string id, GameObject prefab)> _prefabs = new();
 ```
 
@@ -237,7 +237,7 @@ public class Dragon : Enemy
 public class EnemyManager : SerializedMonoBehaviour
 {
     // Can store any derived type!
-    [SerializeField]
+    [OdinSerialize]
     private List<Enemy> _enemies = new();
 
     // Inspector lets you choose: Goblin or Dragon
@@ -738,7 +738,7 @@ Attributes can be combined for powerful effects.
 [InfoBox("Item ID must be unique. Price must be positive.")]
 [DictionaryDrawerSettings(KeyLabel = "Item ID", ValueLabel = "Price")]
 [ValidateInput(nameof(ValidatePrices), "All prices must be positive!")]
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, int> _itemPrices = new();
 
 private bool ValidatePrices(Dictionary<string, int> dict)

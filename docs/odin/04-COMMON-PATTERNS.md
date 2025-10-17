@@ -54,7 +54,7 @@ public class ItemDatabase : SerializedScriptableObject
         ValueLabel = "Item Data",
         DisplayMode = DictionaryDisplayOptions.Foldout
     )]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, ItemData> _items = new();
 
     public ItemData GetItem(string itemId)
@@ -134,7 +134,7 @@ public class GameStateConfig : SerializedScriptableObject
     }
 
     [DictionaryDrawerSettings(KeyLabel = "Game State", ValueLabel = "Settings")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<GameState, StateSettings> _stateSettings = new();
 
     public StateSettings GetSettings(GameState state)
@@ -152,11 +152,11 @@ public class GameStateConfig : SerializedScriptableObject
 public class LocalizationData : SerializedScriptableObject
 {
     [DictionaryDrawerSettings(KeyLabel = "Text ID", ValueLabel = "Localized Text")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, string> _englishText = new();
 
     [DictionaryDrawerSettings(KeyLabel = "Text ID", ValueLabel = "Localized Text")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, string> _spanishText = new();
 
     public string GetText(string textId, SystemLanguage language)
@@ -492,7 +492,7 @@ public class QuestManager : SerializedMonoBehaviour
 
     [ValidateInput(nameof(ValidateQuests), "Duplicate quest IDs or invalid data detected!")]
     [TableList(ShowIndexLabels = true)]
-    [SerializeField]
+    [OdinSerialize]
     private List<Quest> _quests = new();
 
     private bool ValidateQuests(List<Quest> quests)

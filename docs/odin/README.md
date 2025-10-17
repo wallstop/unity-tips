@@ -21,7 +21,7 @@ using System.Collections.Generic;
 public class PlayerInventory : SerializedMonoBehaviour  // Step 1: Inherit SerializedMonoBehaviour
 {
     // ✨ DICTIONARY SERIALIZATION - Unity can't do this!
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _itemCounts = new();
 
     // ✨ INSPECTOR BUTTONS - Run code without entering play mode!
@@ -124,9 +124,13 @@ public class StringGameObjectPair
 
 ```csharp
 // ✅ Just works!
-[SerializeField] private Dictionary<string, GameObject> _prefabs = new();
+[OdinSerialize] private Dictionary<string, GameObject> _prefabs = new();
 // Inspector shows a beautiful, fully editable dictionary
 ```
+
+**Note:** Use `[OdinSerialize]` for private dictionaries/properties that Unity can't serialize.
+Public dictionaries in `SerializedMonoBehaviour` are automatically serialized by Odin without
+needing an attribute.
 
 | Without Odin                          | With Odin                      |
 | ------------------------------------- | ------------------------------ |
@@ -250,11 +254,11 @@ public class ItemDatabase : SerializedMonoBehaviour
 {
     [InfoBox("Define all game items here. Key = item ID, Value = item data.")]
     [DictionaryDrawerSettings(KeyLabel = "Item ID", ValueLabel = "Item Prefab")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, GameObject> _itemPrefabs = new();
 
     [DictionaryDrawerSettings(KeyLabel = "Item ID", ValueLabel = "Base Price")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _itemPrices = new();
 
     [Button("Add Example Items"), PropertyOrder(-1)]
@@ -435,7 +439,7 @@ using Sirenix.OdinInspector;
 
 public class Example : SerializedMonoBehaviour
 {
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _myDict = new();
 }
 ```
