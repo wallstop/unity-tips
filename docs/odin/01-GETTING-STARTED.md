@@ -19,7 +19,7 @@ using System.Collections.Generic;
 public class Example : SerializedMonoBehaviour
 {
     // ✨ Odin Serializer: Unity can't serialize this!
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _scores = new();
 
     // ✨ Odin Inspector: Run code directly from Inspector!
@@ -105,7 +105,7 @@ using System.Collections.Generic;
 public class ItemManager : MonoBehaviour
 {
     // ❌ This doesn't serialize in Unity!
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _itemPrices = new();
     // Inspector shows: "Type is not supported"
 
@@ -127,7 +127,7 @@ using System.Collections.Generic;
 public class ItemManager : SerializedMonoBehaviour  // ← Changed!
 {
     // ✅ This works perfectly with Odin!
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _itemPrices = new();
 
     void Start()
@@ -248,7 +248,7 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "ItemData", menuName = "Game/Item Data")]
 public class ItemData : SerializedScriptableObject
 {
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _baseStats = new();
 
     [Button]
@@ -268,7 +268,7 @@ Here are the **10 most important attributes** to learn first:
 ### 1. Dictionary Serialization
 
 ```csharp
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, int> _scores = new();
 
 // Custom labels for better UX
@@ -402,12 +402,12 @@ public class PlayerInventory : SerializedMonoBehaviour
     [Title("Inventory Data")]
     [InfoBox("Add items and set their quantities. Dictionary keys are item names.")]
     [DictionaryDrawerSettings(KeyLabel = "Item Name", ValueLabel = "Quantity")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _itemQuantities = new();
 
     [Space(10)]
     [DictionaryDrawerSettings(KeyLabel = "Item Name", ValueLabel = "Price")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _itemPrices = new();
 
     [Title("Computed Values", "These update automatically")]
@@ -569,7 +569,7 @@ using System.Collections.Generic;
 
 public class ItemManager : SerializedMonoBehaviour
 {
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _prices = new();
 
     public int GetPrice(string itemId)
@@ -662,7 +662,7 @@ using System.Collections.Generic;
 public class Example : SerializedMonoBehaviour
 {
     // Serialize dictionaries
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _dict = new();
 
     // Inspector buttons

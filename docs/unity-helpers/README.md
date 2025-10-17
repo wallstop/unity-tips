@@ -490,43 +490,49 @@ void Update() {
 
 ### Feature 5: Editor Tools Suite
 
-Automate tedious editor tasks.
+Unity Helpers includes powerful editor tools for automating tedious tasks. These tools are accessed
+through Unity's editor menus and windows, not called directly from code.
 
 #### Sprite Automation
 
-```csharp
-// Auto-crop transparent pixels from sprites
-[MenuItem("Tools/Unity Helpers/Crop All Sprites")]
-public static void CropSprites() {
-    SpriteTools.CropTransparency(Selection.objects);
-}
+Access sprite tools through the Unity editor menu:
 
-// Generate sprite atlas from folder
-[MenuItem("Tools/Unity Helpers/Create Atlas")]
-public static void CreateAtlas() {
-    SpriteTools.GenerateAtlas("Assets/Sprites/Characters");
-}
-```
+- **Sprite Cropper** - `Tools → Wallstop Studios → Unity Helpers → Sprite Cropper` - Automatically
+  removes transparent pixels from selected sprites
+- **Sprite Atlas Generator** - `Tools → Wallstop Studios → Unity Helpers → Sprite Atlas Generator` -
+  Generates optimized sprite atlases from folders
+- **Sprite Settings Applier** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Settings Applier` - Opens editor window to
+  batch adjust sprite import settings
+- **Texture Settings Applier** -
+  `Tools → Wallstop Studios → Unity Helpers → Texture Settings Applier` - Opens editor window to
+  batch adjust texture import settings
+- **Sprite Pivot Adjuster** - `Tools → Wallstop Studios → Unity Helpers → Sprite Pivot Adjuster` -
+  Adjust sprite pivot points
+- **Texture Resizer** - `Tools → Wallstop Studios → Unity Helpers → Texture Resizer` - Resize
+  textures
+
+#### Animation Tools
+
+- **Animation Creator** - `Tools → Wallstop Studios → Unity Helpers → Animation Creator` - Create
+  animations from sprite sequences
+- **Sprite Sheet Animation Creator** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Sheet Animation Creator` - Generate animations
+  from sprite sheets
+- **Animation Copier** - `Tools → Wallstop Studios → Unity Helpers → Animation Copier` - Copy
+  animations between objects
+- **Sprite Animation Editor** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Animation Editor` - Visual editor for sprite
+  animations
 
 #### Prefab Validation
 
-```csharp
-// Validate all prefabs have required components
-[MenuItem("Tools/Unity Helpers/Validate Prefabs")]
-public static void ValidatePrefabs() {
-    PrefabValidator.EnsureComponent<Rigidbody>("Assets/Prefabs/Enemies");
-}
-```
+- **Prefab Checker** - `Tools → Wallstop Studios → Unity Helpers → Prefab Checker` - Ensures prefabs
+  have required components
 
-#### Bulk Animation Creation
-
-```csharp
-// Create animations from sprite sequences
-[MenuItem("Tools/Unity Helpers/Create Animations")]
-public static void CreateAnimations() {
-    AnimationTools.GenerateFromSpriteSheets("Assets/Sprites/Animations");
-}
-```
+**Note:** These are editor GUI tools accessed through Unity's menu system (under
+`Tools → Wallstop Studios → Unity Helpers`), similar to Unity's built-in tools like the Animation
+window or Sprite Packer. They are not script APIs to be called from your game code.
 
 ---
 

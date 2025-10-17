@@ -38,8 +38,8 @@ Start here in order:
 
 You need these tools:
 
-1. **[Unity Helpers](./docs/unity-helpers/README.md)** - Bulk animation creators, sprite tools,
-   atlas packers
+1. **[Unity Helpers](./docs/unity-helpers/README.md)** - Component auto-wiring, object pooling, plus
+   2D editor tools
 2. **[Animancer](./docs/animancer/README.md)** - Code-driven animation control
 3. **[Feel](./docs/feel/README.md)** - Game feel and juice (screen shake, particles, etc.)
 4. **[PrimeTween](./docs/primetween/README.md)** - Zero-allocation animations and tweens
@@ -103,29 +103,36 @@ every project.
 **Key features:**
 
 - **Automatic Component Wiring** - `[SelfComponent]` instead of 10 lines of GetComponent boilerplate
-- **Unity-Aware Serialization** - Serialize dictionaries, Vector3, GameObjects seamlessly
+- **Unity-Aware Serialization** - Serialize Vector3, Color, GameObjects seamlessly
 - **Zero-Allocation Pooling** - Professional object pooling with zero GC
 - **Data-Driven Effects System** - Buffs/debuffs as ScriptableObjects
-- **🎮 2D Game Editor Tools** - Bulk animation creators, sprite settings adjustors, sprite atlas
-  packers, and more!
+- **🎮 2D Editor Tools** - Sprite automation, animation generation, and batch processing via Unity
+  menus
 
-**2D Game Development Features:**
+**2D Game Development Tools:**
 
-```csharp
-// Bulk create animations from sprite sheets
-AnimationTools.GenerateFromSpriteSheets("Assets/Sprites/Animations");
+Unity Helpers provides powerful editor tools accessible through Unity's menu system:
 
-// Auto-crop transparent pixels from all sprites
-SpriteTools.CropTransparency(Selection.objects);
+- **Animation Creator** - `Tools → Wallstop Studios → Unity Helpers → Animation Creator` - Create
+  animations from sprite sequences
+- **Sprite Sheet Animation Creator** -
+  `Tools → Wallstop Studios → Unity Helpers → Sprite Sheet Animation Creator` - Generate animations
+  from sprite sheets
+- **Sprite Cropper** - `Tools → Wallstop Studios → Unity Helpers → Sprite Cropper` - Remove
+  transparent pixels from sprites
+- **Sprite Atlas Generator** - `Tools → Wallstop Studios → Unity Helpers → Sprite Atlas Generator` -
+  Generate optimized sprite atlases
+- **Sprite Settings Applier** - `Tools → Wallstop Studios → Unity Helpers → Sprite Settings Applier`
+  - Batch adjust sprite import settings
+- **Prefab Checker** - `Tools → Wallstop Studios → Unity Helpers → Prefab Checker` - Validate
+  prefabs have required components
 
-// Generate optimized sprite atlases
-SpriteTools.GenerateAtlas("Assets/Sprites/Characters");
+These are editor GUI tools accessed through Unity's menu system (under
+`Tools → Wallstop Studios → Unity Helpers`), similar to Unity's built-in Animation window or Sprite
+Packer.
 
-// Batch adjust sprite import settings
-SpriteTools.SetImportSettings(sprites, filterMode, compression);
-```
-
-**How to use:** Install via Package Manager, inherit from `SerializedMonoBehaviour`, use attributes.
+**How to use:** Install via Package Manager, use the provided attributes and utilities in your
+scripts.
 
 **Time saved:** 30-40% of development time on infrastructure
 

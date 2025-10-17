@@ -34,7 +34,8 @@ public class HealthBar : MonoBehaviour
 // Complex script with dictionaries → use SerializedMonoBehaviour
 public class ItemDatabase : SerializedMonoBehaviour
 {
-    [SerializeField] private Dictionary<string, ItemData> _items = new();
+    [OdinSerialize]
+    private Dictionary<string, ItemData> _items = new();
 }
 ```
 
@@ -47,17 +48,17 @@ public class ItemDatabase : SerializedMonoBehaviour
 **Good:**
 
 ```csharp
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, int> _scores = new();  // ✅ Initialized
 
-[SerializeField]
+[OdinSerialize]
 private List<Item> _items = new();  // ✅ Initialized
 ```
 
 **Bad:**
 
 ```csharp
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, int> _scores;  // ❌ null by default
 
 void Start()
@@ -75,7 +76,7 @@ void Start()
 **Good:**
 
 ```csharp
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, GameObject> _prefabs = new();
 
 [NonSerialized]
@@ -92,7 +93,7 @@ private Dictionary<string, GameObject> _spawnedInstances = new();  // Runtime ca
 
 ```csharp
 // This works but can cause issues with scene references
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, Transform> _sceneObjects = new();
 ```
 
@@ -100,7 +101,7 @@ private Dictionary<string, Transform> _sceneObjects = new();
 
 ```csharp
 // For prefabs (assets)
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, GameObject> _prefabs = new();
 
 // For scene objects, use direct references
@@ -122,7 +123,7 @@ references lost.
 
 ```csharp
 [ValidateInput(nameof(ValidateKeys), "Dictionary keys must not be empty!")]
-[SerializeField]
+[OdinSerialize]
 private Dictionary<string, ItemData> _items = new();
 
 private bool ValidateKeys(Dictionary<string, ItemData> dict)
@@ -230,7 +231,7 @@ private List<EnemyData> _enemies = new();  // Could have 1000+ items
 
 ```csharp
 // 10,000+ entries
-[SerializeField]
+[OdinSerialize]
 private Dictionary<int, Vector3> _allPositions = new();
 ```
 
@@ -267,7 +268,7 @@ using Sirenix.OdinInspector;
 
 public class Example : MonoBehaviour  // ❌ Wrong base class!
 {
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _data = new();
 }
 ```
@@ -279,7 +280,7 @@ using Sirenix.OdinInspector;
 
 public class Example : SerializedMonoBehaviour  // ✅ Correct!
 {
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, int> _data = new();
 }
 ```
@@ -536,7 +537,7 @@ public class ItemDatabase : SerializedScriptableObject
 {
     [DictionaryDrawerSettings(KeyLabel = "Item ID", ValueLabel = "Item Data")]
     [InfoBox("Item IDs must be unique! Use lowercase with underscores (e.g., 'health_potion').")]
-    [SerializeField]
+    [OdinSerialize]
     private Dictionary<string, ItemData> _items = new();
 }
 ```
