@@ -488,6 +488,8 @@ void Update() {
 
 ---
 
+<a id="editor-tools"></a>
+
 ### Feature 5: Editor Tools Suite
 
 Unity Helpers includes powerful editor tools for automating tedious tasks. These tools are accessed
