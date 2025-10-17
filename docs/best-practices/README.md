@@ -23,6 +23,25 @@ learning order** from beginner to advanced topics.
 
 1. [**ScriptableObjects**](./08-scriptable-objects.md) - Data-driven design and shared configuration
 2. [**Object Pooling**](./09-object-pooling.md) - Performance optimization for frequent spawning
+3. [**Null-Conditional Operators**](./10-null-conditional-operators.md) - Why `?.` and `??` break
+   with UnityEngine.Object
+
+### Systems & Architecture
+
+1. [**Addressables**](./11-addressables.md) - Memory-safe asset streaming and live content updates
+2. [**Scene Organization**](./12-scene-loading.md) - Additive loading and collaboration-friendly
+   layouts
+3. [**Jobs & Burst**](./13-jobs-burst.md) - Parallelize CPU-heavy work with native performance
+4. [**Async/Await**](./14-async-await.md) - Background tasks without breaking Unity's main thread
+
+### Production Excellence
+
+1. [**Profiling Workflow**](./15-profiling.md) - Instrument performance and catch regressions early
+2. [**Automated Testing & CI**](./16-automated-testing-ci.md) - Keep builds stable with headless
+   tests
+3. [**Input Architecture**](./17-input-architecture.md) - Action-based controls, rebinding, and
+   multiplayer
+4. [**Save/Load & Versioning**](./18-save-load.md) - Durable data with Protobuf and Unity Helpers
 
 ## 🎯 Quick Start Guide
 
@@ -63,6 +82,10 @@ learning order** from beginner to advanced topics.
 
 1. **[ScriptableObjects](./08-scriptable-objects.md)** - Build flexible, data-driven systems
 2. **[Object Pooling](./09-object-pooling.md)** - Eliminate GC spikes
+3. **[Addressables](./11-addressables.md)** - Stream assets and manage memory proactively
+4. **[Scene Organization](./12-scene-loading.md)** - Structure additive scenes for seamless loads
+5. **[Jobs & Burst](./13-jobs-burst.md)** - Parallelize CPU-heavy work safely
+6. **[Async/Await](./14-async-await.md)** - Keep async workflows responsive on the main thread
 
 ## 🔥 Top 10 Most Common Mistakes
 
