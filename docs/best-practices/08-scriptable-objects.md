@@ -1,5 +1,15 @@
 # Unity ScriptableObjects Best Practices
 
+> **🛑 Looking for Event Systems?** Don't use ScriptableObjects for events!
+>
+> ScriptableObject events require **manual asset creation, manual Inspector wiring, custom editor
+> tools to debug, and don't scale**. You can't trace who's listening or sending, "Find References"
+> doesn't work on assets, and complex projects become unmaintainable.
+>
+> Use **[DxMessaging](./19-event-systems.md)** instead for automatic memory management, code-only
+> events (no assets!), full debugging support, and scales to thousands of events. See the
+> **[Event Systems Comparison](./19-event-systems.md)** for details.
+
 ## What Problem Does This Solve?
 
 **The Problem:** You have 50 enemy types. Each enemy MonoBehaviour stores its own stats (health,
@@ -70,6 +80,10 @@ ScriptableObjects as "scripts" or "recipes" (they hold information that actors c
 
 ## When to Use ScriptableObjects
 
+> **⚠️ Note:** This guide covers general ScriptableObject usage. For **event systems specifically**,
+> see **[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)** - DxMessaging is
+> the superior choice for events.
+
 ScriptableObjects are perfect for:
 
 ### 1. Shared Configuration Data
@@ -122,10 +136,47 @@ public class ItemData : ScriptableObject
 
 **Use for**: Item databases, enemy types, ability definitions, dialogue trees
 
-### 3. Event Systems
+### 3. ~~Event Systems~~ **❌ DON'T USE ScriptableObjects for Events**
+
+> **🛑 STOP: Don't use ScriptableObjects for event systems!**
+>
+> **Use [DxMessaging](./19-event-systems.md) instead.** ScriptableObject events are **extremely
+> manual** (create assets, wire Inspector, track references), **impossible to debug** (can't see
+> who's listening/sending, need custom editor tools), and **don't scale** (hundreds of assets,
+> Inspector nightmare, unmaintainable in complex projects).
+>
+> **ScriptableObject event problems:**
+>
+> - ❌ **Manual everything** - Create assets, wire Inspector for every component, track all
+>   references
+> - ❌ **Can't debug** - No way to trace listeners/senders, must build custom editor tools
+> - ❌ **Doesn't scale** - Hundreds of event assets, Inspector references break, new devs can't
+>   understand flow
+> - ❌ **Memory leaks** - Forget `OnDisable()` unregister = leak (happens constantly)
+> - ❌ **No compile-time safety** - Wrong asset in Inspector = silent runtime failure
+>
+> **DxMessaging provides:**
+>
+> - ✅ **Zero manual work** - No assets, no Inspector wiring, just code
+> - ✅ **Full debugging** - Inspector shows all message flow, handlers, and performance
+> - ✅ **Scales to thousands** - Code-only, "Find References" works, refactoring works
+> - ✅ **Zero memory leaks** - Automatic cleanup, impossible to forget
+> - ✅ **Compile-time type safety** - Wrong message type = compiler error
+>
+> **Read the full comparison:** >
+> **[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)**
+
+<details>
+<summary><b>Why is this pattern still documented?</b> (Click to expand)</summary>
+
+This pattern is shown for **reference only** because you'll see it in older tutorials and legacy
+codebases.
+
+**Don't use it in new projects.** The code below demonstrates why ScriptableObject events are
+error-prone:
 
 ```csharp
-// Event channel pattern - decoupled communication
+// ❌ BAD PATTERN - ScriptableObject events (shown for reference only)
 [CreateAssetMenu(menuName = "Events/Int Event")]
 public class IntEvent : ScriptableObject
 {
@@ -143,21 +194,11 @@ public class IntEvent : ScriptableObject
 
     public void UnregisterListener(System.Action<int> listener)
     {
-        OnEventRaised -= listener;
+        OnEventRaised -= listener;  // Easy to forget = memory leak!
     }
 }
 
-// Usage
-public class ScoreManager : MonoBehaviour
-{
-    [SerializeField] private IntEvent onScoreChanged;
-
-    public void AddScore(int points)
-    {
-        onScoreChanged.Raise(points);
-    }
-}
-
+// Usage (requires manual cleanup)
 public class ScoreUI : MonoBehaviour
 {
     [SerializeField] private IntEvent onScoreChanged;
@@ -169,7 +210,7 @@ public class ScoreUI : MonoBehaviour
 
     private void OnDisable()
     {
-        onScoreChanged.UnregisterListener(UpdateDisplay);
+        onScoreChanged.UnregisterListener(UpdateDisplay);  // Forget this = MEMORY LEAK!
     }
 
     private void UpdateDisplay(int newScore)
@@ -179,7 +220,58 @@ public class ScoreUI : MonoBehaviour
 }
 ```
 
-**Use for**: Game events, messaging between systems, decoupled communication
+**Problems with this approach:**
+
+- ❌ Manual cleanup required (forget `OnDisable()` = memory leak)
+- ❌ Must create asset for every event type (Project clutter)
+- ❌ No compile-time safety (wrong asset in Inspector = runtime error)
+- ❌ Allocates garbage for event parameters
+- ❌ Listeners persist between Play Mode sessions (must clear in `OnEnable()`)
+
+**Real-world scaling nightmare:**
+
+Imagine you have 50 different events in your game (player death, enemy spawned, score changed, level
+complete, etc.). With ScriptableObject events:
+
+1. **Manual asset hell:** Create 50 event assets in Project window
+2. **Inspector nightmare:** Wire 50 assets across hundreds of components
+3. **Debugging impossible:** Event fired - who's listening? Search entire project, check every
+   Inspector
+4. **Refactoring disaster:** Rename "OnPlayerDeath" → "OnPlayerKilled"? Manually update 30 Inspector
+   references
+5. **New dev onboarding:** "How does player death trigger game over?" → Must search assets, check
+   Inspectors, draw flow diagram
+6. **Custom tools required:** Build editor window just to see which components listen to which
+   events
+
+With DxMessaging: Search for `RegisterUntargeted<PlayerDied>` - done. All listeners found in 2
+seconds with "Find References".
+
+**✅ Use DxMessaging instead:**
+
+```csharp
+// ✅ GOOD PATTERN - DxMessaging (automatic cleanup, zero allocations)
+[DxUntargetedMessage]
+[DxAutoConstructor]
+public readonly partial struct ScoreChanged {
+    public readonly int newScore;
+}
+
+// Usage (automatic cleanup!)
+public class ScoreUI : MessageAwareComponent {
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterUntargeted<ScoreChanged>(UpdateDisplay);
+    }  // Token automatically unsubscribes when destroyed - zero leaks!
+
+    void UpdateDisplay(ref ScoreChanged msg) {
+        // Update UI
+    }
+}
+```
+
+**See full comparison:** **[Event Systems Best Practices](./19-event-systems.md)**
+
+</details>
 
 ### 4. Runtime Sets/Collections
 
@@ -264,7 +356,60 @@ public class PlayerData : ScriptableObject
 
 Avoid ScriptableObjects when:
 
-### 1. Instance-Specific Runtime Data
+### 1. Event Systems
+
+> **🛑 DON'T use ScriptableObjects for event systems!** Use [DxMessaging](./19-event-systems.md)
+> instead.
+
+ScriptableObject events are a common anti-pattern that causes memory leaks and requires manual
+cleanup.
+
+**Why ScriptableObject events are bad:**
+
+**Manual & Error-Prone:**
+
+- ❌ Memory leaks if you forget to unregister in `OnDisable()` (happens constantly)
+- ❌ Must manually create asset for every event type (dozens of files in Project)
+- ❌ Must manually wire assets in Inspector for every component (hundreds of references)
+- ❌ Must manually track down and update every reference when refactoring
+- ❌ No compile-time safety (wrong asset in Inspector = silent runtime failure)
+
+**Debugging Nightmare:**
+
+- ❌ **Can't see who's listening to an event** - No way to trace all subscribers
+- ❌ **Can't see who's sending an event** - No way to find all raisers
+- ❌ **Can't debug message flow** - Events fire with no stack trace or visibility
+- ❌ **Must build custom editor tools** just to understand your own event system
+- ❌ **Search fails** - Can't "Find References" on assets, only string search
+
+**Scaling Disaster:**
+
+- ❌ **Hundreds of event assets clutter Project window** - Finding the right one is painful
+- ❌ **Inspector references break** when moving/renaming assets
+- ❌ **No compile-time refactoring** - Rename event? Manually fix all Inspector references
+- ❌ **New team members can't trace flow** without custom editor tools
+- ❌ **Complex projects become unmaintainable** - Event chains are invisible
+
+**Technical Issues:**
+
+- ❌ Allocates garbage for event parameters
+- ❌ Listeners persist between Play Mode sessions (must clear manually)
+- ❌ Runtime modifications persist to disk (corrupt your assets)
+
+**Why DxMessaging is better:**
+
+- ✅ **Zero memory leaks** - Automatic cleanup, impossible to forget
+- ✅ **Zero manual work** - No assets, no Inspector wiring, no manual tracking
+- ✅ **Full debugging support** - Inspector shows all message types, handlers, and flow
+- ✅ **Code-only** - "Find References" works, refactoring works, team members can trace flow
+- ✅ **Compile-time type safety** - Wrong message type = compiler error
+- ✅ **Zero allocations** - Readonly structs, no garbage
+- ✅ **Scales to thousands of events** - No Project clutter, no Inspector nightmare
+
+**See the full comparison:**
+**[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)**
+
+### 2. Instance-Specific Runtime Data
 
 ```csharp
 // ❌ DON'T - This data is unique per enemy instance
@@ -288,7 +433,7 @@ public class Enemy : MonoBehaviour
 }
 ```
 
-### 2. Frequently Changing Data
+### 3. Frequently Changing Data
 
 ```csharp
 // ❌ DON'T - Updated every frame
@@ -305,7 +450,7 @@ public class Player : MonoBehaviour
 }
 ```
 
-### 3. When MonoBehaviour is More Appropriate
+### 4. When MonoBehaviour is More Appropriate
 
 ```csharp
 // ❌ DON'T - Needs Update loop
@@ -419,10 +564,27 @@ public class Enemy : MonoBehaviour
 }
 ```
 
-### 2. Event Channel Pattern
+### 2. ~~Event Channel Pattern~~ **❌ DON'T DO THIS - Use DxMessaging Instead**
+
+> **🛑 STOP: Don't use the Event Channel Pattern!**
+>
+> This is a common anti-pattern from older Unity tutorials. It's **extremely manual** (create assets
+> for every event, wire every component in Inspector), **impossible to debug** (can't trace who's
+> listening/sending without custom editor tools), and **doesn't scale** (hundreds of event assets,
+> unmaintainable in complex projects).
+>
+> **Use [DxMessaging](./19-event-systems.md) instead** for zero manual work, full debugging support,
+> and scales to thousands of events.
+>
+> **See:** **[Event Systems: ScriptableObject vs DxMessaging Comparison](./19-event-systems.md)**
+
+<details>
+<summary><b>Why is this anti-pattern still documented?</b> (Click to expand)</summary>
+
+You'll see this pattern in legacy code and older tutorials. Here's why it's problematic:
 
 ```csharp
-// Generic event channel
+// ❌ BAD: Event Channel anti-pattern (DO NOT USE)
 [CreateAssetMenu(menuName = "Events/Game Event")]
 public class GameEvent : ScriptableObject
 {
@@ -444,8 +606,10 @@ public class GameEvent : ScriptableObject
 
     public void UnregisterListener(GameEventListener listener)
     {
-        listeners.Remove(listener);
+        listeners.Remove(listener);  // Must remember to call this!
     }
+
+    // Missing OnEnable() to clear listeners = accumulation between Play Mode sessions!
 }
 
 // Listener component
@@ -461,7 +625,7 @@ public class GameEventListener : MonoBehaviour
 
     private void OnDisable()
     {
-        gameEvent.UnregisterListener(this);
+        gameEvent.UnregisterListener(this);  // Forget this = memory leak!
     }
 
     public void OnEventRaised()
@@ -469,11 +633,66 @@ public class GameEventListener : MonoBehaviour
         response?.Invoke();
     }
 }
-
-// Usage: Create "OnPlayerDeath" event asset
-// Attach GameEventListener to UI, sound manager, etc.
-// When player dies, call onPlayerDeath.Raise()
 ```
+
+**Problems:**
+
+- ❌ Memory leaks if you forget `OnDisable()` unregistration
+- ❌ Listeners accumulate between Play Mode sessions
+- ❌ Must create asset for every event type
+- ❌ No type safety (all events are generic)
+- ❌ UnityEvent allocates garbage
+
+**The debugging and scaling nightmare:**
+
+**Scenario:** Your game fires an `OnPlayerDeath` event, but game over screen doesn't appear.
+
+**With ScriptableObject events (painful):**
+
+1. Find `OnPlayerDeath.asset` in Project window (which folder?)
+2. Click asset - Inspector shows nothing useful (just the ScriptableObject)
+3. Search entire project for `onPlayerDeath` (string search, error-prone)
+4. Check every result - which ones are listeners vs raisers?
+5. Open each component in Inspector to see if the asset is wired
+6. Realize UIManager has `onHealthChanged.asset` wired instead of `onPlayerDeath.asset` - silent
+   bug!
+7. Debug time: **30+ minutes**
+
+**With DxMessaging (instant):**
+
+1. Right-click `PlayerDied` message → "Find References"
+2. See all `RegisterUntargeted<PlayerDied>` calls
+3. UIManager not in list - found the bug!
+4. Debug time: **30 seconds**
+
+**Scaling gets worse:** At 100+ events, ScriptableObject approach requires custom editor tools just
+to visualize event flow. DxMessaging's Inspector shows everything automatically.
+
+**✅ Use DxMessaging instead:**
+
+```csharp
+// ✅ GOOD: DxMessaging (automatic cleanup, zero leaks)
+[DxUntargetedMessage]
+[DxAutoConstructor]
+public readonly partial struct PlayerDied { }
+
+public class UIManager : MessageAwareComponent {
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterUntargeted<PlayerDied>(OnPlayerDied);
+    }  // Automatic cleanup when destroyed!
+
+    void OnPlayerDied(ref PlayerDied msg) {
+        ShowGameOverScreen();
+    }
+}
+
+// Raise from anywhere
+new PlayerDied().EmitUntargeted();
+```
+
+**Full comparison:** **[Event Systems Best Practices](./19-event-systems.md)**
+
+</details>
 
 ### 3. Variable Reference Pattern
 
@@ -910,13 +1129,14 @@ public class CharacterData : ScriptableObject
 
 - ✓ Shared configuration data
 - ✓ Item/enemy/ability databases
-- ✓ Event systems
 - ✓ Runtime collections
 - ✓ Constants and enums
 - ✓ Editor tools
 
 ### Don't Use ScriptableObjects For
 
+- ❌ **Event systems** - Use [DxMessaging](./19-event-systems.md) instead (zero leaks, better
+  performance)
 - ❌ Per-instance runtime data
 - ❌ Frequently changing data (every frame)
 - ❌ Data that needs Update/FixedUpdate
@@ -927,7 +1147,7 @@ public class CharacterData : ScriptableObject
 
 - ✓ Reset to defaults in OnEnable (Editor only)
 - ✓ Clear runtime collections on enable
-- ✓ Unregister event listeners
+- ✓ **DON'T use ScriptableObjects for events** - Use [DxMessaging](./19-event-systems.md) instead
 - ✓ Avoid scene references
 - ✓ Use CreateAssetMenu for easy creation
 
@@ -937,7 +1157,8 @@ public class CharacterData : ScriptableObject
 
 1. **ScriptableObjects are for shared data**, not instance data
 2. **Reset runtime values in OnEnable** for clean Play Mode sessions
-3. **Unregister events** in OnDisable to prevent leaks
+3. **DON'T use ScriptableObjects for event systems** - Use [DxMessaging](./19-event-systems.md) for
+   automatic cleanup, better performance, and type safety
 4. **Don't store scene references** in ScriptableObjects
 5. **Use for configuration**, not for data that changes every frame
 6. **Clear collections** on enable to avoid stale references

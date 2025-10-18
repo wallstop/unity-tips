@@ -28,11 +28,12 @@ learning order** from beginner to advanced topics.
 
 ### Systems & Architecture
 
-1. [**Addressables**](./11-addressables.md) - Memory-safe asset streaming and live content updates
-2. [**Scene Organization**](./12-scene-loading.md) - Additive loading and collaboration-friendly
+1. [**Event Systems**](./19-event-systems.md) - ScriptableObject Events vs DxMessaging comparison
+2. [**Addressables**](./11-addressables.md) - Memory-safe asset streaming and live content updates
+3. [**Scene Organization**](./12-scene-loading.md) - Additive loading and collaboration-friendly
    layouts
-3. [**Jobs & Burst**](./13-jobs-burst.md) - Parallelize CPU-heavy work with native performance
-4. [**Async/Await**](./14-async-await.md) - Background tasks without breaking Unity's main thread
+4. [**Jobs & Burst**](./13-jobs-burst.md) - Parallelize CPU-heavy work with native performance
+5. [**Async/Await**](./14-async-await.md) - Background tasks without breaking Unity's main thread
 
 ### Production Excellence
 
@@ -384,6 +385,26 @@ Eliminate garbage collection spikes with object reuse.
 **Critical Rule**: Always call `pool.Dispose()` in `OnDestroy()` - #1 memory leak cause!
 
 **Time to Read**: 18 minutes | **Impact**: ⭐⭐⭐⭐
+
+---
+
+### [19. Event Systems](./19-event-systems.md) ⭐ **HIGHLY RECOMMENDED**
+
+Comprehensive comparison of ScriptableObject events vs DxMessaging for decoupled communication.
+
+**You'll Learn:**
+
+- ScriptableObject event pattern (traditional approach)
+- DxMessaging pattern (modern, zero-leak approach)
+- Side-by-side code examples
+- Performance comparison (allocations, GC pressure)
+- Migration guide from ScriptableObject → DxMessaging
+- Complete feature comparison table
+
+**Critical Concept**: DxMessaging is superior for most projects due to automatic memory management,
+zero allocations, and compile-time type safety.
+
+**Time to Read**: 30 minutes | **Impact**: ⭐⭐⭐⭐⭐
 
 ## 🎓 Learning Paths
 

@@ -87,11 +87,12 @@ Start with [Best Practices](./docs/best-practices/README.md) to avoid 80% of Uni
 
 ### **Architecture & Scale**
 
-| Tool                                          | Problem It Solves                        | Cost |
-| --------------------------------------------- | ---------------------------------------- | ---- |
-| [Odin Inspector](./docs/odin/README.md)       | Serialize dictionaries, custom editors   | ~$55 |
-| [Input System](./docs/input-system/README.md) | Modern input with rebinding support      | FREE |
-| [DxMessaging](./docs/dxmessaging/README.md)   | Type-safe messaging without memory leaks | FREE |
+| Tool                                                                  | Problem It Solves                                            | Cost |
+| --------------------------------------------------------------------- | ------------------------------------------------------------ | ---- |
+| [Event Systems Comparison](./docs/best-practices/19-event-systems.md) | ScriptableObject events vs DxMessaging (DxMessaging wins)    | FREE |
+| [DxMessaging](./docs/dxmessaging/README.md)                           | Type-safe messaging without memory leaks (superior approach) | FREE |
+| [Odin Inspector](./docs/odin/README.md)                               | Serialize dictionaries, custom editors                       | ~$55 |
+| [Input System](./docs/input-system/README.md)                         | Modern input with rebinding support                          | FREE |
 
 ## 🎯 Recommended Tool Stacks
 
@@ -132,8 +133,10 @@ Add essential Unity patterns:
 
 Master architecture and optimization:
 
-- [ScriptableObjects](./docs/best-practices/08-scriptable-objects.md) – Data-driven design
-- [Object Pooling](./docs/best-practices/09-object-pooling.md) – Eliminate spawn lag
+- [Event Systems](./docs/best-practices/19-event-systems.md) – ScriptableObject events vs
+  DxMessaging (30 min)
+- [ScriptableObjects](./docs/best-practices/08-scriptable-objects.md) – Data-driven design (25 min)
+- [Object Pooling](./docs/best-practices/09-object-pooling.md) – Eliminate spawn lag (18 min)
 - [Assembly Definitions](./docs/assembly-definitions/README.md) – Slash compile times
 - [Animancer](./docs/animancer/README.md) or [Odin](./docs/odin/README.md) – Based on needs
 - **Practice:** Complete game with performance requirements
