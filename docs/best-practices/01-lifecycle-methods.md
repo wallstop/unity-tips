@@ -53,8 +53,8 @@ Unity MonoBehaviours have specific lifecycle methods that run at different times
 │                    INITIALIZATION                        │
 ├─────────────────────────────────────────────────────────┤
 │  1. Constructor (avoid using!)                          │
-│  2. OnEnable (if active)                                │
-│  3. Awake (once, before any Start)                      │
+│  2. Awake (once, before any Start)                      │
+│  3. OnEnable (if active)                                │
 │  4. Start (once, before first Update)                   │
 └─────────────────────────────────────────────────────────┘
 
@@ -371,7 +371,7 @@ private void OnEnable()
 }
 ```
 
-**Important**: `OnEnable` runs **before** `Awake` on first activation!
+**Important**: `OnEnable` runs **after** `Awake` but can be called multiple times (whenever the GameObject is enabled)!
 
 ### OnDisable
 
@@ -454,7 +454,7 @@ public class BadComponent : MonoBehaviour
 
     public BadComponent()
     {
-        // This won't work! GameObject doesn't exist yet
+        // This won't work! Unity does not allow GetComponent to be called from Constructor
         rb = GetComponent<Rigidbody>(); // Always returns null!
     }
 }
@@ -520,37 +520,74 @@ public class ProperInitialization : MonoBehaviour
 }
 ```
 
-### 3. Use [ExecuteInEditMode] Carefully
+### 3. Use [ExecuteAlways] Carefully (Not [ExecuteInEditMode])
 
 ```csharp
-// ⚠️ Use with caution - runs in Edit Mode too!
+// ⚠️ NOT RECOMMENDED - Don't use ExecuteInEditMode (not compatible with prefab editing)
 [ExecuteInEditMode]
-public class EditorHelper : MonoBehaviour
+public class OldEditorHelper : MonoBehaviour
 {
-    private void Update()
-    {
-        // This runs in the Editor, not just Play Mode!
-        // Be careful with expensive operations
-    }
+    // Avoid this attribute - use ExecuteAlways instead
 }
 
-// ✓ Better: Check if we're playing
-[ExecuteInEditMode]
-public class SafeEditorHelper : MonoBehaviour
+// ✓ RECOMMENDED - Use ExecuteAlways instead
+[ExecuteAlways]
+public class ModernEditorHelper : MonoBehaviour
 {
     private void Update()
     {
-        if (!Application.isPlaying)
+        // IMPORTANT: Update() does NOT run every frame in Edit Mode!
+        // It only runs when the Scene/Game view redraws:
+        // - When something in the scene changes
+        // - When you navigate with mouse/keyboard
+        // - When GameObject positions update
+
+        // This is event-driven, not continuous like Play Mode
+
+        if (!Application.IsPlaying(gameObject))
         {
-            // Edit mode behavior
+            // Edit mode behavior - runs on redraws only
+            UpdateEditorVisualization();
         }
         else
         {
-            // Play mode behavior
+            // Play mode behavior - runs every frame
+            UpdateGameLogic();
         }
+    }
+
+    private void UpdateEditorVisualization() { }
+    private void UpdateGameLogic() { }
+}
+
+// ✓ GOOD - Use for editor-time visualization
+[ExecuteAlways]
+public class GizmoHelper : MonoBehaviour
+{
+    [SerializeField] private float radius = 5f;
+
+    private void Update()
+    {
+        // Only runs when scene view updates (not every frame in Edit Mode)
+        if (!Application.IsPlaying(gameObject))
+        {
+            // Update visualization when radius changes in inspector
+            DrawDebugCircle();
+        }
+    }
+
+    private void DrawDebugCircle()
+    {
+        // Expensive operations are OK here since it's event-driven
     }
 }
 ```
+
+**Key Points:**
+- `[ExecuteInEditMode]` is deprecated - use `[ExecuteAlways]` instead
+- `Update()` in Edit Mode is **NOT** called every frame - only on Scene/Game view redraws
+- Always use `Application.IsPlaying(gameObject)` to separate Edit vs Play mode logic
+- `ExecuteAlways` works properly with prefab editing mode
 
 ### 4. Don't Rely on Field Initializers
 
@@ -558,11 +595,11 @@ public class SafeEditorHelper : MonoBehaviour
 // ⚠️ RISKY - Field initializers run before Awake
 public class RiskyInitialization : MonoBehaviour
 {
-    // This runs BEFORE Awake!
+    // This runs BEFORE Awake
     private int health = 100;
 
     // But this might not work as expected
-    private Rigidbody rb = GetComponent<Rigidbody>(); // Always null!
+    private Rigidbody rb = GetComponent<Rigidbody>(); // Always null! Unity will complain!
 
     private void Awake()
     {
@@ -776,8 +813,8 @@ public class ResourceManager : MonoBehaviour
 
 1. Constructor (don't use for Unity objects!)
 2. Field initializers
-3. **OnEnable** (if GameObject starts active)
-4. **Awake** (all scripts, before any Start)
+3. **Awake** (all scripts, before any Start)
+4. **OnEnable** (if GameObject starts active)
 5. **Start** (all scripts, after all Awakes)
 
 ### Per-Frame Order
@@ -862,3 +899,11 @@ public class ProperComponent : MonoBehaviour
 
 Understanding lifecycle methods is fundamental to Unity development. Master these and avoid
 countless bugs!
+
+## References
+
+- [Unity Official Documentation - Event Function Execution Order](https://docs.unity3d.com/Manual/execution-order.html)
+- [Unity Learn - Awake and Start Tutorial](https://learn.unity.com/tutorial/awake-and-start)
+- [Unity Discussions - Execution Order of Scripts](https://discussions.unity.com/t/execution-order-of-scripts-awake-and-onenable/762436)
+- [Unity Scripting API - ExecuteAlways](https://docs.unity3d.com/ScriptReference/ExecuteAlways.html)
+- [Unity Scripting API - ExecuteInEditMode (Deprecated)](https://docs.unity3d.com/ScriptReference/ExecuteInEditMode.html)

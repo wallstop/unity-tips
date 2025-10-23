@@ -201,7 +201,7 @@ private IEnumerator AttackSequence(Enemy enemy)
     enemy.TakeDamage(10);
 }
 
-// ✓ GOOD - Check after async operation
+// ⚠️ BE CAREFUL WITH async Task - Check after async operation (this should only be used with frameworks like UniTask)
 private async Task ProcessTarget(GameObject target)
 {
     if (target == null) return;
@@ -422,6 +422,7 @@ public class ResilientReference : MonoBehaviour
         // ✓ Auto-recover if target is destroyed and recreated
         if (target == null)
         {
+            // ⚠️ FindGameObjectWithTag is expensive - ideally this is done via a faster lookup operation
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
                 target = player.transform;
@@ -634,7 +635,7 @@ private void Awake()
 
 private void Update()
 {
-    // No null check needed - validated in Awake
+    // No null check needed - validated in Awake (assuming target has not been destroyed, depends on game logic)
     transform.LookAt(target);
 }
 ```
