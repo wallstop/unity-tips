@@ -212,7 +212,8 @@ public class Enemy : MonoBehaviour
             player = playerObj.transform;
 
         gameManager = FindObjectOfType<GameManager>();
-        gameManager?.RegisterEnemy(this);
+        if (gameManager != null)
+            gameManager.RegisterEnemy(this);
     }
 }
 
@@ -497,7 +498,8 @@ public class ProperInitialization : MonoBehaviour
     private void Start()
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        player = playerObj?.transform;
+        if (playerObj != null)
+            player = playerObj.transform;
 
         gameManager = FindObjectOfType<GameManager>();
     }
@@ -835,7 +837,8 @@ public class ProperComponent : MonoBehaviour
     {
         // 2. Find other objects
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        player = playerObj?.transform;
+        if (playerObj != null)
+            player = playerObj.transform;
     }
 
     private void OnEnable()

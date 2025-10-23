@@ -224,7 +224,9 @@ private void Start()
 private void Update()
 {
     // TERRIBLE for performance!
-    GetComponentInChildren<Animator>()?.SetTrigger("Walk");
+    Animator anim = GetComponentInChildren<Animator>();
+    if (anim != null)
+        anim.SetTrigger("Walk");
 }
 ```
 
@@ -310,7 +312,8 @@ public class HierarchyCache : MonoBehaviour
     public void PlayAnimation()
     {
         // Use cached reference
-        animator?.SetTrigger("Play");
+        if (animator != null)
+            animator.SetTrigger("Play");
     }
 }
 ```
@@ -685,7 +688,8 @@ public class SafeComponent : MonoBehaviour
 private void Update()
 {
     Animator anim = GetComponentInChildren<Animator>();
-    anim?.SetFloat("Speed", 5f);
+    if (anim != null)
+        anim.SetFloat("Speed", 5f);
 }
 
 // ✓ CORRECT - Cache in Awake
@@ -698,7 +702,8 @@ private void Awake()
 
 private void Update()
 {
-    anim?.SetFloat("Speed", 5f);
+    if (anim != null)
+        anim.SetFloat("Speed", 5f);
 }
 ```
 

@@ -10,6 +10,8 @@ confusing bugs.
 native C++ object still exists, but C#'s `is null`, `??`, and `?.` operators don't use this
 override. This creates a "fake null" problem unique to Unity.
 
+**⚠️ CRITICAL:** The null-conditional (`?.`) and null-coalescing (`??`) operators are **UNSAFE** for Unity objects because they bypass Unity's overloaded null check. Always use explicit `== null` or `!= null` checks instead.
+
 **Real-World Impact:** You check `if (enemy != null)` and it passes, but `enemy.transform` throws
 NullReferenceException because the GameObject was actually destroyed.
 
@@ -96,11 +98,15 @@ if (gameObject == null)
 if (myComponent != null)
     myComponent.DoSomething();
 
-// ✓ CORRECT - null-coalescing
+// ✓ CORRECT - explicit ternary operator
 Transform target = primaryTarget != null ? primaryTarget : secondaryTarget;
 
-// ✓ CORRECT - null-conditional
-rigidbody?.AddForce(Vector3.up);
+// ❌ UNSAFE - null-conditional bypasses Unity's null check!
+// rigidbody?.AddForce(Vector3.up);
+
+// ✓ CORRECT - explicit null check
+if (rigidbody != null)
+    rigidbody.AddForce(Vector3.up);
 ```
 
 **Use for**: `GameObject`, `Component`, `Transform`, `MonoBehaviour`, `ScriptableObject`,
@@ -174,8 +180,8 @@ if (enemy == null)
 
 enemy.TakeDamage(10);
 
-// ✓ GOOD - Null-conditional operator
-enemy?.TakeDamage(10);
+// ❌ BAD - Null-conditional operator bypasses Unity's null check
+// enemy?.TakeDamage(10);
 ```
 
 ### 2. Check Before Every Use After Delays
@@ -209,19 +215,35 @@ private async Task ProcessTarget(GameObject target)
 }
 ```
 
-### 3. Use Null-Conditional Operators
+### 3. Avoid Null-Conditional Operators for Unity Objects
 
 ```csharp
-// ✓ GOOD - Null-conditional operator
-rigidbody?.AddForce(Vector3.up);
+// ❌ BAD - Null-conditional bypasses Unity's null check
+// rigidbody?.AddForce(Vector3.up);
 
-// ✓ GOOD - Chain null-conditional
-enemy?.GetComponent<Health>()?.TakeDamage(10);
+// ✓ GOOD - Explicit null check
+if (rigidbody != null)
+    rigidbody.AddForce(Vector3.up);
 
-// ✓ GOOD - Null-coalescing
-Transform target = primaryTarget ?? secondaryTarget ?? transform;
+// ❌ BAD - Chained null-conditional bypasses Unity's null check
+// enemy?.GetComponent<Health>()?.TakeDamage(10);
 
-// Equivalent verbose version:
+// ✓ GOOD - Explicit checks
+if (enemy != null)
+{
+    Health health = enemy.GetComponent<Health>();
+    if (health != null)
+        health.TakeDamage(10);
+}
+
+// ❌ BAD - Null-coalescing bypasses Unity's null check
+// Transform target = primaryTarget ?? secondaryTarget ?? transform;
+
+// ✓ GOOD - Explicit null checks with ternary operator
+Transform target = primaryTarget != null ? primaryTarget
+    : (secondaryTarget != null ? secondaryTarget : transform);
+
+// ✓ BETTER - More readable version
 Transform target;
 if (primaryTarget != null)
     target = primaryTarget;
@@ -247,8 +269,8 @@ if (TryGetComponent<Rigidbody>(out var rb))
     rb.AddForce(Vector3.up * 10);
 }
 
-// ✓ GOOD - Null-conditional (no error if missing)
-GetComponent<Rigidbody>()?.AddForce(Vector3.up * 10);
+// ❌ BAD - Null-conditional bypasses Unity's null check
+// GetComponent<Rigidbody>()?.AddForce(Vector3.up * 10);
 ```
 
 ### 5. Validate Inspector References in Awake/Start
@@ -458,10 +480,15 @@ private void Start()
     }
 }
 
-// ✓ BETTER - Use null-conditional
+// ❌ BAD - Null-conditional bypasses Unity's null check
+// FindObjectOfType<GameManager>()?.RegisterPlayer(this);
+
+// ✓ BETTER - Explicit check
 private void Start()
 {
-    FindObjectOfType<GameManager>()?.RegisterPlayer(this);
+    GameManager manager = FindObjectOfType<GameManager>();
+    if (manager != null)
+        manager.RegisterPlayer(this);
 }
 ```
 
@@ -501,14 +528,35 @@ public class SafeComponentAccess : MonoBehaviour
     }
 }
 
-// ✓ BETTER - Use null-conditional chaining
+// ❌ BAD - Null-conditional chaining bypasses Unity's null check
+// public class BadComponentAccess : MonoBehaviour
+// {
+//     private Enemy enemy;
+//
+//     private void Update()
+//     {
+//         enemy?.GetComponent<Health>()?.TakeDamage(1);
+//     }
+// }
+
+// ✓ BETTER - Cache the Health component
 public class BetterComponentAccess : MonoBehaviour
 {
     private Enemy enemy;
+    private Health enemyHealth;
+
+    private void CacheEnemy(Enemy newEnemy)
+    {
+        enemy = newEnemy;
+        enemyHealth = enemy != null ? enemy.GetComponent<Health>() : null;
+    }
 
     private void Update()
     {
-        enemy?.GetComponent<Health>()?.TakeDamage(1);
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(1);
+        }
     }
 }
 ```
@@ -612,17 +660,18 @@ if (TryGetComponent<Rigidbody>(out var rb))
 // ✓ Use these:
 if (obj == null) return;
 if (obj != null) DoSomething();
-obj?.DoSomething();
-Transform t = obj1 ?? obj2 ?? obj3;
+Transform t = obj1 != null ? obj1 : (obj2 != null ? obj2 : obj3);
 ```
 
 ### Unsafe Null Checks for Unity Objects
 
 ```csharp
 // ❌ DON'T use these:
-if (obj is null) return;           // Pattern matching
-if (obj is not null) DoSomething(); // Pattern matching
-if (ReferenceEquals(obj, null))    // Reference check
+if (obj is null) return;           // Pattern matching bypasses Unity's null check
+if (obj is not null) DoSomething(); // Pattern matching bypasses Unity's null check
+if (ReferenceEquals(obj, null))    // Reference check bypasses Unity's null check
+obj?.DoSomething();                // Null-conditional bypasses Unity's null check
+Transform t = obj1 ?? obj2;        // Null-coalescing bypasses Unity's null check
 ```
 
 ### Safe for Pure C# Objects
@@ -635,18 +684,68 @@ if (data is { IsValid: true }) Process();
 data ??= new MyClass();
 ```
 
+## Deep Dive: Why Null-Conditional Operators Fail
+
+This section expands on rule #4 above - why `?.` and `??` are particularly dangerous with Unity objects.
+
+### The Technical Reason
+
+Unity's `Destroy()` tears down the native C++ object but leaves the managed C# wrapper alive. C#'s null-conditional (`?.`) and null-coalescing (`??`) operators check the managed wrapper only, so they silently bypass Unity's overloaded equality operators. The result: code that looks safe still throws exceptions or chooses destroyed objects.
+
+**How it breaks down:**
+
+1. Unity objects are managed wrappers around native C++ instances
+2. `Destroy()` removes the native side, leaving the managed wrapper orphaned
+3. Unity overrides `==`/`!=` to report destroyed objects as `null`
+4. `?.` and `??` ignore operator overloads; they use raw reference null checks
+
+### Real Bug Examples
+
+```csharp
+// Destroyed GameObject still passes the C# null-conditional check
+GameObject player = destroyedGameObject;
+Vector3? position = player?.transform.position; // ☠️ Throws NullReferenceException
+
+Transform target = destroyedTransform ?? fallback; // ☠️ Returns destroyedTransform (which is broken)
+```
+
+```csharp
+public class PlayerController : MonoBehaviour
+{
+    [SerializeField] private GameObject target;
+    [SerializeField] private Transform defaultTarget;
+
+    private void Update()
+    {
+        // ❌ Looks safe, but target?.transform throws when the enemy was destroyed
+        Transform finalTarget = target?.transform ?? defaultTarget;
+
+        // ✓ Safe version: rely on Unity's operator overload instead
+        Transform resolved = target != null ? target.transform : defaultTarget;
+    }
+}
+```
+
+### Prevention Tips
+
+1. **Document the rule** in your team style guide and code reviews
+2. **Consider an analyzer** that flags `?.` or `??` when the receiver derives from `UnityEngine.Object`
+3. **Add unit tests** around systems where destroyed objects are common (object pooling, combat, async callbacks)
+4. **Cache references** after a null check if you need to reuse them
+
 ## Summary
 
 **Golden Rules for Unity Null Checks:**
 
 1. **Always use `== null` or `!= null`** for Unity objects
-2. **Never use `is null` or `is not null`** for Unity objects
+2. **Never use `is null` or `is not null`** for Unity objects (pattern matching)
 3. **Never use `ReferenceEquals`** for Unity objects
-4. **Always check after delays** (coroutines, async, animations)
-5. **Validate Inspector references** in Awake/Start
-6. **Use TryGetComponent** for efficiency
-7. **Cache component references** in Awake/Start
-8. **Use null-conditional operators** (`?.`) for cleaner code
+4. **Never use `?.` or `??`** for Unity objects (null-conditional/coalescing)
+5. **Always check after delays** (coroutines, async, animations)
+6. **Validate Inspector references** in Awake/Start
+7. **Use TryGetComponent** for efficiency
+8. **Cache component references** in Awake/Start
 
-**Remember**: Unity's null checking is weird, but it exists for good reason. Embrace it and use
-`== null` everywhere for Unity objects!
+**Remember**: Unity's null checking is weird, but it exists for good reason. The `?.` and `??`
+operators look convenient but they bypass Unity's overloaded null check, making them dangerous for
+Unity objects. Always use explicit `== null` or `!= null` checks for Unity objects!

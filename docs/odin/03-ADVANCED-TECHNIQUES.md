@@ -107,7 +107,14 @@ public class PlayerController : SerializedMonoBehaviour
     private string DebugInfo => $"Speed: {_speed}, Position: {transform.position}";
 
     [ShowInInspector, ReadOnly]
-    private float CurrentVelocity => GetComponent<Rigidbody>()?.velocity.magnitude ?? 0f;
+    private float CurrentVelocity
+    {
+        get
+        {
+            Rigidbody rb = GetComponent<Rigidbody>();
+            return rb != null ? rb.velocity.magnitude : 0f;
+        }
+    }
 
     [Button("Teleport to Origin"), GUIColor(0.4f, 0.8f, 1f)]
     private void TeleportToOrigin()

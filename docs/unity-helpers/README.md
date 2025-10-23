@@ -922,10 +922,10 @@ void PlaySound() {
     }
 }
 
-// ✅ EVEN BETTER - Use C# 9.0 pattern
-void PlaySound() {
-    audio?.Play();
-}
+// ❌ UNSAFE - ?. bypasses Unity's null check (see best-practices/10-null-conditional-operators.md)
+// void PlaySound() {
+//     audio?.Play();
+// }
 ```
 
 **Solution:** Always check optional components before use.

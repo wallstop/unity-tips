@@ -597,7 +597,9 @@ public class Enemy : MonoBehaviour
 
     public void OnGet()
     {
-        patrolRoute = GameObject.FindWithTag("PatrolRoute")?.transform;
+        GameObject routeObj = GameObject.FindWithTag("PatrolRoute");
+        if (routeObj != null)
+            patrolRoute = routeObj.transform;
     }
 
     public void OnRelease()
