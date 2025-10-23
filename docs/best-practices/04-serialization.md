@@ -13,8 +13,6 @@ loading and reliable Inspector editing.
 **Common Frustrations:**
 
 - Dictionaries don't serialize (most requested feature for 10+ years)
-- Properties don't serialize (only fields do)
-- Polymorphic fields don't serialize correctly
 - Using `public` fields everywhere breaks encapsulation
 
 **The Solution:** Understanding Unity's serialization rules prevents hours of debugging "Why isn't
@@ -220,8 +218,10 @@ public class PlayerStats
 // ❌ Dictionaries (use custom wrapper)
 private Dictionary<string, int> inventory; // Won't save!
 
-// ❌ Properties
+// ❌ Properties (without field: attribute)
 [SerializeField] private int Health { get; set; } // Won't work!
+// ✓ BUT this works:
+[field: SerializeField] private int Health { get; set; } // Will work!
 
 // ❌ Static fields
 [SerializeField] private static int globalScore; // Won't serialize!
@@ -236,13 +236,120 @@ private Dictionary<string, int> inventory; // Won't save!
 public class CustomClass { } // Won't serialize
 [SerializeField] private CustomClass data; // Won't work!
 
-// ❌ Generic classes (mostly)
+// ❌ Unassigned generic types
 [System.Serializable]
 public class GenericClass<T> { public T value; }
-[SerializeField] private GenericClass<int> data; // Won't work!
+private GenericClass<T> data; // Won't work - T is unassigned!
+
+// ✓ BUT concrete generic types work (Unity 2020.1+):
+[System.Serializable]
+public class GenericClass<T> { public T value; }
+[SerializeField] private GenericClass<int> data; // Works in Unity 2020.1+!
+
+// ❌ Polymorphic fields (without SerializeReference)
+[SerializeField] private BaseClass polymorphicField; // Won't serialize derived type correctly!
+// ✓ BUT this works (Unity 2019.3+):
+[SerializeReference] private BaseClass polymorphicField; // Will serialize derived types!
 ```
 
 ### Serializing Complex Data
+
+#### Auto-Properties (Unity 2017+)
+
+```csharp
+// Use [field: SerializeField] to serialize auto-property backing fields
+public class PlayerStats : MonoBehaviour
+{
+    // ❌ Won't serialize - no field: attribute
+    [SerializeField] private int MaxHealth { get; set; }
+
+    // ✓ Will serialize - uses field: attribute
+    [field: SerializeField] private int Health { get; set; } = 100;
+
+    // ✓ Can combine with other attributes
+    [field: SerializeField]
+    [field: Range(0, 10)]
+    private float Speed { get; set; } = 5f;
+
+    // ✓ Works with access modifiers
+    [field: SerializeField]
+    public int Score { get; private set; }
+}
+```
+
+#### Generic Types (Unity 2020.1+)
+
+```csharp
+// Unity 2020.1+ can serialize generic types with concrete type arguments
+[System.Serializable]
+public class GenericWrapper<T>
+{
+    public T value;
+}
+
+public class GenericExample : MonoBehaviour
+{
+    // ✓ Works in Unity 2020.1+
+    [SerializeField] private GenericWrapper<int> intData;
+    [SerializeField] private GenericWrapper<string> stringData;
+    [SerializeField] private GenericWrapper<Vector3> positionData;
+
+    // ❌ Still won't work - unassigned generic type
+    [SerializeField] private GenericWrapper<T> genericData; // T is undefined!
+}
+
+// ✓ Can use generics for serializable dictionaries
+[System.Serializable]
+public class SerializablePair<TKey, TValue>
+{
+    public TKey key;
+    public TValue value;
+}
+
+public class DataManager : MonoBehaviour
+{
+    [SerializeField] private List<SerializablePair<string, int>> pairs;
+}
+```
+
+#### Polymorphic Serialization (Unity 2019.3+)
+
+```csharp
+// Use [SerializeReference] for polymorphic serialization
+[System.Serializable]
+public abstract class PowerUp
+{
+    public string name;
+}
+
+[System.Serializable]
+public class HealthPowerUp : PowerUp
+{
+    public int healAmount;
+}
+
+[System.Serializable]
+public class SpeedPowerUp : PowerUp
+{
+    public float speedMultiplier;
+}
+
+public class PowerUpManager : MonoBehaviour
+{
+    // ❌ Won't serialize derived class fields correctly
+    [SerializeField] private PowerUp powerUp;
+
+    // ✓ Will serialize derived class fields (Unity 2019.3+)
+    [SerializeReference] private PowerUp polymorphicPowerUp;
+
+    // ✓ Works with lists too
+    [SerializeReference] private List<PowerUp> allPowerUps;
+
+    // Note: Cannot use on UnityEngine.Object types (MonoBehaviour, ScriptableObject)
+}
+```
+
+#### Dictionary Workarounds
 
 ```csharp
 // ✓ CORRECT - Wrapper for Dictionary
@@ -268,6 +375,21 @@ public class InventorySystem : MonoBehaviour
         {
             inventory[pair.key] = pair.value;
         }
+    }
+}
+
+// ✓ BETTER - Use generics (Unity 2020.1+)
+[System.Serializable]
+public class SerializableDictionary<TKey, TValue>
+{
+    [SerializeField] private List<SerializablePair<TKey, TValue>> pairs;
+
+    public Dictionary<TKey, TValue> ToDictionary()
+    {
+        var dict = new Dictionary<TKey, TValue>();
+        foreach (var pair in pairs)
+            dict[pair.key] = pair.value;
+        return dict;
     }
 }
 
@@ -358,6 +480,14 @@ public class AttributeReference : MonoBehaviour
     // Make private field visible in Inspector
     [SerializeField]
     private float speed;
+
+    // Serialize auto-property backing field
+    [field: SerializeField]
+    private int Health { get; set; }
+
+    // Serialize polymorphic types (Unity 2019.3+)
+    [SerializeReference]
+    private BaseClass polymorphicField;
 
     // Hide public field from Inspector
     [HideInInspector]
@@ -678,22 +808,34 @@ public class Inventory : MonoBehaviour
 }
 ```
 
-### Pitfall 3: Trying to Serialize Properties
+### Pitfall 3: Forgetting [field:] for Auto-Properties
 
 ```csharp
-// ❌ WRONG - Properties don't serialize!
+// ❌ WRONG - Properties without [field:] don't serialize!
 public class BadSerialization : MonoBehaviour
 {
     [SerializeField]
     private int Health { get; set; } = 100; // Won't work!
 }
 
-// ✓ CORRECT - Use field + property
+// ✓ OPTION 1 - Use field + property pattern
 public class GoodSerialization : MonoBehaviour
 {
     [SerializeField] private int maxHealth = 100;
 
     public int MaxHealth => maxHealth; // Property for access
+}
+
+// ✓ OPTION 2 - Use [field: SerializeField] for auto-properties
+public class ModernSerialization : MonoBehaviour
+{
+    // Serializes the auto-property backing field
+    [field: SerializeField]
+    private int Health { get; set; } = 100; // Works!
+
+    // Can use with access modifiers
+    [field: SerializeField]
+    public int MaxHealth { get; private set; } = 100;
 }
 ```
 
@@ -814,10 +956,11 @@ public class WithValidation : MonoBehaviour
 ### Never Do
 
 - Public fields for internal state
-- Serialize properties
+- Serialize properties without `[field:]` attribute
 - Serialize static fields
 - Serialize dictionaries directly
 - Forget `[Serializable]` on custom classes
+- Forget `[SerializeReference]` when serializing polymorphic types
 
 ### Inspector Organization Pattern
 
@@ -839,10 +982,13 @@ public class WithValidation : MonoBehaviour
 2. **Expose through properties** for read-only access
 3. **Expose through methods** for controlled modification
 4. **Mark custom classes `[Serializable]`** to serialize them
-5. **Use `[Header]` and `[Tooltip]`** for organization
-6. **Use `[Range]`** for bounded values
-7. **Validate in `OnValidate()`** for complex constraints
-8. **Don't serialize** what doesn't need to persist
+5. **Use `[field: SerializeField]`** for auto-properties
+6. **Use `[SerializeReference]`** for polymorphic fields (Unity 2019.3+)
+7. **Generic types work** in Unity 2020.1+ (with concrete type arguments)
+8. **Use `[Header]` and `[Tooltip]`** for organization
+9. **Use `[Range]`** for bounded values
+10. **Validate in `OnValidate()`** for complex constraints
+11. **Don't serialize** what doesn't need to persist
 
 **Encapsulation Example:**
 
