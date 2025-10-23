@@ -44,13 +44,22 @@ Action types control how the Input System reads devices and when callbacks fire:
 - **Value**: Returns typed values such as `Vector2` for movement, `float` for triggers, etc.
 - **Pass Through**: For raw data (tilt sensors, mouse delta) when you do the processing yourself.
 
+With `PlayerInput`, use callback methods named after your actions:
+
 ```csharp
-public void OnMove(InputAction.CallbackContext ctx)
+// Called automatically by PlayerInput when Move action changes
+public void OnMove(InputValue value)
 {
-    Vector2 value = ctx.ReadValue<Vector2>();
-    if (ctx.performed)
+    Vector2 moveInput = value.Get<Vector2>();
+    MoveCharacter(moveInput);
+}
+
+// Called automatically when Jump action is triggered
+public void OnJump(InputValue value)
+{
+    if (value.isPressed)
     {
-        MoveCharacter(value);
+        Jump();
     }
 }
 ```
@@ -101,10 +110,60 @@ playerInput.onControlsChanged += input =>
 
 `PlayerInput` is the high-level component that wires action maps to behaviours.
 
-- **Behaviour modes**: `Send Messages`, `Invoke Unity Events`, `Invoke C# Events`. Prefer C# Events
-  for type safety.
-- **Switching maps**: Call `playerInput.SwitchCurrentActionMap("UI")` when opening menus.
-- **Splitscreen/local co-op**: Combine with `PlayerInputManager` to spawn per-player prefabs.
+### Behaviour Modes
+
+Choose how `PlayerInput` delivers input events to your scripts:
+
+- **Send Messages** (recommended): Automatically calls methods named after your actions (`OnMove`,
+  `OnJump`). No manual wiring needed.
+- **Invoke Unity Events**: Wire actions to UnityEvents in the Inspector. Good for prototyping.
+- **Invoke C# Events**: Subscribe to `PlayerInput.onActionTriggered`. More verbose but fully
+  type-safe.
+
+Example using **Send Messages**:
+
+```csharp
+public class PlayerController : MonoBehaviour
+{
+    // PlayerInput automatically calls this when Move action changes
+    public void OnMove(InputValue value)
+    {
+        Vector2 input = value.Get<Vector2>();
+        // Handle movement
+    }
+
+    // PlayerInput automatically calls this when Jump action is triggered
+    public void OnJump(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            // Handle jump
+        }
+    }
+}
+```
+
+### Action Map Switching
+
+Switch contexts by changing action maps:
+
+```csharp
+[SerializeField] private PlayerInput _playerInput;
+
+void OpenMenu()
+{
+    _playerInput.SwitchCurrentActionMap("UI");
+}
+
+void CloseMenu()
+{
+    _playerInput.SwitchCurrentActionMap("Player");
+}
+```
+
+### Multiplayer
+
+Combine with `PlayerInputManager` to spawn per-player prefabs for splitscreen/local co-op.
 
 ---
 
@@ -112,9 +171,44 @@ playerInput.onControlsChanged += input =>
 
 Event-driven input reacts to changes, while polling checks every frame.
 
-- Use callbacks (`performed`, `canceled`) for discrete actions like Jump or Interact.
-- Poll in `Update` only when you need continuous values (movement vectors, analog sticks).
-- Access `ctx.time` and `ctx.startTime` in callbacks for combo/buffer logic.
+With `PlayerInput` and **Send Messages** behavior:
+
+- Input callbacks (`OnJump`, `OnMove`) fire when actions change, delivering values via `InputValue`.
+- Buffer input in fields and consume in `Update()` or `FixedUpdate()` as needed.
+- For physics-based movement, always process buffered input in `FixedUpdate()` for framerate
+  independence.
+
+```csharp
+private Vector2 _moveInput;
+private bool _jumpRequested;
+
+// Event callback - fires when input changes
+public void OnMove(InputValue value)
+{
+    _moveInput = value.Get<Vector2>();
+}
+
+public void OnJump(InputValue value)
+{
+    if (value.isPressed)
+    {
+        _jumpRequested = true;
+    }
+}
+
+// Process buffered input consistently for physics
+void FixedUpdate()
+{
+    if (_jumpRequested)
+    {
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        _jumpRequested = false;
+    }
+
+    Vector3 movement = new(_moveInput.x, 0f, _moveInput.y);
+    rb.MovePosition(rb.position + movement * speed * Time.fixedDeltaTime);
+}
+```
 
 ---
 

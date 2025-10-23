@@ -85,6 +85,7 @@ private void Update()
 private void FixedUpdate()
 {
     // Runs at fixed rate: 50fps by default
+    // Time.deltaTime is constant here as well (0.02s)
     // Time.fixedDeltaTime is constant (0.02s)
 }
 ```

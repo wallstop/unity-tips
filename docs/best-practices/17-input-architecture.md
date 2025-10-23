@@ -14,26 +14,75 @@ handling around actions instead of raw polling to keep gameplay responsive and d
 ## Recommended architecture
 
 1. Create a single `InputActions` asset with multiple maps (Gameplay, UI, Debug).
-2. Generate the C# wrapper (`InputActions.cs`) and inject it into systems that need input.
-3. Use events instead of polling in `Update()`:
+2. Generate the C# wrapper (`InputActions.cs`) if you need compile-time safety.
+3. Use `PlayerInput` with **Send Messages** or **Invoke C# Events** behavior mode to handle input via
+   callback methods. This eliminates manual action lookups and subscription management:
 
 ```csharp
-public class PlayerJump : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private PlayerInput input;
+    [SerializeField] private float _jumpForce = 10f;
+    [SerializeField] private float _moveSpeed = 5f;
 
-    void OnEnable() => input.actions["Jump"].performed += OnJump;
-    void OnDisable() => input.actions["Jump"].performed -= OnJump;
+    private Rigidbody _rb;
+    private bool _jumpRequested;
+    private Vector2 _moveInput;
 
-    private void OnJump(InputAction.CallbackContext ctx)
+    void Awake() => _rb = GetComponent<Rigidbody>();
+
+    // Called automatically by PlayerInput when Jump action is triggered
+    public void OnJump(InputValue value)
     {
-        if (!ctx.ReadValueAsButton()) return;
-        jumpController.Trigger();
+        if (value.isPressed)
+        {
+            _jumpRequested = true;
+        }
+    }
+
+    // Called automatically when Move action changes
+    public void OnMove(InputValue value)
+    {
+        _moveInput = value.Get<Vector2>();
+    }
+
+    void FixedUpdate()
+    {
+        // Process physics input in FixedUpdate for framerate independence
+        if (_jumpRequested)
+        {
+            _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            _jumpRequested = false;
+        }
+
+        Vector3 movement = new Vector3(_moveInput.x, 0f, _moveInput.y) * _moveSpeed;
+        _rb.MovePosition(_rb.position + movement * Time.fixedDeltaTime);
     }
 }
 ```
 
-1. Scope action maps by context—disable Gameplay and enable UI when menus open, for example.
+4. Scope action maps by context—disable Gameplay and enable UI when menus open, for example.
+
+### Why OnEvent methods?
+
+Using `PlayerInput` with callback methods (`OnJump`, `OnMove`, etc.) eliminates manual action lookups
+and event subscription management:
+
+- **No manual subscription**: PlayerInput automatically routes actions to matching method names.
+- **No cleanup needed**: No `OnDisable`/`OnDestroy` to unsubscribe events.
+- **Type-safe**: `InputValue` provides typed access via `Get<T>()`, `isPressed`, etc.
+- **Designer-friendly**: Method names match action names, making the connection obvious.
+
+### Physics & framerate independence
+
+When using physics (Rigidbody), always **buffer input events** and **process them in `FixedUpdate()`**:
+
+- Input callbacks (`OnJump`, `OnMove`) fire in `Update()` and may be called zero, one, or multiple
+  times between `FixedUpdate()` calls depending on framerate.
+- Store input in fields (`_jumpRequested`, `_moveInput`) so `FixedUpdate()` consumes them
+  consistently.
+- Reset one-shot inputs (`_jumpRequested = false`) after processing to prevent double-jumps at low
+  framerates.
+- Continuous inputs (movement vectors) don't need resetting—just overwrite with the latest value.
 
 ## Rebinding UX
 

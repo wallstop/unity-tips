@@ -20,23 +20,23 @@
 
 ## Character Movement
 
-Use a `Vector2` value action (WASD / left stick) to drive movement in `Update`.
+Use a `Vector2` value action (WASD / left stick) with the `OnMove` callback method.
 
 ```csharp
 public class PlayerMover : MonoBehaviour
 {
     [SerializeField] private float _speed = 5f;
-    private InputAction _move;
+    private Vector2 _moveInput;
 
-    void Awake()
+    // Called automatically by PlayerInput when Move action changes
+    public void OnMove(InputValue value)
     {
-        _move = GetComponent<PlayerInput>().actions["Move"];
+        _moveInput = value.Get<Vector2>();
     }
 
     void Update()
     {
-        Vector2 input = _move.ReadValue<Vector2>();
-        Vector3 direction = new(input.x, 0f, input.y);
+        Vector3 direction = new(_moveInput.x, 0f, _moveInput.y);
         transform.Translate(direction * _speed * Time.deltaTime, Space.World);
     }
 }
@@ -45,13 +45,36 @@ public class PlayerMover : MonoBehaviour
 Tips:
 
 - Apply `NormalizeVector2` processor on the action to prevent diagonal speed boost.
-- For physics-driven movement, sample input in `Update` but apply forces in `FixedUpdate`.
+- For physics-driven movement, buffer input in `OnMove()` but apply forces in `FixedUpdate()`:
+
+```csharp
+public class PhysicsPlayerMover : MonoBehaviour
+{
+    [SerializeField] private float _speed = 5f;
+    private Rigidbody _rb;
+    private Vector2 _moveInput;
+
+    void Awake() => _rb = GetComponent<Rigidbody>();
+
+    public void OnMove(InputValue value)
+    {
+        _moveInput = value.Get<Vector2>();
+    }
+
+    void FixedUpdate()
+    {
+        Vector3 movement = new(_moveInput.x, 0f, _moveInput.y) * _speed;
+        _rb.MovePosition(_rb.position + movement * Time.fixedDeltaTime);
+    }
+}
+```
 
 ---
 
 ## Camera Controls
 
-Read a `Vector2` for look deltas. Use separate bindings for mouse and right stick.
+Read a `Vector2` for look deltas with the `OnLook` callback. Use separate bindings for mouse and right
+stick.
 
 ```csharp
 public class FreeLookCamera : MonoBehaviour
@@ -59,20 +82,20 @@ public class FreeLookCamera : MonoBehaviour
     [SerializeField] private float _sensitivity = 3f;
     [SerializeField] private Transform _target;
 
-    private InputAction _look;
+    private Vector2 _lookInput;
     private float _pitch;
     private float _yaw;
 
-    void Awake()
+    // Called automatically by PlayerInput when Look action changes
+    public void OnLook(InputValue value)
     {
-        _look = GetComponent<PlayerInput>().actions["Look"];
+        _lookInput = value.Get<Vector2>();
     }
 
     void LateUpdate()
     {
-        Vector2 delta = _look.ReadValue<Vector2>();
-        _yaw += delta.x * _sensitivity * Time.deltaTime;
-        _pitch = Mathf.Clamp(_pitch - delta.y * _sensitivity * Time.deltaTime, -70f, 80f);
+        _yaw += _lookInput.x * _sensitivity * Time.deltaTime;
+        _pitch = Mathf.Clamp(_pitch - _lookInput.y * _sensitivity * Time.deltaTime, -70f, 80f);
 
         transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
         transform.position = _target.position;
@@ -114,9 +137,10 @@ public class PauseMenu : MonoBehaviour
 Map number keys (or D-pad) to quick slots using a **1D Axis Composite** or discrete button actions.
 
 ```csharp
-public void OnSelectSlot(InputAction.CallbackContext ctx)
+// Called automatically by PlayerInput when SelectSlot action triggers
+public void OnSelectSlot(InputValue value)
 {
-    int slotIndex = (int)ctx.ReadValue<float>();
+    int slotIndex = (int)value.Get<float>();
     inventory.SelectSlot(slotIndex);
 }
 ```
@@ -125,26 +149,36 @@ public void OnSelectSlot(InputAction.CallbackContext ctx)
 
 ## Charging Attacks
 
-Use a Hold interaction to get performed/canceled callbacks.
+Use a Hold interaction and track button state in the `OnCharge` callback.
 
 ```csharp
 private float _chargeStart;
+private bool _isCharging;
 
-public void OnCharge(InputAction.CallbackContext ctx)
+// Called automatically by PlayerInput when Charge action changes
+public void OnCharge(InputValue value)
 {
-    if (ctx.started)
+    bool isPressed = value.isPressed;
+
+    if (isPressed && !_isCharging)
     {
         _chargeStart = Time.time;
+        _isCharging = true;
     }
-    else if (ctx.canceled)
+    else if (!isPressed && _isCharging)
     {
         float duration = Time.time - _chargeStart;
         FireChargedShot(duration);
+        _isCharging = false;
     }
 }
 ```
 
+Tips:
+
 - Configure thresholds on the Hold interaction to decide when `performed` fires.
+- For continuous charging feedback (e.g., power bar), update in `Update()` while `_isCharging` is
+  true.
 
 ---
 
@@ -155,7 +189,6 @@ Change what an action does based on nearby interactables.
 ```csharp
 public class InteractionPrompt : MonoBehaviour
 {
-    [SerializeField] private InputActionReference _action;
     [SerializeField] private CanvasGroup _promptUI;
 
     private IInteractable _current;
@@ -178,9 +211,10 @@ public class InteractionPrompt : MonoBehaviour
         }
     }
 
-    public void OnInteract(InputAction.CallbackContext ctx)
+    // Called automatically by PlayerInput when Interact action is triggered
+    public void OnInteract(InputValue value)
     {
-        if (ctx.performed && _current != null)
+        if (value.isPressed && _current != null)
         {
             _current.Interact();
         }
