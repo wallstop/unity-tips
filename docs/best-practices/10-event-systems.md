@@ -975,8 +975,7 @@ public class Listener : MonoBehaviour {
 - Memory leak risk if OnDisable forgotten
 - Asset overhead with no designer benefit
 
-**Solution A:** Use proper designer-driven pattern with listener components 
-**Solution B:** Switch
+**Solution A:** Use proper designer-driven pattern with listener components **Solution B:** Switch
 to event bus for code-driven pattern
 
 ### Pitfall 2: Not Clearing ScriptableObject Listeners in OnEnable
@@ -1060,10 +1059,11 @@ void Update() {
 
 **Performance Impact:** UnityEvent is slower than C# events (8-13x in benchmarks)[^1] and allocates
 136 bytes on first dispatch. For high-frequency events (60+ per second), this overhead can
-accumulate. Trequent AddListener/RemoveListener calls allocate new listener arrays each
-time, causing additional GC pressure with dynamic subscriptions.
+accumulate. Trequent AddListener/RemoveListener calls allocate new listener arrays each time,
+causing additional GC pressure with dynamic subscriptions.
 
-**Solution:** For high-frequency events or many add/remove listeners, use event bus with struct messages:
+**Solution:** For high-frequency events or many add/remove listeners, use event bus with struct
+messages:
 
 ```csharp
 // ✅ BETTER: Lower allocations with structs
