@@ -702,7 +702,7 @@ public class HealthComponent : MessageAwareComponent {
 | **Non-programmers create game flow** | Designers/artists need autonomy without code review |
 | **Animation-driven events** | Animator needs to trigger prefab logic without code |
 | **Rapid prototyping by mixed teams** | Game jams, quick prototypes with non-technical staff |
-| **Low event count (< 100)** | Simple games where asset overhead is minimal |
+| **Low event count (< 50)** | Simple games where asset overhead is minimal |
 | **Inspector-centric workflow** | Team prefers visual wiring over code |
 | **Zero external dependencies** | Cannot use packages, Unity-only |
 | **Event frequency < 10000/second** | Performance overhead acceptable |
@@ -718,7 +718,7 @@ public class HealthComponent : MessageAwareComponent {
 | Scenario | Why |
 |----------|-----|
 | **Programmer-centric team** | Developers prefer code over Inspector wiring |
-| **High event count (> 100)** | Scalability matters, asset overhead unacceptable |
+| **High event count (> 50)** | Scalability matters, asset overhead unacceptable |
 | **Performance critical** | Mobile/VR where GC spikes cause frame drops |
 | **High-frequency events** | Damage ticks, input polling, collision checks |
 | **Complex message data** | Multi-parameter messages with type safety |
