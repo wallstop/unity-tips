@@ -204,8 +204,18 @@ public class PhysicsMovement : MonoBehaviour
 ### Understanding the Problem
 
 ```csharp
-// ❌ WRONG - Force varies with frame rate!
+// ⚠️ IMPORTANT - This code is actually CORRECT in FixedUpdate!
 private void FixedUpdate()
+{
+    // FixedUpdate runs at a FIXED timestep (50fps by default)
+    // regardless of rendering frame rate!
+    // At 144fps rendering: FixedUpdate still runs ~50 times/second
+    // At 30fps rendering: FixedUpdate still runs ~50 times/second
+    rb.AddForce(Vector3.up * 10f);
+}
+
+// ❌ WRONG - This WOULD vary with frame rate!
+private void Update()
 {
     // If running at 144fps: applies force 144 times per second
     // If running at 30fps: applies force 30 times per second
@@ -221,7 +231,7 @@ Unity provides different `ForceMode` options to handle this:
 ```csharp
 public enum ForceMode
 {
-    Force,          // Continuous force (use with Time.fixedDeltaTime)
+    Force,          // Continuous force (automatically scaled by Time.fixedDeltaTime)
     Acceleration,   // Continuous acceleration (mass-independent)
     Impulse,        // Instant force (one-time push)
     VelocityChange  // Instant velocity (mass-independent, one-time)
@@ -648,6 +658,37 @@ private void FixedUpdate()
     rb.AddForce(Vector3.forward * 10f);
     // Always applied 50 times per second (default)
 }
+
+// ⚠️ EXCEPTION - One-time Impulse forces CAN be called from Update
+private void Update()
+{
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+        // This is acceptable - Impulse is a one-time force
+        // Unity queues it for the next physics step
+        rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
+    }
+}
+
+// ✓ BETTER - Cache input and apply in FixedUpdate for consistency
+private bool jumpRequested;
+
+private void Update()
+{
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+        jumpRequested = true;
+    }
+}
+
+private void FixedUpdate()
+{
+    if (jumpRequested)
+    {
+        rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
+        jumpRequested = false;
+    }
+}
 ```
 
 ### Pitfall 3: Wrong ForceMode for Continuous Forces
@@ -730,23 +771,46 @@ private void FixedUpdate()
 
 ```csharp
 // ❌ WRONG - Can jump mid-air
-private void Update()
-{
-    if (Input.GetKeyDown(KeyCode.Space))
-    {
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        // Player can jump infinitely!
-    }
-}
-
-// ✓ CORRECT - Check if grounded
 private bool isGrounded;
 
 private void Update()
 {
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+        jumpRequested = true;
+    }
+}
+
+private void FixedUpdate()
+{
+    if (jumpRequested)
+    {
+        // Player can jump infinitely without grounded check!
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        jumpRequested = false;
+    }
+}
+
+// ✓ CORRECT - Check if grounded before jumping
+private bool isGrounded;
+private bool jumpRequested;
+
+private void Update()
+{
+    // Capture input every frame for responsiveness
     if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
     {
+        jumpRequested = true;
+    }
+}
+
+private void FixedUpdate()
+{
+    // Apply physics in FixedUpdate
+    if (jumpRequested)
+    {
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        jumpRequested = false;
     }
 }
 

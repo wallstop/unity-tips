@@ -16,31 +16,7 @@ breaking Unity's compilation pipeline.
 
 ## Install via Unity Package Manager (preferred)
 
-Unity 2019.3+
-
-1. Open `Window → Package Manager`.
-2. Click the `+` button and choose **Add package from git URL...**.
-3. Paste the Git URL and click **Add**:
-
-   ```
-   https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity
-   ```
-
-   To lock to a version append `#v{version}`, for example `#v2.0.0`.
-
-Unity 2019.2 or earlier
-
-Add the dependency directly to `Packages/manifest.json`:
-
-```json
-"com.glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity"
-```
-
-### Alternative: OpenUPM registry
-
-If you already use [OpenUPM](https://openupm.com/packages/com.github-glitchenzo.nugetforunity/), add
-or reuse a scoped registry and then install the package ID `com.github-glitchenzo.nugetforunity` via
-Package Manager (or run `openupm add com.github-glitchenzo.nugetforunity`).
+Follow the [installation instructions](https://github.com/GlitchEnzo/NuGetForUnity?tab=readme-ov-file#how-do-i-install-nugetforunity) for your preferred method - UPM/git/unitypackage.
 
 ## Getting started
 
@@ -51,7 +27,7 @@ Package Manager (or run `openupm add com.github-glitchenzo.nugetforunity`).
    to keep a dependency pinned even if no longer referenced.
 4. Visit the **Updates** tab to batch upgrade or downgrade versions with one click.
 
-NuGetForUnity writes assemblies and `.asmdef` files under `Packages/NuGet`, so additions are tracked
+NuGetForUnity writes assembly files under `Packages/NuGet`, so additions are tracked
 in source control and compile like any other UPM package. The plugin respects Unity's domain reloads
 and rebuilds, keeping the workflow seamless.
 
@@ -72,7 +48,7 @@ and rebuilds, keeping the workflow seamless.
 
 ### Example 1: Using Newtonsoft.Json for Flexible Serialization
 
-**Problem:** Unity's JsonUtility can't serialize dictionaries or complex types.
+**Problem:** Unity's JsonUtility can't serialize complex types.
 
 **Solution:**
 
@@ -86,6 +62,7 @@ public class SaveManager : MonoBehaviour
     // Unity can't serialize Dictionary, but Newtonsoft.Json can
     public class SaveData
     {
+        public Guid? SaveId { get; set;}
         public Dictionary<string, int> ItemQuantities { get; set; }
         public DateTime LastSaved { get; set; }
     }
@@ -94,6 +71,7 @@ public class SaveManager : MonoBehaviour
     {
         var data = new SaveData
         {
+            SaveId = Guid.NewGuid(),
             ItemQuantities = new Dictionary<string, int>
             {
                 { "HealthPotion", 5 },
