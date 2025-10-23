@@ -154,12 +154,18 @@ public class PhysicsObject : MonoBehaviour
 private void FixedUpdate()
 {
     transform.position += Vector3.forward * speed * Time.fixedDeltaTime;
+    // Object will move, but:
+    // - Disables interpolation (causes stuttering)
+    // - Ignores collisions (teleports through walls)
+    // - Physics engine fights with your code (jitter)
+    // - Rigidbody gets out of sync with transform
 }
 
 // ✓ CORRECT - Works with physics system
 private void FixedUpdate()
 {
     rb.MovePosition(rb.position + Vector3.forward * speed * Time.fixedDeltaTime);
+    // Smooth, collision-aware, properly integrated with physics
 }
 ```
 
@@ -631,15 +637,19 @@ private void Awake()
 ### Pitfall 1: Using Transform with Rigidbody
 
 ```csharp
-// ❌ WRONG - Breaks physics
+// ❌ WRONG - "Works" but with severe quality issues
 [RequireComponent(typeof(Rigidbody))]
 public class BadPhysics : MonoBehaviour
 {
     private void Update()
     {
         transform.position += Vector3.forward * Time.deltaTime;
-        // Rigidbody and transform are now out of sync!
-        // Physics will glitch!
+        // Object WILL move forward, but:
+        // - Rigidbody and transform are now out of sync
+        // - Interpolation disabled = visible stuttering
+        // - Collision detection unreliable = can phase through walls
+        // - Physics engine tries to correct = fighting/jitter
+        // Result: Looks unprofessional, unreliable collision detection
     }
 }
 
@@ -656,6 +666,7 @@ public class GoodPhysics : MonoBehaviour
     private void FixedUpdate()
     {
         rb.MovePosition(rb.position + Vector3.forward * Time.fixedDeltaTime);
+        // Smooth, collision-aware, synchronized with physics
     }
 }
 ```
@@ -670,6 +681,8 @@ private void Update()
     // At 30fps: Force applied 30 times per second
     // At 144fps: Force applied 144 times per second
     // Same code, wildly different results!
+    // Object WILL move, but ~5x faster on high-end PCs vs low-end
+    // "Works on my machine" syndrome - breaks on different hardware
 }
 
 // ✓ CORRECT - Fixed timestep ensures consistent physics
@@ -677,6 +690,7 @@ private void FixedUpdate()
 {
     rb.AddForce(Vector3.forward * 10f);
     // Always applied 50 times per second (default)
+    // Consistent behavior on ALL hardware
 }
 
 // ⚠️ EXCEPTION - One-time Impulse forces CAN be called from Update
@@ -768,12 +782,15 @@ private void FixedUpdate()
 ### Pitfall 5: Modifying linearVelocity Directly for Movement
 
 ```csharp
-// ⚠️ PROBLEMATIC - Bypasses physics simulation
+// ⚠️ PROBLEMATIC - Works but bypasses physics simulation
 private void FixedUpdate()
 {
     rb.linearVelocity = new Vector3(Input.GetAxis("Horizontal") * speed, rb.linearVelocity.y, 0);
-    // Feels unnatural, no acceleration/deceleration
-    // Ignores friction, drag, and other forces
+    // Object WILL move, but:
+    // - Instant velocity change = feels arcade-y/unnatural
+    // - Ignores friction, drag, and other physics forces
+    // - No acceleration/deceleration = robotic feel
+    // Sometimes acceptable for arcade-style games, but usually not ideal
 }
 
 // ✓ BETTER - Use forces for natural movement
@@ -783,7 +800,7 @@ private void FixedUpdate()
     float velocityDifference = targetVelocity - rb.linearVelocity.x;
 
     rb.AddForce(Vector3.right * velocityDifference * acceleration, ForceMode.Force);
-    // Smooth acceleration, works with physics system
+    // Smooth acceleration, works with physics system, feels natural
 }
 ```
 
@@ -893,5 +910,19 @@ private void OnCollisionExit(Collision collision)
 7. **Clamp velocities** - Prevent excessive speeds
 8. **Check grounded state** - Before allowing jumps
 
+**Important Reality Check:**
+
+Breaking these rules won't crash your game or prevent compilation. Your objects will still move.
+However, you'll get:
+- Visible jitter and stuttering (unprofessional feel)
+- Inconsistent behavior across different frame rates and hardware
+- Collision detection issues (tunneling, phasing through walls)
+- Non-deterministic physics (nightmare for multiplayer)
+- "Works on my machine" problems that break for players
+
+The difference between following these practices and ignoring them is the difference between:
+- ❌ "My character controller works but feels janky"
+- ✅ "My character controller feels smooth and professional"
+
 Remember: Unity's physics system is deterministic when used correctly. Follow these practices for
-consistent, stable physics!
+consistent, stable, professional-quality physics!

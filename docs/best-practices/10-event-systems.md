@@ -235,13 +235,16 @@ public class Player : MonoBehaviour {
 - ❌ Must create asset for each event type (project overhead)
 - ❌ Must wire assets in Inspector for every component (manual labor)
 - ❌ Must manually update references when refactoring event names (if an in-place rename doesn't work)
-- ❌ No compile-time type safety on Inspector wiring (wrong/no asset = runtime bug)
+- ❌ Problematic Inspector wiring (wrong/no asset = runtime bug)
 
 **Performance Considerations:**
 - ❌ UnityEvent allocates 136 bytes on first invocation (subsequent calls are zero-allocation)[^1]
 - ❌ UnityEvent is 6-40x slower than C# events depending on listener count and parameters[^1]
-- ❌ Passing complex data requires reference types (classes) which allocate
+- ❌ Passing complex data requires even more types (classes or classes)
 - ❌ Not suitable for high-frequency events (>10000/second sustained)
+
+**Missing Advanced Features:**
+- ⚠️ Concept is very simple - essentially just actions. Most event busses have advanced features like ordering, global listeners, message mutation, message prevention.
 
 ### Best Practices
 
@@ -322,43 +325,6 @@ public class WarningUI : MessageAwareComponent {
         }
     }
 }
-```
-
-### Message Types
-
-Event buses typically support different routing patterns:
-
-**1. Global Broadcast (Untargeted)**
-```csharp
-[DxUntargetedMessage]
-public readonly partial struct GamePaused { }
-
-// Any component can listen
-Token.RegisterUntargeted<GamePaused>(OnGamePaused);
-```
-
-**2. Component-Targeted**
-```csharp
-[DxTargetedMessage]
-public readonly partial struct TakeDamage {
-    public readonly int amount;
-    public readonly DamageType type;
-}
-
-// Only specific component receives
-var takeDamage = new TakeDamage(50, DamageType.Fire);
-takeDamage.EmitComponentTargeted(enemyHealth);
-```
-
-**3. Observable Broadcast**
-```csharp
-[DxBroadcastMessage]
-public readonly partial struct PlayerMoved {
-    public readonly Vector3 position;
-}
-
-// Register for updates from specific broadcaster
-Token.RegisterBroadcast<PlayerMoved>(player, OnPlayerMoved);
 ```
 
 ### Advantages
