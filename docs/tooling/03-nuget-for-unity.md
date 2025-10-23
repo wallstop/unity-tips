@@ -8,8 +8,8 @@ breaking Unity's compilation pipeline.
 
 - **Full .NET reach** – Access thousands of libraries (JSON, testing, HTTP clients, and more) that
   are not on the Asset Store.
-- **Unity-friendly** – Handles .dll placement, and dependency graphs the way
-  Unity expects, so imported packages show up instantly in your project.
+- **Unity-friendly** – Handles .dll placement, and dependency graphs the way Unity expects, so
+  imported packages show up instantly in your project.
 - **One-click upgrades** – Manage direct and transitive dependencies from a single window with
   upgrade/downgrade helpers.
 - **Offline cache** – Packages are stored locally, making future installs faster and reproducible.
@@ -29,9 +29,9 @@ for your preferred method - UPM/git/unitypackage.
    to keep a dependency pinned even if no longer referenced.
 4. Visit the **Updates** tab to batch upgrade or downgrade versions with one click.
 
-NuGetForUnity writes files under `Packages/NuGet`, so additions are tracked in source
-control and compile like any other UPM package. The plugin respects Unity's domain reloads and
-rebuilds, keeping the workflow seamless.
+NuGetForUnity writes files under `Packages/NuGet`, so additions are tracked in source control and
+compile like any other UPM package. The plugin respects Unity's domain reloads and rebuilds, keeping
+the workflow seamless.
 
 ## Tips for production projects
 
