@@ -83,6 +83,7 @@ public class ItemData
 **Unity CANNOT serialize:**
 
 - Dictionaries (use wrapper - see below)
+- HashSets/Queues/complex collections
 - Properties without `[field:]` attribute
 - Static fields, const fields
 - Delegates/Events

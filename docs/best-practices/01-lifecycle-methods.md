@@ -50,7 +50,7 @@ Unity MonoBehaviours have specific lifecycle methods that run at different times
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    INITIALIZATION                        │
+│                    INITIALIZATION                       │
 ├─────────────────────────────────────────────────────────┤
 │  1. Constructor (avoid using!)                          │
 │  2. Awake (once, before any Start)                      │
@@ -59,34 +59,34 @@ Unity MonoBehaviours have specific lifecycle methods that run at different times
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                      PHYSICS                             │
+│                      PHYSICS                            │
 ├─────────────────────────────────────────────────────────┤
 │  FixedUpdate (50 times/sec by default)                  │
-│  - Physics calculations                                  │
-│  - Rigidbody operations                                  │
+│  - Physics calculations                                 │
+│  - Rigidbody operations                                 │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                    GAME LOGIC                            │
+│                    GAME LOGIC                           │
 ├─────────────────────────────────────────────────────────┤
-│  Update (every frame)                                    │
-│  - Input                                                 │
-│  - Game logic                                            │
-│  - Non-physics movement                                  │
-│                                                          │
+│  Update (every frame)                                   │
+│  - Input                                                │
+│  - Game logic                                           │
+│  - Non-physics movement                                 │
+│                                                         │
 │  LateUpdate (after all Updates)                         │
-│  - Camera following                                      │
-│  - Ordered operations                                    │
+│  - Camera following                                     │
+│  - Ordered operations                                   │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                     RENDERING                            │
+│                     RENDERING                           │
 ├─────────────────────────────────────────────────────────┤
 │  OnWillRenderObject, OnPreRender, OnRenderObject, etc.  │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                      CLEANUP                             │
+│                      CLEANUP                            │
 ├─────────────────────────────────────────────────────────┤
 │  OnDisable (when disabled)                              │
 │  OnDestroy (when destroyed)                             │
