@@ -1097,7 +1097,6 @@ Do non-programmers need to create/modify event flow?
 ### Event Bus/Messaging Systems
 - **[DxMessaging GitHub](https://github.com/wallstop/DxMessaging)** - Modern Unity messaging system with automatic lifecycle management
 - **[MessageBus Article](https://www.gamedeveloper.com/programming/fixing-unity-s-tendency-to-object-coupling-the-messagebus)** - Fixing Unity's tendency to object coupling
-- **[Unity Message Bus](https://www.zuluonezero.net/2022/02/15/unity-message-bus/)** - Custom implementation guide
 
 ### Memory Management
 - **[Unity Memory Profiler](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html)** - Analyzing memory leaks

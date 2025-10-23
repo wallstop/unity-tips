@@ -10,6 +10,63 @@ single usage across your entire project in seconds.
 
 ---
 
+## 💰 Free Alternative (Recommended for Most Users)
+
+### Asset Usage Detector (FREE - Open Source)
+
+**[Asset Usage Detector](https://assetstore.unity.com/packages/tools/utilities/asset-usage-detector-112837)** — The best free alternative!
+
+- ✅ **Completely FREE** — No cost, no restrictions
+- ✅ **Open source** — Available on [GitHub](https://github.com/yasirkula/UnityAssetUsageDetector)
+- ✅ **Full functionality** — Find references in Assets and scenes
+- ✅ **Play Mode support** — Search while game is running
+- ✅ **Well maintained** — Active development by yasirkula
+- ⚠️ **Slightly slower** on very large projects (10,000+ assets)
+- ⚠️ **Less polished UI** compared to paid version
+- 💡 **Best for:** 95% of Unity developers, especially indies and hobbyists
+
+**How to Get It:**
+- **Unity Asset Store:** [Asset Usage Detector](https://assetstore.unity.com/packages/tools/utilities/asset-usage-detector-112837)
+- **GitHub:** [UnityAssetUsageDetector](https://github.com/yasirkula/UnityAssetUsageDetector)
+
+### When to Use the Paid Version (Asset Usage Finder)
+
+**[Asset Usage Finder](https://assetstore.unity.com/packages/tools/utilities/asset-usage-finder-59997)** (~$10-30)
+
+- ✅ **Faster performance** on massive projects (10,000+ assets)
+- ✅ **More polished UI/UX**
+- ✅ **Better support** from developer
+- ✅ **Advanced features** like batch operations, export, caching
+- 💡 **Best for:** Large studios with huge projects, or if speed is critical
+
+### Feature Comparison
+
+| Feature | Asset Usage Detector (Free) | Asset Usage Finder (Paid) |
+|---------|----------------------------|--------------------------|
+| **Price** | FREE | ~$10-30 |
+| **Find references** | ✅ | ✅ |
+| **Search scenes** | ✅ | ✅ |
+| **Search prefabs** | ✅ | ✅ |
+| **Play Mode support** | ✅ | ✅ |
+| **Performance (small projects)** | ✅ Fast | ✅ Fast |
+| **Performance (large projects)** | ⚠️ Moderate | ✅ Very Fast |
+| **UI/UX** | ⚠️ Functional | ✅ Polished |
+| **Batch operations** | ❌ | ✅ |
+| **Export results** | ❌ | ✅ |
+| **Caching** | ❌ | ✅ |
+
+### Recommendation
+
+**For most developers:** Use **Asset Usage Detector (FREE)**. It has all the core functionality you need.
+
+**Upgrade to Asset Usage Finder if:**
+- Your project has 10,000+ assets and search is too slow
+- You need batch operations or export features
+- You want the most polished UI/UX
+- You have budget for quality-of-life improvements
+
+---
+
 ## 🚀 Quick Start (30 Seconds)
 
 ```

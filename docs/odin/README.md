@@ -12,6 +12,108 @@ editor.
 
 ---
 
+## 💰 Free Alternatives
+
+### Tri-Inspector (Best Free Alternative - Recommended)
+
+**[Tri-Inspector](https://github.com/codewriter-packages/Tri-Inspector)** (GitHub - Free & Open Source)
+
+- ✅ **Completely free** and actively maintained
+- ✅ **Most Odin-like features:** Buttons, groups, validators, conditional visibility
+- ✅ **Odin compatibility mode** — Can work alongside Odin Inspector
+- ✅ **[ShowInInspector]** for non-serialized properties
+- ✅ Integrates with Odin Validator
+- ⚠️ **No custom serializer** — Still can't serialize dictionaries
+- 💡 **Best for:** Inspector enhancements without needing dictionary serialization
+
+**Feature Comparison:**
+
+| Feature | Odin | Tri-Inspector |
+|---------|------|---------------|
+| **Inspector Buttons** | ✅ | ✅ |
+| **Validation** | ✅ | ✅ |
+| **Groups/Tabs** | ✅ | ✅ |
+| **Conditional Display** | ✅ | ✅ |
+| **Property Display** | ✅ | ✅ |
+| **Dictionary Serialization** | ✅ | ❌ |
+| **Custom Type Serialization** | ✅ | ❌ |
+| **Price** | ~$55 | FREE |
+
+### NaughtyAttributes
+
+**[NaughtyAttributes](https://github.com/dbrizov/NaughtyAttributes)** (GitHub - Free & Open Source)
+
+- ⚠️ Unmaintained
+- ✅ **Completely free** and open source
+- ✅ **[Button]** attribute (most popular Odin feature!)
+- ✅ Conditional fields, validation, groups
+- ✅ Very lightweight
+- ⚠️ **No custom serializer** — Can't serialize dictionaries
+- ⚠️ Smaller feature set than Tri-Inspector
+- 💡 **Best for:** Simple inspector enhancements, button utilities
+
+### SaintsField
+
+**[SaintsField](https://github.com/TylerTemp/SaintsField)** (GitHub - Free & Open Source)
+
+- ✅ **Completely free** and maintained
+- ✅ Uses PropertyDrawer/DecoratorDrawer (compatible with other tools)
+- ✅ Wide range of inspector attributes
+- ⚠️ **No custom serializer**
+- 💡 **Best for:** Unity-native approach with enhanced attributes
+
+### Unity's Built-in JsonUtility (Workaround for Dictionaries)
+
+**JsonUtility + Custom Wrapper** (Built-in - Free)
+
+```csharp
+// Workaround for dictionary serialization without Odin
+[System.Serializable]
+public class SerializableDictionary<TKey, TValue>
+{
+    [SerializeField] private List<TKey> keys = new();
+    [SerializeField] private List<TValue> values = new();
+
+    public Dictionary<TKey, TValue> ToDictionary()
+    {
+        var dict = new Dictionary<TKey, TValue>();
+        for (int i = 0; i < keys.Count; i++)
+            dict[keys[i]] = values[i];
+        return dict;
+    }
+}
+```
+
+- ✅ Free, no external dependencies
+- ✅ Works with Unity's serialization
+- ❌ Manual conversion to/from Dictionary
+- ❌ Not as elegant as Odin
+- 💡 **Best for:** Avoiding paid tools when you only need dictionary serialization
+
+### Which Should You Choose?
+
+| Need | Recommendation | Price |
+|------|----------------|-------|
+| **Inspector buttons only** | **NaughtyAttributes** | FREE |
+| **Inspector enhancement + validation** | **Tri-Inspector** | FREE |
+| **Dictionary serialization** | **Odin Inspector** | ~$55 |
+| **Everything (dictionaries + inspector)** | **Odin Inspector & Serializer** | ~$55 |
+| **Budget constraints** | **Tri-Inspector** + JsonUtility workaround | FREE |
+| **Commercial projects** | **Odin** (best support & features) | ~$55 |
+
+### ROI Analysis: Is Odin Worth $55?
+
+**Time Saved:**
+- No custom editors needed: ~2-5 hours per complex component
+- Dictionary serialization built-in: ~1-2 hours per system
+- Inspector buttons for testing: ~30 mins per day
+
+**Break-even:** If you save ~4-6 hours of development time, Odin pays for itself.
+
+**Verdict:** For professional/commercial projects, Odin is worth it. For hobby projects or tight budgets, **Tri-Inspector** is excellent.
+
+---
+
 ## 🚀 Quick Start (30 Seconds)
 
 ```csharp
