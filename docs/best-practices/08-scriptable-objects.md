@@ -591,15 +591,33 @@ public class HealthBar : MonoBehaviour
 
 </details>
 
-### 3. Typed Collection Pattern
+### 3. Typed Collection Pattern ⚠️ (Not Recommended)
+
+> **⚠️ Warning: This is another form of mutable runtime state - not recommended.**
+>
+> This pattern (also called "Runtime Sets") suffers from the same issues as other mutable ScriptableObject patterns:
+> - Editor/Build behavior inconsistency[^1]
+> - Can't serialize scene objects properly[^3]
+> - Hard to debug and doesn't scale[^2]
+>
+> **Better alternative:** Use static managers with regular C# collections, or dependency injection frameworks.
+
+<details>
+<summary><b>Example for reference (not recommended)</b></summary>
 
 ```csharp
-// Base class
+// ⚠️ NOT RECOMMENDED - Runtime collections with ScriptableObjects
 public abstract class RuntimeSet<T> : ScriptableObject
 {
     private readonly List<T> items = new List<T>();
 
     public IReadOnlyList<T> Items => items;
+
+    private void OnEnable()
+    {
+        // CRITICAL: Must clear to prevent stale data
+        items.Clear();
+    }
 
     public void Add(T item)
     {
@@ -626,42 +644,84 @@ public class EnemySet : RuntimeSet<Enemy> { }
 public class CollectibleSet : RuntimeSet<Collectible> { }
 ```
 
-## Best Practices
-
-### 1. Reset to Defaults on Play
-
-ScriptableObjects persist between Play Mode sessions!
+**Better approach - Static Manager:**
 
 ```csharp
+// ✅ RECOMMENDED - Regular C# collection with single source of truth. Static classes are not recommended for production code, this is just here as an example.
+public class EnemyManager : MonoBehavior
+{
+    // Note: There are better, safer singleton implementations
+    public static EnemyManagerInstance
+    {
+        get
+        {
+            if (instance == null) 
+            {
+                GameObject singleton = new("EnemeyManager-Singleton", typeof(EnemyManager));
+                // instance should be auto-populated
+            }
+            return instance;
+        }
+    }
+
+    private static EnemyManager instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    private readonly List<Enemy> activeEnemies = new List<Enemy>();
+
+    public IReadOnlyList<Enemy> ActiveEnemies => activeEnemies;
+
+    public void Register(Enemy enemy) => activeEnemies.Add(enemy);
+    public void Unregister(Enemy enemy) => activeEnemies.Remove(enemy);
+}
+
+public class Enemy : MonoBehaviour
+{
+    private void OnEnable() => EnemyManager.Instance.Register(this);
+    private void OnDisable() => EnemyManager.Instance.Unregister(this);
+}
+```
+
+</details>
+
+## Best Practices
+
+### 1. Keep ScriptableObjects Immutable
+
+**The most important best practice: Use ScriptableObjects for immutable data only.**[^2]
+
+```csharp
+// ✅ GOOD - Immutable configuration data
+[CreateAssetMenu]
+public class EnemyData : ScriptableObject
+{
+    [Header("Design Data - Set once, never changes at runtime")]
+    public int maxHealth = 100;
+    public int damage = 10;
+    public float moveSpeed = 5f;
+    public GameObject prefab;
+
+    // No runtime state here!
+}
+
+// ❌ BAD - Mutable runtime state in ScriptableObject
 [CreateAssetMenu]
 public class PlayerData : ScriptableObject
 {
-    [Header("Default Values")]
-    public int defaultHealth = 100;
-    public int defaultGold = 0;
-
-    [Header("Runtime Values")]
-    public int currentHealth;
-    public int currentGold;
-
-    private void OnEnable()
-    {
-        #if UNITY_EDITOR
-        // Reset to defaults when entering Play Mode
-        if (!Application.isPlaying)
-        {
-            ResetToDefaults();
-        }
-        #endif
-    }
-
-    public void ResetToDefaults()
-    {
-        currentHealth = defaultHealth;
-        currentGold = defaultGold;
-    }
+    public int currentHealth;  // Don't do this!
+    public int currentGold;    // Use regular C# classes instead!
 }
 ```
+
+**Why immutability matters:**
+- Avoids Editor/Build persistence inconsistencies[^1]
+- Makes code easier to debug and understand[^2]
+- Prevents unexpected state carryover between play sessions
+- Follows the original design intent of ScriptableObjects[^2]
 
 ### 2. Use CreateAssetMenu Properly
 
@@ -703,9 +763,14 @@ public class GameSettings : ScriptableObject
 }
 ```
 
-### 4. Clear Runtime Collections on Enable
+### 4. Avoid Runtime Collections in ScriptableObjects
+
+> **⚠️ Don't use ScriptableObjects for runtime collections.** See warnings in sections above.
+
+If you inherited a codebase using this pattern and must maintain it temporarily, always clear collections in `OnEnable()`:
 
 ```csharp
+// ⚠️ Legacy pattern - avoid in new code
 [CreateAssetMenu]
 public class EnemySet : ScriptableObject
 {
@@ -713,7 +778,7 @@ public class EnemySet : ScriptableObject
 
     private void OnEnable()
     {
-        // Clear leftovers from previous Play Mode
+        // CRITICAL: Clear leftovers from previous Play Mode
         enemies.Clear();
     }
 
@@ -725,27 +790,39 @@ public class EnemySet : ScriptableObject
 }
 ```
 
-### 5. Use Editor-Only Reset for Development
+**Better approach:** Use static managers / single source of truth (see Typed Collection Pattern example above).
+
+### 5. Use Context Menus for Design Data Editing
 
 ```csharp
 [CreateAssetMenu]
-public class PlayerStats : ScriptableObject
+public class EnemyData : ScriptableObject
 {
-    public int health;
-    public int gold;
+    public int maxHealth = 100;
+    public int damage = 10;
 
     #if UNITY_EDITOR
-    // Add context menu in Inspector
+    // Add context menu in Inspector for quick edits
+    [ContextMenu("Apply Difficulty Scaling")]
+    private void ApplyHardMode()
+    {
+        maxHealth = (int)(maxHealth * 1.5f);
+        damage = (int)(damage * 1.5f);
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
     [ContextMenu("Reset to Defaults")]
     private void ResetToDefaults()
     {
-        health = 100;
-        gold = 0;
+        maxHealth = 100;
+        damage = 10;
         UnityEditor.EditorUtility.SetDirty(this);
     }
     #endif
 }
 ```
+
+**Note:** This is for **design-time editing** of immutable data, not for runtime state management.
 
 ### 6. Don't Store Scene References
 
@@ -770,47 +847,53 @@ public class PlayerData : ScriptableObject
 
 ## Common Pitfalls
 
-### Pitfall 1: Forgetting ScriptableObjects Persist in Editor
+### Pitfall 1: Using ScriptableObjects for Mutable Runtime State
+
+**This is the #1 most common misuse of ScriptableObjects.**[^1][^2]
 
 ```csharp
-// ❌ PROBLEM - Values persist between Play Mode sessions
+// ❌ PROBLEM - Mutable runtime state in ScriptableObject
 [CreateAssetMenu]
 public class GameState : ScriptableObject
 {
     public int currentLevel = 1;
     public int score = 0;
 
-    // You start Play Mode: score = 0
-    // Gain 100 points: score = 100
-    // Exit Play Mode: score still = 100!
-    // Next Play Mode: starts at 100!
+    // Problems:
+    // 1. Values persist in Editor between play sessions (confusing!)
+    // 2. Values reset in Build between game sessions (broken!)
+    // 3. Hard to debug which systems modify these values
 }
 
-// ✓ SOLUTION - Reset in OnEnable
-[CreateAssetMenu]
-public class GameState : ScriptableObject
+// ✓ SOLUTION - Use regular C# classes for runtime state
+public class GameState // No ScriptableObject!
 {
-    public int defaultLevel = 1;
-    public int currentLevel;
-    public int score;
+    public int currentLevel = 1;
+    public int score = 0;
 
-    private void OnEnable()
+    // Clear, predictable behavior
+    // Easy to debug
+    // Works same in Editor and Build
+}
+
+// Access via singleton, static, or dependency injection
+public class GameManager : MonoBehaviour
+{
+    private static GameManager instance;
+    public static GameState State { get; private set; } = new GameState();
+
+    private void Awake()
     {
-        #if UNITY_EDITOR
-        if (!Application.isPlaying)
+        if (instance == null)
         {
-            ResetToDefaults();
+            instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        #endif
-    }
-
-    public void ResetToDefaults()
-    {
-        currentLevel = defaultLevel;
-        score = 0;
     }
 }
 ```
+
+**Key takeaway:** Don't try to "fix" mutable ScriptableObject state with `OnEnable()` resets. Just don't use ScriptableObjects for mutable state at all.[^2]
 
 ### Pitfall 2: Using ScriptableObjects for Per-Instance Data
 
@@ -895,10 +978,14 @@ public class EventListener : MonoBehaviour
 }
 ```
 
-### Pitfall 4: Modifying ScriptableObjects in Builds
+### Pitfall 4: Trying to Use ScriptableObjects for Save Data
+
+**ScriptableObjects don't work for persistent save data.**[^1]
+
+**See [Save/Load System](./18-save-load.md) for a full save/load implementation.**
 
 ```csharp
-// ⚠️ WARNING - Changes persist in builds!
+// ❌ WRONG - This doesn't work as expected
 [CreateAssetMenu]
 public class PlayerData : ScriptableObject
 {
@@ -907,14 +994,46 @@ public class PlayerData : ScriptableObject
     public void SetHighScore(int score)
     {
         highScore = score;
-        // In builds, this modifies the asset file!
-        // Next time you run the build, it keeps the new value!
+        // In Editor: Persists (misleading!)
+        // In Build: Resets on game restart (broken!)
     }
 }
 
-// ✓ SOLUTION - Use PlayerPrefs or save files for persistent data
-[CreateAssetMenu]
-public class PlayerData : ScriptableObject
+// ✓ CORRECT - Use proper save system
+public class SaveSystem
+{
+    private const string SAVE_PATH = "/save.json";
+
+    [System.Serializable]
+    public class PlayerData
+    {
+        public int highScore;
+    }
+
+    public static void SaveData(PlayerData data)
+    {
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(Application.persistentDataPath + SAVE_PATH, json);
+    }
+
+    public static PlayerData LoadData()
+    {
+        string path = Application.persistentDataPath + SAVE_PATH;
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            return JsonUtility.FromJson<PlayerData>(json);
+        }
+        return new PlayerData();
+    }
+}
+```
+
+**Or use PlayerPrefs for simple data:**
+
+```csharp
+// ✅ SIMPLE SOLUTION - PlayerPrefs
+public class ScoreManager : MonoBehaviour
 {
     public int defaultHighScore;
 
