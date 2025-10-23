@@ -1,5 +1,10 @@
 # Unity Physics Best Practices
 
+> **Unity Version Note**: This guide uses Unity 6 property names. If you're using Unity 5.x or earlier versions:
+> - Use `velocity` instead of `linearVelocity`
+> - Use `angularVelocity` (unchanged across versions)
+> - Note that `drag` (Inspector UI) is accessed as `linearDamping` in code (Unity 6+)
+
 ## What Problem Does This Solve?
 
 **The Problem:** You move a Rigidbody in `Update()` and it jitters, tunnels through walls, or
@@ -31,7 +36,7 @@ synchronized with physics simulation.
 **The most common physics mistakes:**
 
 1. 🔴 **CRITICAL**: Modifying physics in `Update()` instead of `FixedUpdate()` - causes frame-rate dependent behavior
-2. 🔴 **CRITICAL**: Using legacy Input polling (`Input.GetKey`, `Input.GetAxis`) instead of Unity's Input System package
+2. 🟡 **QUALITY**: Using legacy Input polling (`Input.GetKey`, `Input.GetAxis`) instead of Unity's Input System package
 3. 🟡 **QUALITY**: Using `transform.position` instead of `Rigidbody.MovePosition()` - causes jitter and collision issues
 4. 🟢 **NOTE**: Impulse forces CAN be called from Update (Unity queues them for next physics step)
 
@@ -461,10 +466,39 @@ private void FixedUpdate()
 }
 ```
 
-### 3. Clamp Velocities to Avoid Instability
+### 3. Use Drag/Damping to Control Speed
 
 ```csharp
-// ✓ GOOD - Prevent excessive speeds
+// ✓ GOOD - Use drag to naturally limit speed
+private void Awake()
+{
+    rb = GetComponent<Rigidbody>();
+
+    // Linear Drag - resists forward motion (0 = no resistance)
+    rb.linearDamping = 2f;  // Inspector shows this as "Linear Drag"
+    // Formula: velocity *= (1 - linearDamping * Time.fixedDeltaTime)
+
+    // Angular Drag - resists rotation (0 = no resistance)
+    rb.angularDamping = 0.5f;  // Inspector shows this as "Angular Drag"
+}
+
+// Example: Parachute increases drag when deployed
+// Note: Modifying physics PROPERTIES (linearDamping, mass, etc.) in Update() is fine
+// Only physics FORCES/VELOCITY must be in FixedUpdate()
+private void Update()
+{
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+        parachuteOpen = !parachuteOpen;
+        rb.linearDamping = parachuteOpen ? 20f : 2f;  // Toggle parachute
+    }
+}
+```
+
+### 4. Clamp Velocities to Avoid Instability
+
+```csharp
+// ✓ GOOD - Prevent excessive speeds (alternative to drag)
 private void FixedUpdate()
 {
     // Apply movement forces
@@ -478,7 +512,7 @@ private void FixedUpdate()
 }
 ```
 
-### 4. Use Appropriate Collision Detection Mode
+### 5. Use Appropriate Collision Detection Mode
 
 ```csharp
 private void Awake()
@@ -496,7 +530,7 @@ private void Awake()
 }
 ```
 
-### 5. Freeze Constraints for 2D Physics in 3D
+### 6. Freeze Constraints for 2D Physics in 3D
 
 ```csharp
 // ✓ GOOD - Lock unnecessary axes for 2D gameplay
@@ -758,6 +792,14 @@ private void OnCollisionExit(Collision collision)
 - `linearVelocity`: Direct velocity (use sparingly)
 - `angularVelocity`: Direct angular velocity (use sparingly)
 
+### Rigidbody Properties
+
+- `linearDamping`: Linear drag/air resistance (called "Linear Drag" in Inspector)
+- `angularDamping`: Rotational drag (called "Angular Drag" in Inspector)
+- `mass`: Object mass (affects force calculations)
+- `useGravity`: Enable/disable gravity
+- `isKinematic`: Disable physics forces (use for manually controlled objects)
+
 ## Summary
 
 **Golden Rules:**
@@ -768,7 +810,7 @@ private void OnCollisionExit(Collision collision)
 4. **Cache Rigidbody references** - In `Awake()` or `Start()`
 5. **Use correct ForceMode** - `Force` for continuous, `Impulse` for one-shot
 6. **Consider migrating to Unity's Input System** - Better than legacy polling
-7. **Clamp velocities** - Prevent excessive speeds
+7. **Use drag/damping or clamp velocities** - Prevent excessive speeds
 8. **Check grounded state** - Before allowing jumps
 
 **Important Reality Check:**
