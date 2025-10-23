@@ -106,12 +106,15 @@ public class PlayerController : SerializedMonoBehaviour
     [ShowInInspector, ReadOnly]
     private string DebugInfo => $"Speed: {_speed}, Position: {transform.position}";
 
+    private Rigidbody rb;
+
     [ShowInInspector, ReadOnly]
     private float CurrentVelocity
     {
         get
         {
-            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+                rb = GetComponent<Rigidbody>();
             return rb != null ? rb.velocity.magnitude : 0f;
         }
     }
