@@ -975,7 +975,8 @@ public class Listener : MonoBehaviour {
 - Memory leak risk if OnDisable forgotten
 - Asset overhead with no designer benefit
 
-**Solution A:** Use proper designer-driven pattern with listener components **Solution B:** Switch
+**Solution A:** Use proper designer-driven pattern with listener components 
+**Solution B:** Switch
 to event bus for code-driven pattern
 
 ### Pitfall 2: Not Clearing ScriptableObject Listeners in OnEnable
@@ -1059,10 +1060,10 @@ void Update() {
 
 **Performance Impact:** UnityEvent is slower than C# events (8-13x in benchmarks)[^1] and allocates
 136 bytes on first dispatch. For high-frequency events (60+ per second), this overhead can
-accumulate. However, frequent AddListener/RemoveListener calls allocate new listener arrays each
+accumulate. Trequent AddListener/RemoveListener calls allocate new listener arrays each
 time, causing additional GC pressure with dynamic subscriptions.
 
-**Solution:** For high-frequency events, use event bus with struct messages:
+**Solution:** For high-frequency events or many add/remove listeners, use event bus with struct messages:
 
 ```csharp
 // ✅ BETTER: Lower allocations with structs
@@ -1122,76 +1123,6 @@ takeDamage.EmitComponentTargeted(targetHealth);
 ```
 
 ---
-
-## Performance Comparison
-
-### Allocation Test: 10,000 Events with Multiple Parameters
-
-**Test Setup:**
-
-```csharp
-// Fire 10,000 events with 3 parameters (int, Vector3, GameObject)
-```
-
-**ScriptableObject Events (UnityEvent):**
-
-```csharp
-[System.Serializable]
-public class DamageData {
-    public int amount;
-    public Vector3 hitPoint;
-    public GameObject attacker;
-}
-
-[CreateAssetMenu]
-public class DamageEvent : ScriptableObject {
-    private UnityEvent<DamageData> OnEventRaised;
-    public void Raise(DamageData data) {
-        OnEventRaised?.Invoke(data);
-    }
-}
-
-// Test
-for (int i = 0; i < 10000; i++) {
-    var data = new DamageData {
-        amount = i,
-        hitPoint = Vector3.zero,
-        attacker = gameObject
-    };
-    damageEvent.Raise(data);
-}
-```
-
-**Result:**
-
-- **~400 KB allocations** (DamageData class instances: 10,000 × ~40 bytes)
-- **~50-100ms total execution time** (UnityEvent is 6-40x slower than C# events[^1])
-- **1-2 GC collections**
-
-**Event Bus (DxMessaging with Readonly Struct):**
-
-```csharp
-[DxUntargetedMessage]
-[DxAutoConstructor]
-public readonly partial struct DamageDealt {
-    public readonly int amount;
-    public readonly Vector3 hitPoint;
-    public readonly GameObject attacker;
-}
-
-// Test
-for (int i = 0; i < 10000; i++) {
-    var damageDealt= new DamageDealt(i, Vector3.zero, gameObject);
-    damageDealt.EmitUntargeted();
-}
-```
-
-**Result (varies by implementation):**
-
-- **Minimal allocations** (readonly struct passed by ref reduces copies)
-- **Note:** Actual allocation depends on the message bus implementation details (listener storage,
-  delegate allocation, etc.)
-- **Faster than UnityEvent** (avoids reflection overhead)
 
 **Conclusion:** For performance-critical high-frequency events, code-driven event systems can be
 optimized for lower allocations and faster execution. For low-frequency events (UI, progression),
