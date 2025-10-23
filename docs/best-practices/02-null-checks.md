@@ -51,7 +51,7 @@ Destroy(obj2);
 
 ## When to Use Each Check
 
-### For Unity Objects: Use `== null` / `!= null` Only
+### Never use `is null` or `is not null` for Unity objects
 
 **Use for:** `GameObject`, `Component`, `Transform`, `MonoBehaviour`, `ScriptableObject`,
 `Material`, `Texture`, and any `UnityEngine.Object` derived type.

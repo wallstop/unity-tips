@@ -265,7 +265,8 @@ public class Player : MonoBehaviour {
 - ❌ Must define each event type as a concrete class (e.g., `IntEvent`, `FloatEvent`,
   `HealthChangedEvent`)
 - ❌ Must create a separate asset instance for each distinct use case (e.g., `PlayerHealth_SO`,
-  `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO`)
+  `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO` OR create one object with global context
+  that is sent to every single listener and requires complex code checks "is this for me?")
 - ❌ Asset proliferation: A "health changed" event needs separate instances for player health, each
   enemy type's health, boss health, etc.
 - ❌ Both code churn (defining event types) and asset churn (creating instances for each usage
@@ -470,36 +471,36 @@ necessarily **zero** allocations. Always profile your specific implementation.
 
 | Feature                     | ScriptableObject Events                        | Event Bus/Messaging                         |
 | --------------------------- | ---------------------------------------------- | ------------------------------------------- |
-| **Workflow**                |
+| **Workflow**                |                                                |                                             |
 | Designer creates events     | ✅ Yes (Inspector only)                        | ❌ No (code required)                       |
 | Programmer creates events   | ⚠️ Verbose (type definition + asset instances) | ✅ Simple (message struct)                  |
 | Asset/instance overhead     | ❌ Separate asset per use case                 | ✅ Single type for all uses                 |
 | Visual event wiring         | ✅ Inspector drag-drop                         | ❌ Code-only                                |
 | Animation event integration | ✅ Excellent                                   | ⚠️ Requires wrapper                         |
-| **Technical**               |
+| **Technical**               |                                                |                                             |
 | Memory management           | ⚠️ Manual (proper base class helps)            | ✅ Automatic                                |
 | Memory leak risk            | ⚠️ Moderate (if base classes not used)         | ✅ Zero/Minimal (with lifecycle management) |
 | Compile-time type safety    | ❌ Inspector wiring                            | ✅ Full                                     |
 | Performance (allocations)   | ⚠️ UnityEvent overhead                         | ✅ Low-allocation (with structs)            |
 | High-frequency events       | ⚠️ May be problematic                          | ✅ Can handle well                          |
-| **Debugging**               |
+| **Debugging**               |                                                |                                             |
 | Find all listeners          | ❌ Custom tools needed                         | ✅ "Find References"                        |
 | Find all emitters           | ⚠️ String search                               | ✅ "Find References"                        |
 | Stack traces                | ✅ Yes                                         | ✅ Yes                                      |
 | Runtime inspection          | ⚠️ UnityEvent list                             | ✅ Built-in (DxMessaging)                   |
-| **Refactoring**             |
+| **Refactoring**             |                                                |                                             |
 | Rename event                | ❌ Manual Inspector updates                    | ✅ IDE rename                               |
 | Find usages                 | ❌ Asset search                                | ✅ IDE search                               |
 | Break-on-change             | ❌ Runtime errors                              | ✅ Compile errors                           |
-| **Scalability**             |
+| **Scalability**             |                                                |                                             |
 | 1-20 event instances        | ✅ Simple                                      | ✅ Simple                                   |
 | 20-100 event instances      | ⚠️ Needs organization                          | ✅ Simple                                   |
 | 100+ event instances        | ❌ Custom tools required                       | ✅ Scales naturally                         |
 | Asset/type count growth     | ❌ O(n) per usage context                      | ✅ O(1) per semantic type                   |
-| **Dependencies**            |
+| **Dependencies**            |                                                |                                             |
 | External packages           | ✅ None                                        | ⚠️ Required                                 |
 | Unity version               | ✅ Any                                         | ⚠️ Package dependent                        |
-| **Team Dynamics**           |
+| **Team Dynamics**           |                                                |                                             |
 | Non-programmer autonomy     | ✅ Full                                        | ❌ None                                     |
 | Merge conflicts             | ✅ Reduced                                     | ⚠️ Code conflicts                           |
 | Onboarding time             | ✅ Low (visual)                                | ⚠️ Moderate (code concepts)                 |

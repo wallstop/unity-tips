@@ -106,7 +106,7 @@ Start with [Best Practices](./docs/best-practices/README.md) to avoid 80% of Uni
 
 | Tool                                                                  | Problem It Solves                                            | Cost |
 | --------------------------------------------------------------------- | ------------------------------------------------------------ | ---- |
-| [Event Systems Comparison](./docs/best-practices/19-event-systems.md) | ScriptableObject events vs DxMessaging (DxMessaging wins)    | FREE |
+| [Event Systems Comparison](./docs/best-practices/10-event-systems.md) | ScriptableObject events vs DxMessaging (DxMessaging wins)    | FREE |
 | [DxMessaging](./docs/dxmessaging/README.md)                           | Type-safe messaging without memory leaks (superior approach) | FREE |
 | [Odin Inspector](./docs/odin/README.md)                               | Serialize dictionaries, custom editors                       | ~$55 |
 | [Input System](./docs/input-system/README.md)                         | Modern input with rebinding support                          | FREE |
@@ -150,7 +150,7 @@ Add essential Unity patterns:
 
 Master architecture and optimization:
 
-- [Event Systems](./docs/best-practices/19-event-systems.md) – ScriptableObject events vs
+- [Event Systems](./docs/best-practices/10-event-systems.md) – ScriptableObject events vs
   DxMessaging (30 min)
 - [ScriptableObjects](./docs/best-practices/08-scriptable-objects.md) – Data-driven design (25 min)
 - [Object Pooling](./docs/best-practices/09-object-pooling.md) – Eliminate spawn lag (18 min)
