@@ -23,17 +23,15 @@ learning order** from beginner to advanced topics.
 
 1. [**ScriptableObjects**](./08-scriptable-objects.md) - Data-driven design and shared configuration
 2. [**Object Pooling**](./09-object-pooling.md) - Performance optimization for frequent spawning
-3. [**Null-Conditional Operators**](./10-null-conditional-operators.md) - Why `?.` and `??` break
-   with UnityEngine.Object
+3. [**Event Systems**](./10-event-systems.md) - ScriptableObject Events vs DxMessaging comparison
 
 ### Systems & Architecture
 
-1. [**Event Systems**](./19-event-systems.md) - ScriptableObject Events vs DxMessaging comparison
-2. [**Addressables**](./11-addressables.md) - Memory-safe asset streaming and live content updates
-3. [**Scene Organization**](./12-scene-loading.md) - Additive loading and collaboration-friendly
+1. [**Addressables**](./11-addressables.md) - Memory-safe asset streaming and live content updates
+2. [**Scene Organization**](./12-scene-loading.md) - Additive loading and collaboration-friendly
    layouts
-4. [**Jobs & Burst**](./13-jobs-burst.md) - Parallelize CPU-heavy work with native performance
-5. [**Async/Await**](./14-async-await.md) - Background tasks without breaking Unity's main thread
+3. [**Jobs & Burst**](./13-jobs-burst.md) - Parallelize CPU-heavy work with native performance
+4. [**Async/Await**](./14-async-await.md) - Background tasks without breaking Unity's main thread
 
 ### Production Excellence
 
@@ -388,7 +386,7 @@ Eliminate garbage collection spikes with object reuse.
 
 ---
 
-### [19. Event Systems](./19-event-systems.md) ⭐ **HIGHLY RECOMMENDED**
+### [10. Event Systems](./10-event-systems.md) ⭐ **HIGHLY RECOMMENDED**
 
 Comprehensive comparison of ScriptableObject events vs DxMessaging for decoupled communication.
 

@@ -1,8 +1,5 @@
 # Feel Documentation
 
-> **Ultimate guide to Feel** — Unity's most powerful game feel library. From absolute beginner to
-> expert, everything you need to make your games feel amazing.
-
 ## What is Feel?
 
 Feel (by More Mountains) is a **comprehensive game feel library** for Unity that provides **150+
@@ -14,6 +11,61 @@ audio triggers, and UI animations, you assemble pre-built feedbacks in the Inspe
 single method: `PlayFeedbacks()`.
 
 **Feel makes game feel accessible to everyone** — no programming expertise required.
+
+---
+
+## Alternatives
+
+### Tween Library Alternatives (Different Approach)
+
+If you only need **animations** (not full game feel), consider these FREE tween libraries:
+
+**[PrimeTween](https://assetstore.unity.com/packages/tools/animation/primetween-high-performance-animations-and-sequences-252960)**
+(FREE - Zero allocation)
+
+- ✅ Completely free
+- ✅ Zero GC allocation, ultra-fast
+- ✅ Great for code-driven animations
+- ❌ No pre-built "feedbacks" — purely code-based
+- 💡 **Best for:** Performance-critical animations, code-first approach
+- 📖 See [PrimeTween docs](../primetween/README.md) in this repository
+
+**[LitMotion](https://github.com/AnnulusGames/LitMotion)** (FREE - DOTS-based, Open Source)
+
+- ✅ Completely free, MIT license
+- ✅ Extremely fast (DOTS/ECS architecture)
+- ✅ Zero allocation
+- ❌ More complex API than PrimeTween or Feel
+- 💡 **Best for:** High-performance projects, advanced users
+
+**[DOTween](https://dotween.demigiant.com/)** (FREE)
+
+- ✅ Free version fully functional
+- ✅ Most popular Unity tween library
+- ✅ Simple API
+- ⚠️ Allocates memory (GC)
+- ⚠️ Slower than modern alternatives
+- 💡 **Best for:** Prototyping, compatibility with existing projects
+
+**[LeanTween](https://assetstore.unity.com/packages/tools/animation/leantween-3595)** (FREE)
+
+- ✅ Completely free, lightweight
+- ✅ No dependencies
+- ⚠️ Older API, less feature-rich
+- 💡 **Best for:** Ultra-lightweight projects
+
+### Which Should You Choose?
+
+| Your Need                      | Recommendation                  | Price |
+| ------------------------------ | ------------------------------- | ----- |
+| **Commercial game**            | **Feel**                        | ~$50  |
+| **Code-first animations only** | **PrimeTween**                  | FREE  |
+| **Maximum performance**        | **LitMotion** or **PrimeTween** | FREE  |
+| **Complete game feel system**  | **Feel**                        | ~$50  |
+
+### Recommendation
+
+**If you only need animations:** Use **PrimeTween** (FREE, zero allocation, very fast)
 
 ---
 

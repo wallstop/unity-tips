@@ -35,22 +35,58 @@ Assets/Scenes/
 ## Async loading pattern
 
 ```csharp
-public async Task LoadLevelAsync(string sceneName)
+public IEnumerator LoadLevelAdditiveCoroutine(string sceneName, Scene currentScene)
 {
-    var loadingScreen = Addressables.InstantiateAsync("LoadingScreen");
-    await loadingScreen.Task;
+    AsyncOperationHandle<GameObject> loadingScreenHandle = Addressables.InstantiateAsync("LoadingScreen");
+    yield return loadingScreenHandle;
 
-    await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-    await SceneManager.UnloadSceneAsync(currentScene);
+    AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+    loadOp.allowSceneActivation = false;
 
-    await Addressables.ReleaseInstance(loadingScreen);
+    while (loadOp.progress < 0.9f)
+    {
+        yield return null;
+    }
+
+    // Yield to your fade / transition coroutine before exposing the loaded content.
+    loadOp.allowSceneActivation = true;
+
+    while (!loadOp.isDone)
+    {
+        yield return null;
+    }
+
+    if (currentScene.IsValid())
+    {
+        AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(currentScene);
+        while (!unloadOp.isDone)
+        {
+            yield return null;
+        }
+    }
+
+    Addressables.ReleaseInstance(loadingScreenHandle);
 }
 ```
 
-- Use `allowSceneActivation = false` to stage a scene, then flip it true once your fade-out
-  completes.
-- Chain lighting or additive detail scenes (`SceneManager.SetActiveScene`) immediately after the
-  base scene activates.
+- [`SceneManager.LoadSceneAsync`](https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html)
+  returns an [`AsyncOperation`](https://docs.unity3d.com/ScriptReference/AsyncOperation.html); stage
+  additive loads by toggling
+  [`allowSceneActivation`](https://docs.unity3d.com/ScriptReference/AsyncOperation-allowSceneActivation.html)
+  once your transition completes.
+- If the content scene is delivered through Addressables, prefer
+  [`Addressables.LoadSceneAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.LoadSceneAsync.html)
+  so you can `yield return` the handle in a coroutine and release it with
+  [`Addressables.UnloadSceneAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.UnloadSceneAsync.html).
+- Keep the
+  [`Addressables.InstantiateAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.InstantiateAsync.html)
+  handle for UI such as loading screens and dispose it with
+  [`Addressables.ReleaseInstance`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.ReleaseInstance.html)
+  once the indicator is hidden.
+- Chain lighting or additive detail scenes and update focus via
+  [`SceneManager.SetActiveScene`](https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.SetActiveScene.html)
+  immediately after activation so lighting probes, event systems, and `GetActiveScene` calls line up
+  with the new environment.
 
 ## Tips for collaboration
 

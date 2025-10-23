@@ -133,7 +133,7 @@ public class PlayerController : MonoBehaviour {
 }
 
 // ✅ Format entire project before merging
-dotnet csharpier .
+dotnet csharpier format .
 ```
 
 ### ❌ DON'T

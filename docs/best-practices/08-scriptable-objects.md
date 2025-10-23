@@ -1,14 +1,6 @@
 # Unity ScriptableObjects Best Practices
 
-> **🛑 Looking for Event Systems?** Don't use ScriptableObjects for events!
->
-> ScriptableObject events require **manual asset creation, manual Inspector wiring, custom editor
-> tools to debug, and don't scale**. You can't trace who's listening or sending, "Find References"
-> doesn't work on assets, and complex projects become unmaintainable.
->
-> Use **[DxMessaging](./19-event-systems.md)** instead for automatic memory management, code-only
-> events (no assets!), full debugging support, and scales to thousands of events. See the
-> **[Event Systems Comparison](./19-event-systems.md)** for details.
+> **Looking for Event Systems?** See [Event Systems Comparison](./10-event-systems.md) for details.
 
 ## What Problem Does This Solve?
 
@@ -66,8 +58,13 @@ Designers can balance without touching prefabs.
 ScriptableObjects are data containers that exist independently of scenes and GameObjects. They're
 like MonoBehaviours, but for data instead of behavior.
 
+**Primary Use:** ScriptableObjects should primarily be used as **data containers** for shared
+configuration, databases, and runtime collections. While they can also be used for event systems,
+see the [Event Systems documentation](./10-event-systems.md) for a comprehensive comparison of
+different event approaches.
+
 **Simple Analogy**: Think of MonoBehaviours as "actors" (they do things in your scene), and
-ScriptableObjects as "scripts" or "recipes" (they hold information that actors can read from).
+ScriptableObjects as "recipes" (they hold information that actors can read from).
 
 ## Table of Contents
 
@@ -79,10 +76,6 @@ ScriptableObjects as "scripts" or "recipes" (they hold information that actors c
 - [Common Pitfalls](#common-pitfalls)
 
 ## When to Use ScriptableObjects
-
-> **⚠️ Note:** This guide covers general ScriptableObject usage. For **event systems specifically**,
-> see **[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)** - DxMessaging is
-> the superior choice for events.
 
 ScriptableObjects are perfect for:
 
@@ -136,47 +129,20 @@ public class ItemData : ScriptableObject
 
 **Use for**: Item databases, enemy types, ability definitions, dialogue trees
 
-### 3. ~~Event Systems~~ **❌ DON'T USE ScriptableObjects for Events**
+### 3. Event Systems (Consider Alternatives)
 
-> **🛑 STOP: Don't use ScriptableObjects for event systems!**
->
-> **Use [DxMessaging](./19-event-systems.md) instead.** ScriptableObject events are **extremely
-> manual** (create assets, wire Inspector, track references), **impossible to debug** (can't see
-> who's listening/sending, need custom editor tools), and **don't scale** (hundreds of assets,
-> Inspector nightmare, unmaintainable in complex projects).
->
-> **ScriptableObject event problems:**
->
-> - ❌ **Manual everything** - Create assets, wire Inspector for every component, track all
->   references
-> - ❌ **Can't debug** - No way to trace listeners/senders, must build custom editor tools
-> - ❌ **Doesn't scale** - Hundreds of event assets, Inspector references break, new devs can't
->   understand flow
-> - ❌ **Memory leaks** - Forget `OnDisable()` unregister = leak (happens constantly)
-> - ❌ **No compile-time safety** - Wrong asset in Inspector = silent runtime failure
->
-> **DxMessaging provides:**
->
-> - ✅ **Zero manual work** - No assets, no Inspector wiring, just code
-> - ✅ **Full debugging** - Inspector shows all message flow, handlers, and performance
-> - ✅ **Scales to thousands** - Code-only, "Find References" works, refactoring works
-> - ✅ **Zero memory leaks** - Automatic cleanup, impossible to forget
-> - ✅ **Compile-time type safety** - Wrong message type = compiler error
->
-> **Read the full comparison:** >
-> **[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)**
+ScriptableObjects can be used for event systems, allowing components to communicate through shared
+event assets.
 
-<details>
-<summary><b>Why is this pattern still documented?</b> (Click to expand)</summary>
+> **Note:** While ScriptableObject events are a valid pattern (especially for designer-driven
+> workflows), there are multiple approaches to event systems in Unity, each with different
+> trade-offs. For a comprehensive comparison of ScriptableObject events vs code-driven event buses,
+> see the **[Event Systems documentation](./10-event-systems.md)**.
 
-This pattern is shown for **reference only** because you'll see it in older tutorials and legacy
-codebases.
-
-**Don't use it in new projects.** The code below demonstrates why ScriptableObject events are
-error-prone:
+**Quick Example:**
 
 ```csharp
-// ❌ BAD PATTERN - ScriptableObject events (shown for reference only)
+// Basic event ScriptableObject
 [CreateAssetMenu(menuName = "Events/Int Event")]
 public class IntEvent : ScriptableObject
 {
@@ -194,95 +160,63 @@ public class IntEvent : ScriptableObject
 
     public void UnregisterListener(System.Action<int> listener)
     {
-        OnEventRaised -= listener;  // Easy to forget = memory leak!
+        OnEventRaised -= listener;
     }
-}
-
-// Usage (requires manual cleanup)
-public class ScoreUI : MonoBehaviour
-{
-    [SerializeField] private IntEvent onScoreChanged;
 
     private void OnEnable()
     {
-        onScoreChanged.RegisterListener(UpdateDisplay);
-    }
-
-    private void OnDisable()
-    {
-        onScoreChanged.UnregisterListener(UpdateDisplay);  // Forget this = MEMORY LEAK!
-    }
-
-    private void UpdateDisplay(int newScore)
-    {
-        // Update UI
+        // Clear stale listeners from previous Play Mode
+        OnEventRaised = null;
     }
 }
 ```
 
-**Problems with this approach:**
+**When to consider this approach:**
 
-- ❌ Manual cleanup required (forget `OnDisable()` = memory leak)
-- ❌ Must create asset for every event type (Project clutter)
-- ❌ No compile-time safety (wrong asset in Inspector = runtime error)
-- ❌ Allocates garbage for event parameters
-- ❌ Listeners persist between Play Mode sessions (must clear in `OnEnable()`)
+- Designer-driven workflows where non-programmers create game flow
+- Animation events triggering prefab logic
+- Smaller projects with < 50 event types
 
-**Real-world scaling nightmare:**
+### 4. Runtime Sets/Collections ⚠️ (Not Recommended)
 
-Imagine you have 50 different events in your game (player death, enemy spawned, score changed, level
-complete, etc.). With ScriptableObject events:
+> **⚠️ Warning: Using ScriptableObjects for mutable runtime state is generally not recommended.**
+>
+> ScriptableObjects were designed as **immutable data containers**, not runtime state managers.
+> Using them for mutable data causes several problems:
+>
+> - **Editor vs Build inconsistency**: Changes persist in Editor between play sessions but reset in
+>   builds[^1]
+> - **Domain reload issues**: Disabling domain/scene reload causes unpredictable state
+>   persistence[^2]
+> - **Debugging difficulties**: Hard to trace which scripts modify which ScriptableObjects[^2]
+> - **Scalability problems**: Managing many runtime variables as assets becomes unwieldy[^2]
+> - **Inspector limitations**: Can't serialize scene objects, causing "Type mismatch" errors[^3]
+>
+> **Better alternatives:**
+>
+> - Use regular C# classes/structs for runtime state
+> - Use static classes or dependency injection for shared state
+> - Use proper save/load systems for persistent data
+>
+> If you must use this pattern, understand the limitations and always clear state in `OnEnable()`.
 
-1. **Manual asset hell:** Create 50 event assets in Project window
-2. **Inspector nightmare:** Wire 50 assets across hundreds of components
-3. **Debugging impossible:** Event fired - who's listening? Search entire project, check every
-   Inspector
-4. **Refactoring disaster:** Rename "OnPlayerDeath" → "OnPlayerKilled"? Manually update 30 Inspector
-   references
-5. **New dev onboarding:** "How does player death trigger game over?" → Must search assets, check
-   Inspectors, draw flow diagram
-6. **Custom tools required:** Build editor window just to see which components listen to which
-   events
-
-With DxMessaging: Search for `RegisterUntargeted<PlayerDied>` - done. All listeners found in 2
-seconds with "Find References".
-
-**✅ Use DxMessaging instead:**
-
-```csharp
-// ✅ GOOD PATTERN - DxMessaging (automatic cleanup, zero allocations)
-[DxUntargetedMessage]
-[DxAutoConstructor]
-public readonly partial struct ScoreChanged {
-    public readonly int newScore;
-}
-
-// Usage (automatic cleanup!)
-public class ScoreUI : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<ScoreChanged>(UpdateDisplay);
-    }  // Token automatically unsubscribes when destroyed - zero leaks!
-
-    void UpdateDisplay(ref ScoreChanged msg) {
-        // Update UI
-    }
-}
-```
-
-**See full comparison:** **[Event Systems Best Practices](./19-event-systems.md)**
-
-</details>
-
-### 4. Runtime Sets/Collections
+<details>
+<summary><b>Example for reference (not recommended)</b></summary>
 
 ```csharp
-// Track all active enemies
+// ⚠️ NOT RECOMMENDED - Runtime sets with ScriptableObjects
 [CreateAssetMenu(menuName = "Collections/Enemy Set")]
 public class EnemySet : ScriptableObject
 {
     private List<Enemy> enemies = new List<Enemy>();
 
     public IReadOnlyList<Enemy> Enemies => enemies;
+
+    private void OnEnable()
+    {
+        // CRITICAL: Clear stale state from previous sessions
+        enemies.Clear();
+    }
 
     public void Add(Enemy enemy)
     {
@@ -315,24 +249,41 @@ public class Enemy : MonoBehaviour
         activeEnemies.Remove(this);
     }
 }
-
-public class WaveManager : MonoBehaviour
-{
-    [SerializeField] private EnemySet activeEnemies;
-
-    public bool AllEnemiesDefeated()
-    {
-        return activeEnemies.Enemies.Count == 0;
-    }
-}
 ```
 
-**Use for**: Active enemy lists, player inventory, quest tracking
+**Problems with this approach:**
 
-### 5. Persistent Data Between Scenes
+- State persists between Editor play sessions (confusing)
+- Can't inspect scene objects in ScriptableObject Inspector
+- Hard to debug which enemies are in the set
+- Doesn't scale well to multiple instance types
+
+</details>
+
+### 5. Persistent Data Between Scenes ⚠️ (Not Recommended)
+
+> **⚠️ Warning: ScriptableObjects are not suitable for persistent save data.**
+>
+> While ScriptableObjects survive scene loads, they have critical limitations for persistent data:
+>
+> - **Build behavior**: Changes only persist within a single game session, not between sessions[^1]
+> - **Editor confusion**: Data persists in Editor but resets in builds, causing unexpected
+>   behavior[^1]
+> - **Not designed for saves**: ScriptableObjects were designed for immutable configuration data[^2]
+> - **Asset corruption risk**: Runtime modifications can accidentally be saved to the asset file in
+>   Editor
+>
+> **Use proper save systems instead:**
+>
+> - PlayerPrefs for simple key-value data
+> - JSON/Binary serialization to persistent data paths
+> - Dedicated save/load systems (e.g., SaveSystem packages)
+
+<details>
+<summary><b>Why this doesn't work (click to expand)</b></summary>
 
 ```csharp
-// Survives scene loads
+// ❌ NOT RECOMMENDED - ScriptableObjects for persistent data
 [CreateAssetMenu(menuName = "Game/Player Data")]
 public class PlayerData : ScriptableObject
 {
@@ -350,64 +301,55 @@ public class PlayerData : ScriptableObject
 }
 ```
 
-**Use for**: Player stats, game progression, unlocks (but be careful - see pitfalls!)
+**What actually happens:**
+
+**In Editor:**
+
+1. Player plays, gains 100 gold
+2. Exit play mode → gold = 100 (persisted!)
+3. Enter play mode again → gold = 100 (still there!)
+4. This seems to work... but it's misleading
+
+**In Build:**
+
+1. Player plays, gains 100 gold
+2. Exit game → gold data lost
+3. Restart game → gold = 0 (back to default!)
+4. Players lose all progress
+
+**The solution:** Use PlayerPrefs or a proper save system that writes to persistent storage.
+
+</details>
 
 ## When NOT to Use ScriptableObjects
 
 Avoid ScriptableObjects when:
 
-### 1. Event Systems
+### 1. Mutable Runtime State
 
-> **🛑 DON'T use ScriptableObjects for event systems!** Use [DxMessaging](./19-event-systems.md)
-> instead.
+**ScriptableObjects are designed for immutable data, not runtime state management.**
 
-ScriptableObject events are a common anti-pattern that causes memory leaks and requires manual
-cleanup.
+```csharp
+// ❌ DON'T - Runtime variables that change during gameplay
+[CreateAssetMenu]
+public class FloatVariable : ScriptableObject
+{
+    public float value;  // Bad! Mutable runtime state
+}
 
-**Why ScriptableObject events are bad:**
+// ✓ DO - Use regular C# classes for runtime state
+public class GameState
+{
+    public float currentValue;  // Simple, clear, no persistence issues
+}
+```
 
-**Manual & Error-Prone:**
+**Why this is problematic:**
 
-- ❌ Memory leaks if you forget to unregister in `OnDisable()` (happens constantly)
-- ❌ Must manually create asset for every event type (dozens of files in Project)
-- ❌ Must manually wire assets in Inspector for every component (hundreds of references)
-- ❌ Must manually track down and update every reference when refactoring
-- ❌ No compile-time safety (wrong asset in Inspector = silent runtime failure)
-
-**Debugging Nightmare:**
-
-- ❌ **Can't see who's listening to an event** - No way to trace all subscribers
-- ❌ **Can't see who's sending an event** - No way to find all raisers
-- ❌ **Can't debug message flow** - Events fire with no stack trace or visibility
-- ❌ **Must build custom editor tools** just to understand your own event system
-- ❌ **Search fails** - Can't "Find References" on assets, only string search
-
-**Scaling Disaster:**
-
-- ❌ **Hundreds of event assets clutter Project window** - Finding the right one is painful
-- ❌ **Inspector references break** when moving/renaming assets
-- ❌ **No compile-time refactoring** - Rename event? Manually fix all Inspector references
-- ❌ **New team members can't trace flow** without custom editor tools
-- ❌ **Complex projects become unmaintainable** - Event chains are invisible
-
-**Technical Issues:**
-
-- ❌ Allocates garbage for event parameters
-- ❌ Listeners persist between Play Mode sessions (must clear manually)
-- ❌ Runtime modifications persist to disk (corrupt your assets)
-
-**Why DxMessaging is better:**
-
-- ✅ **Zero memory leaks** - Automatic cleanup, impossible to forget
-- ✅ **Zero manual work** - No assets, no Inspector wiring, no manual tracking
-- ✅ **Full debugging support** - Inspector shows all message types, handlers, and flow
-- ✅ **Code-only** - "Find References" works, refactoring works, team members can trace flow
-- ✅ **Compile-time type safety** - Wrong message type = compiler error
-- ✅ **Zero allocations** - Readonly structs, no garbage
-- ✅ **Scales to thousands of events** - No Project clutter, no Inspector nightmare
-
-**See the full comparison:**
-**[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)**
+- Changes persist between Editor play sessions but not in builds[^1]
+- Hard to debug which systems are modifying the values[^2]
+- Causes confusion about game state during development
+- Not how ScriptableObjects were designed to be used[^2]
 
 ### 2. Instance-Specific Runtime Data
 
@@ -433,7 +375,30 @@ public class Enemy : MonoBehaviour
 }
 ```
 
-### 3. Frequently Changing Data
+### 3. Persistent Save Data
+
+```csharp
+// ❌ DON'T - ScriptableObjects for save games
+[CreateAssetMenu]
+public class SaveData : ScriptableObject
+{
+    public int playerLevel;
+    public int score;
+    // This won't persist between game sessions in builds!
+}
+
+// ✓ DO - Use proper save systems
+public class SaveSystem
+{
+    public void SaveGame(SaveData data)
+    {
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(Application.persistentDataPath + "/save.json", json);
+    }
+}
+```
+
+### 4. Frequently Changing Data
 
 ```csharp
 // ❌ DON'T - Updated every frame
@@ -450,7 +415,7 @@ public class Player : MonoBehaviour
 }
 ```
 
-### 4. When MonoBehaviour is More Appropriate
+### 5. When MonoBehaviour is More Appropriate
 
 ```csharp
 // ❌ DON'T - Needs Update loop
@@ -564,140 +529,24 @@ public class Enemy : MonoBehaviour
 }
 ```
 
-### 2. ~~Event Channel Pattern~~ **❌ DON'T DO THIS - Use DxMessaging Instead**
+### 2. Variable Reference Pattern ⚠️ (Not Recommended)
 
-> **🛑 STOP: Don't use the Event Channel Pattern!**
+> **⚠️ Warning: This is a mutable runtime state pattern - not recommended for the same reasons as
+> Runtime Sets.**
 >
-> This is a common anti-pattern from older Unity tutorials. It's **extremely manual** (create assets
-> for every event, wire every component in Inspector), **impossible to debug** (can't trace who's
-> listening/sending without custom editor tools), and **doesn't scale** (hundreds of event assets,
-> unmaintainable in complex projects).
+> This pattern suffers from the same issues:
 >
-> **Use [DxMessaging](./19-event-systems.md) instead** for zero manual work, full debugging support,
-> and scales to thousands of events.
+> - State persists between Editor play sessions but not in builds
+> - Hard to debug which systems are modifying values
+> - Doesn't scale well when you need many variables[^2]
 >
-> **See:** **[Event Systems: ScriptableObject vs DxMessaging Comparison](./19-event-systems.md)**
+> **Better alternative:** Use regular C# classes with events or a reactive framework like UniRx.
 
 <details>
-<summary><b>Why is this anti-pattern still documented?</b> (Click to expand)</summary>
-
-You'll see this pattern in legacy code and older tutorials. Here's why it's problematic:
+<summary><b>Example for reference (not recommended)</b></summary>
 
 ```csharp
-// ❌ BAD: Event Channel anti-pattern (DO NOT USE)
-[CreateAssetMenu(menuName = "Events/Game Event")]
-public class GameEvent : ScriptableObject
-{
-    private readonly List<GameEventListener> listeners = new List<GameEventListener>();
-
-    public void Raise()
-    {
-        for (int i = listeners.Count - 1; i >= 0; i--)
-        {
-            listeners[i].OnEventRaised();
-        }
-    }
-
-    public void RegisterListener(GameEventListener listener)
-    {
-        if (!listeners.Contains(listener))
-            listeners.Add(listener);
-    }
-
-    public void UnregisterListener(GameEventListener listener)
-    {
-        listeners.Remove(listener);  // Must remember to call this!
-    }
-
-    // Missing OnEnable() to clear listeners = accumulation between Play Mode sessions!
-}
-
-// Listener component
-public class GameEventListener : MonoBehaviour
-{
-    [SerializeField] private GameEvent gameEvent;
-    [SerializeField] private UnityEvent response;
-
-    private void OnEnable()
-    {
-        gameEvent.RegisterListener(this);
-    }
-
-    private void OnDisable()
-    {
-        gameEvent.UnregisterListener(this);  // Forget this = memory leak!
-    }
-
-    public void OnEventRaised()
-    {
-        response?.Invoke();
-    }
-}
-```
-
-**Problems:**
-
-- ❌ Memory leaks if you forget `OnDisable()` unregistration
-- ❌ Listeners accumulate between Play Mode sessions
-- ❌ Must create asset for every event type
-- ❌ No type safety (all events are generic)
-- ❌ UnityEvent allocates garbage
-
-**The debugging and scaling nightmare:**
-
-**Scenario:** Your game fires an `OnPlayerDeath` event, but game over screen doesn't appear.
-
-**With ScriptableObject events (painful):**
-
-1. Find `OnPlayerDeath.asset` in Project window (which folder?)
-2. Click asset - Inspector shows nothing useful (just the ScriptableObject)
-3. Search entire project for `onPlayerDeath` (string search, error-prone)
-4. Check every result - which ones are listeners vs raisers?
-5. Open each component in Inspector to see if the asset is wired
-6. Realize UIManager has `onHealthChanged.asset` wired instead of `onPlayerDeath.asset` - silent
-   bug!
-7. Debug time: **30+ minutes**
-
-**With DxMessaging (instant):**
-
-1. Right-click `PlayerDied` message → "Find References"
-2. See all `RegisterUntargeted<PlayerDied>` calls
-3. UIManager not in list - found the bug!
-4. Debug time: **30 seconds**
-
-**Scaling gets worse:** At 100+ events, ScriptableObject approach requires custom editor tools just
-to visualize event flow. DxMessaging's Inspector shows everything automatically.
-
-**✅ Use DxMessaging instead:**
-
-```csharp
-// ✅ GOOD: DxMessaging (automatic cleanup, zero leaks)
-[DxUntargetedMessage]
-[DxAutoConstructor]
-public readonly partial struct PlayerDied { }
-
-public class UIManager : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<PlayerDied>(OnPlayerDied);
-    }  // Automatic cleanup when destroyed!
-
-    void OnPlayerDied(ref PlayerDied msg) {
-        ShowGameOverScreen();
-    }
-}
-
-// Raise from anywhere
-new PlayerDied().EmitUntargeted();
-```
-
-**Full comparison:** **[Event Systems Best Practices](./19-event-systems.md)**
-
-</details>
-
-### 3. Variable Reference Pattern
-
-```csharp
-// Shared variable that multiple objects can read/write
+// ⚠️ NOT RECOMMENDED - Mutable variable ScriptableObjects
 [CreateAssetMenu(menuName = "Variables/Float Variable")]
 public class FloatVariable : ScriptableObject
 {
@@ -714,6 +563,12 @@ public class FloatVariable : ScriptableObject
     }
 
     public event System.Action<float> OnValueChanged;
+
+    private void OnEnable()
+    {
+        // Must clear event listeners to prevent accumulation
+        OnValueChanged = null;
+    }
 
     public void Add(float amount)
     {
@@ -750,15 +605,44 @@ public class HealthBar : MonoBehaviour
 }
 ```
 
-### 4. Typed Collection Pattern
+**Problems:**
+
+- Need to create an asset for every variable (PlayerHealth, EnemyHealth, Score, etc.)
+- State persistence issues between Editor/Build
+- Hard to manage at scale
+
+</details>
+
+### 3. Typed Collection Pattern ⚠️ (Not Recommended)
+
+> **⚠️ Warning: This is another form of mutable runtime state - not recommended.**
+>
+> This pattern (also called "Runtime Sets") suffers from the same issues as other mutable
+> ScriptableObject patterns:
+>
+> - Editor/Build behavior inconsistency[^1]
+> - Can't serialize scene objects properly[^3]
+> - Hard to debug and doesn't scale[^2]
+>
+> **Better alternative:** Use static managers with regular C# collections, or dependency injection
+> frameworks.
+
+<details>
+<summary><b>Example for reference (not recommended)</b></summary>
 
 ```csharp
-// Base class
+// ⚠️ NOT RECOMMENDED - Runtime collections with ScriptableObjects
 public abstract class RuntimeSet<T> : ScriptableObject
 {
     private readonly List<T> items = new List<T>();
 
     public IReadOnlyList<T> Items => items;
+
+    private void OnEnable()
+    {
+        // CRITICAL: Must clear to prevent stale data
+        items.Clear();
+    }
 
     public void Add(T item)
     {
@@ -785,42 +669,85 @@ public class EnemySet : RuntimeSet<Enemy> { }
 public class CollectibleSet : RuntimeSet<Collectible> { }
 ```
 
-## Best Practices
-
-### 1. Reset to Defaults on Play
-
-ScriptableObjects persist between Play Mode sessions!
+**Better approach - Static Manager:**
 
 ```csharp
+// ✅ RECOMMENDED - Regular C# collection with single source of truth. Static classes are not recommended for production code, this is just here as an example.
+public class EnemyManager : MonoBehavior
+{
+    // Note: There are better, safer singleton implementations
+    public static EnemyManagerInstance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                GameObject singleton = new("EnemeyManager-Singleton", typeof(EnemyManager));
+                // instance should be auto-populated
+            }
+            return instance;
+        }
+    }
+
+    private static EnemyManager instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    private readonly List<Enemy> activeEnemies = new List<Enemy>();
+
+    public IReadOnlyList<Enemy> ActiveEnemies => activeEnemies;
+
+    public void Register(Enemy enemy) => activeEnemies.Add(enemy);
+    public void Unregister(Enemy enemy) => activeEnemies.Remove(enemy);
+}
+
+public class Enemy : MonoBehaviour
+{
+    private void OnEnable() => EnemyManager.Instance.Register(this);
+    private void OnDisable() => EnemyManager.Instance.Unregister(this);
+}
+```
+
+</details>
+
+## Best Practices
+
+### 1. Keep ScriptableObjects Immutable
+
+**The most important best practice: Use ScriptableObjects for immutable data only.**[^2]
+
+```csharp
+// ✅ GOOD - Immutable configuration data
+[CreateAssetMenu]
+public class EnemyData : ScriptableObject
+{
+    [Header("Design Data - Set once, never changes at runtime")]
+    public int maxHealth = 100;
+    public int damage = 10;
+    public float moveSpeed = 5f;
+    public GameObject prefab;
+
+    // No runtime state here!
+}
+
+// ❌ BAD - Mutable runtime state in ScriptableObject
 [CreateAssetMenu]
 public class PlayerData : ScriptableObject
 {
-    [Header("Default Values")]
-    public int defaultHealth = 100;
-    public int defaultGold = 0;
-
-    [Header("Runtime Values")]
-    public int currentHealth;
-    public int currentGold;
-
-    private void OnEnable()
-    {
-        #if UNITY_EDITOR
-        // Reset to defaults when entering Play Mode
-        if (!Application.isPlaying)
-        {
-            ResetToDefaults();
-        }
-        #endif
-    }
-
-    public void ResetToDefaults()
-    {
-        currentHealth = defaultHealth;
-        currentGold = defaultGold;
-    }
+    public int currentHealth;  // Don't do this!
+    public int currentGold;    // Use regular C# classes instead!
 }
 ```
+
+**Why immutability matters:**
+
+- Avoids Editor/Build persistence inconsistencies[^1]
+- Makes code easier to debug and understand[^2]
+- Prevents unexpected state carryover between play sessions
+- Follows the original design intent of ScriptableObjects[^2]
 
 ### 2. Use CreateAssetMenu Properly
 
@@ -862,9 +789,15 @@ public class GameSettings : ScriptableObject
 }
 ```
 
-### 4. Clear Runtime Collections on Enable
+### 4. Avoid Runtime Collections in ScriptableObjects
+
+> **⚠️ Don't use ScriptableObjects for runtime collections.** See warnings in sections above.
+
+If you inherited a codebase using this pattern and must maintain it temporarily, always clear
+collections in `OnEnable()`:
 
 ```csharp
+// ⚠️ Legacy pattern - avoid in new code
 [CreateAssetMenu]
 public class EnemySet : ScriptableObject
 {
@@ -872,7 +805,7 @@ public class EnemySet : ScriptableObject
 
     private void OnEnable()
     {
-        // Clear leftovers from previous Play Mode
+        // CRITICAL: Clear leftovers from previous Play Mode
         enemies.Clear();
     }
 
@@ -884,27 +817,40 @@ public class EnemySet : ScriptableObject
 }
 ```
 
-### 5. Use Editor-Only Reset for Development
+**Better approach:** Use static managers / single source of truth (see Typed Collection Pattern
+example above).
+
+### 5. Use Context Menus for Design Data Editing
 
 ```csharp
 [CreateAssetMenu]
-public class PlayerStats : ScriptableObject
+public class EnemyData : ScriptableObject
 {
-    public int health;
-    public int gold;
+    public int maxHealth = 100;
+    public int damage = 10;
 
     #if UNITY_EDITOR
-    // Add context menu in Inspector
+    // Add context menu in Inspector for quick edits
+    [ContextMenu("Apply Difficulty Scaling")]
+    private void ApplyHardMode()
+    {
+        maxHealth = (int)(maxHealth * 1.5f);
+        damage = (int)(damage * 1.5f);
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
     [ContextMenu("Reset to Defaults")]
     private void ResetToDefaults()
     {
-        health = 100;
-        gold = 0;
+        maxHealth = 100;
+        damage = 10;
         UnityEditor.EditorUtility.SetDirty(this);
     }
     #endif
 }
 ```
+
+**Note:** This is for **design-time editing** of immutable data, not for runtime state management.
 
 ### 6. Don't Store Scene References
 
@@ -929,47 +875,54 @@ public class PlayerData : ScriptableObject
 
 ## Common Pitfalls
 
-### Pitfall 1: Forgetting ScriptableObjects Persist in Editor
+### Pitfall 1: Using ScriptableObjects for Mutable Runtime State
+
+**This is the #1 most common misuse of ScriptableObjects.**[^1][^2]
 
 ```csharp
-// ❌ PROBLEM - Values persist between Play Mode sessions
+// ❌ PROBLEM - Mutable runtime state in ScriptableObject
 [CreateAssetMenu]
 public class GameState : ScriptableObject
 {
     public int currentLevel = 1;
     public int score = 0;
 
-    // You start Play Mode: score = 0
-    // Gain 100 points: score = 100
-    // Exit Play Mode: score still = 100!
-    // Next Play Mode: starts at 100!
+    // Problems:
+    // 1. Values persist in Editor between play sessions (confusing!)
+    // 2. Values reset in Build between game sessions (broken!)
+    // 3. Hard to debug which systems modify these values
 }
 
-// ✓ SOLUTION - Reset in OnEnable
-[CreateAssetMenu]
-public class GameState : ScriptableObject
+// ✓ SOLUTION - Use regular C# classes for runtime state
+public class GameState // No ScriptableObject!
 {
-    public int defaultLevel = 1;
-    public int currentLevel;
-    public int score;
+    public int currentLevel = 1;
+    public int score = 0;
 
-    private void OnEnable()
+    // Clear, predictable behavior
+    // Easy to debug
+    // Works same in Editor and Build
+}
+
+// Access via singleton, static, or dependency injection
+public class GameManager : MonoBehaviour
+{
+    private static GameManager instance;
+    public static GameState State { get; private set; } = new GameState();
+
+    private void Awake()
     {
-        #if UNITY_EDITOR
-        if (!Application.isPlaying)
+        if (instance == null)
         {
-            ResetToDefaults();
+            instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        #endif
-    }
-
-    public void ResetToDefaults()
-    {
-        currentLevel = defaultLevel;
-        score = 0;
     }
 }
 ```
+
+**Key takeaway:** Don't try to "fix" mutable ScriptableObject state with `OnEnable()` resets. Just
+don't use ScriptableObjects for mutable state at all.[^2]
 
 ### Pitfall 2: Using ScriptableObjects for Per-Instance Data
 
@@ -1054,10 +1007,14 @@ public class EventListener : MonoBehaviour
 }
 ```
 
-### Pitfall 4: Modifying ScriptableObjects in Builds
+### Pitfall 4: Trying to Use ScriptableObjects for Save Data
+
+**ScriptableObjects don't work for persistent save data.**[^1]
+
+**See [Save/Load System](./18-save-load.md) for a full save/load implementation.**
 
 ```csharp
-// ⚠️ WARNING - Changes persist in builds!
+// ❌ WRONG - This doesn't work as expected
 [CreateAssetMenu]
 public class PlayerData : ScriptableObject
 {
@@ -1066,14 +1023,46 @@ public class PlayerData : ScriptableObject
     public void SetHighScore(int score)
     {
         highScore = score;
-        // In builds, this modifies the asset file!
-        // Next time you run the build, it keeps the new value!
+        // In Editor: Persists (misleading!)
+        // In Build: Resets on game restart (broken!)
     }
 }
 
-// ✓ SOLUTION - Use PlayerPrefs or save files for persistent data
-[CreateAssetMenu]
-public class PlayerData : ScriptableObject
+// ✓ CORRECT - Use proper save system
+public class SaveSystem
+{
+    private const string SAVE_PATH = "/save.json";
+
+    [System.Serializable]
+    public class PlayerData
+    {
+        public int highScore;
+    }
+
+    public static void SaveData(PlayerData data)
+    {
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(Application.persistentDataPath + SAVE_PATH, json);
+    }
+
+    public static PlayerData LoadData()
+    {
+        string path = Application.persistentDataPath + SAVE_PATH;
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            return JsonUtility.FromJson<PlayerData>(json);
+        }
+        return new PlayerData();
+    }
+}
+```
+
+**Or use PlayerPrefs for simple data:**
+
+```csharp
+// ✅ SIMPLE SOLUTION - PlayerPrefs
+public class ScoreManager : MonoBehaviour
 {
     public int defaultHighScore;
 
@@ -1127,27 +1116,27 @@ public class CharacterData : ScriptableObject
 
 ### Use ScriptableObjects For
 
-- ✓ Shared configuration data
-- ✓ Item/enemy/ability databases
-- ✓ Runtime collections
-- ✓ Constants and enums
-- ✓ Editor tools
+- ✓ **Shared configuration data** (immutable design data)
+- ✓ **Item/enemy/ability databases** (static data tables)
+- ✓ **Constants and enums** (game rules, formulas)
+- ✓ **Editor tools** (custom asset types)
+- ⚠️ **Event systems** (see [Event Systems Comparison](./10-event-systems.md) for trade-offs)
 
 ### Don't Use ScriptableObjects For
 
-- ❌ **Event systems** - Use [DxMessaging](./19-event-systems.md) instead (zero leaks, better
-  performance)
-- ❌ Per-instance runtime data
-- ❌ Frequently changing data (every frame)
-- ❌ Data that needs Update/FixedUpdate
-- ❌ Scene references
-- ❌ Persistent save data (use PlayerPrefs/save files)
+- ❌ **Mutable runtime state** (use regular C# classes)[^1][^2]
+- ❌ **Runtime collections** (use regular lists/dictionaries)[^1][^2]
+- ❌ **Persistent save data** (use PlayerPrefs/save systems)[^1]
+- ❌ **Per-instance runtime data** (use MonoBehaviour fields)
+- ❌ **Frequently changing data** (every frame updates)
+- ❌ **Data that needs Update/FixedUpdate** (use MonoBehaviour)
+- ❌ **Scene references** (ScriptableObjects can't serialize scene objects)[^3]
 
 ### Always Remember To
 
 - ✓ Reset to defaults in OnEnable (Editor only)
 - ✓ Clear runtime collections on enable
-- ✓ **DON'T use ScriptableObjects for events** - Use [DxMessaging](./19-event-systems.md) instead
+- ✓ Clear event listeners in OnEnable (if using ScriptableObject events)
 - ✓ Avoid scene references
 - ✓ Use CreateAssetMenu for easy creation
 
@@ -1155,14 +1144,37 @@ public class CharacterData : ScriptableObject
 
 **Golden Rules:**
 
-1. **ScriptableObjects are for shared data**, not instance data
-2. **Reset runtime values in OnEnable** for clean Play Mode sessions
-3. **DON'T use ScriptableObjects for event systems** - Use [DxMessaging](./19-event-systems.md) for
-   automatic cleanup, better performance, and type safety
-4. **Don't store scene references** in ScriptableObjects
-5. **Use for configuration**, not for data that changes every frame
-6. **Clear collections** on enable to avoid stale references
-7. **Use PlayerPrefs/save files** for actual persistent data, not ScriptableObjects
+1. **ScriptableObjects are for immutable data**, not runtime state[^2]
+2. **Use for configuration and design data** (enemy stats, item definitions, game rules)
+3. **Don't use for mutable runtime state** (player health, scores, active object lists)[^1][^2]
+4. **Don't use for persistent save data** (use proper save systems instead)[^1]
+5. **Reset runtime values in OnEnable** if you must store runtime data (Editor only)
+6. **Don't store scene references** in ScriptableObjects[^3]
+7. **For event systems**, see the [Event Systems Comparison](./10-event-systems.md) to understand
+   trade-offs
 
-ScriptableObjects are incredibly powerful for organizing your game's data and creating decoupled,
-maintainable systems. Use them wisely!
+ScriptableObjects are incredibly powerful for organizing your game's **immutable configuration
+data** and creating decoupled, maintainable systems. Use them for what they were designed for: data
+containers, not state managers.
+
+---
+
+## References
+
+[^1]:
+    Unity Forums:
+    [ScriptableObject changes persist between editor but not game sessions](https://forum.unity.com/threads/scriptable-object-changes-persist-between-editor-but-not-game-sessions.525392/).
+    Changes to ScriptableObjects persist in Editor play sessions but reset in builds, causing
+    confusion and bugs.
+
+[^2]:
+    GitHub:
+    [AntiScriptableObjectArchitecture](https://github.com/cathei/AntiScriptableObjectArchitecture).
+    Documents problems with using ScriptableObjects for runtime state: design mismatch, debugging
+    difficulties, scalability issues, and domain reload complications.
+
+[^3]:
+    Unity Documentation:
+    [Using ScriptableObject-based Runtime Sets](https://unity.com/how-to/scriptableobject-based-runtime-set).
+    ScriptableObjects can't serialize scene objects by design, causing "Type mismatch" errors in
+    Inspector.

@@ -13,7 +13,7 @@ across the team.
 root = true
 
 [*]
-charset = utf-8-bom
+charset = utf-8
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
@@ -69,10 +69,12 @@ dotnet_naming_style.pascal_case.capitalization = pascal_case
 - Interfaces start with `I` (`IPlayer`, `IEnemy`).
 - Events start with `On` (`OnClick`, `OnPlayerDied`).
 - Type parameters start with `T` (`TComponent`, `TValue`).
-- Private fields use `_camelCase` (`_health`, `_playerSpeed`).
+- Private fields use `_camelCase` (`_health`, `_playerSpeed`), or `camelCase` (`health`,
+  `playerSpeed`)
 - Public fields use `camelCase` unless Unity's serializer requires otherwise.
 - Properties use `PascalCase` (`Health`, `PlayerSpeed`).
-- Always include braces for `if`, `for`, `while`, etc.
+- Always include braces for `if`, `for`, `while`, etc. The samples in this documentation omit braces
+  for brevity.
 
 ---
 
@@ -84,7 +86,7 @@ dotnet_naming_style.pascal_case.capitalization = pascal_case
 // Inconsistent naming compiles fine but breaks conventions
 public interface PlayerController { }  // Should be IPlayerController
 public event Action Click;              // Should be OnClick
-private int Health;                     // Should be _health
+private int Health;                     // Should be _health or health
 public int player_speed;                // Should be playerSpeed
 
 if (health < 0)
@@ -163,8 +165,7 @@ public interface Damageable { }  // Should be IDamageable
 // ❌ Wrong: Event missing On prefix
 public event Action Death;       // Should be OnDeath
 
-// ❌ Wrong: Private field not using _camelCase
-private int maxHealth;           // Should be _maxHealth
+// ❌ Wrong: Private field not using _camelCase or camelCase
 private int m_health;            // Unity's old style—use _health
 
 // ❌ Wrong: No braces for single-line if

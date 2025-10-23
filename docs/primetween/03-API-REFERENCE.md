@@ -728,22 +728,7 @@ Sequence.Create()
 
 ## Advanced Techniques
 
-### Await Tweens (Async/Await)
-
-```csharp
-async void AnimateAsync()
-{
-    await Tween.Position(transform, Vector3.up * 5, 1f);
-    Debug.Log("Position complete");
-
-    await Tween.Scale(transform, 2f, 0.5f);
-    Debug.Log("Scale complete");
-}
-```
-
-**Warning**: `await` allocates a Task. For hot paths, use `Sequence` instead.
-
-### Coroutine Integration
+### Await Tweens in Coroutines
 
 ```csharp
 IEnumerator AnimateCoroutine()
@@ -755,6 +740,12 @@ IEnumerator AnimateCoroutine()
     Debug.Log("Scale complete");
 }
 ```
+
+**Tip**: `ToYieldInstruction()` bridges tweens to Unity coroutines without creating `Task` state
+machines, keeping GC pressure low.
+
+> Need `async/await` semantics? Pair PrimeTween with [UniTask](https://github.com/Cysharp/UniTask)
+> to await tweens without relying on `System.Threading.Tasks`.
 
 ### Dynamic Targets
 

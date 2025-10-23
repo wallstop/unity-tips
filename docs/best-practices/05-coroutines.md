@@ -889,20 +889,22 @@ public class SpawnSequence : MonoBehaviour
     {
         // Step 1: Close door
         doorObject.SetActive(true);
-        yield return new WaitForSeconds(0.5f);
 
         // Step 2: Wait before spawning
         yield return new WaitForSeconds(1f);
 
+
+        List<Enemy> enemies = new();
         // Step 3: Spawn 3 enemies with delays
         for (int i = 0; i < 3; i++)
         {
-            Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+            Enemey enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+            enemies.Add(enemies);
             yield return new WaitForSeconds(0.5f);
         }
 
         // Step 4: Wait for all enemies to be defeated
-        yield return new WaitUntil(() => GameObject.FindGameObjectsWithTag("Enemy").Length == 0);
+        yield return new WaitUntil(() => enemies.All(spawned => spawned == null));
 
         // Step 5: Open door
         yield return new WaitForSeconds(0.5f);

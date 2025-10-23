@@ -224,7 +224,9 @@ private void Start()
 private void Update()
 {
     // TERRIBLE for performance!
-    GetComponentInChildren<Animator>()?.SetTrigger("Walk");
+    Animator anim = GetComponentInChildren<Animator>();
+    if (anim != null)
+        anim.SetTrigger("Walk");
 }
 ```
 
@@ -310,7 +312,8 @@ public class HierarchyCache : MonoBehaviour
     public void PlayAnimation()
     {
         // Use cached reference
-        animator?.SetTrigger("Play");
+        if (animator != null)
+            animator.SetTrigger("Play");
     }
 }
 ```
@@ -365,24 +368,10 @@ public class LazyCache : MonoBehaviour
 
     private void Update()
     {
+        var rigidBody = RB;
         // Automatically caches on first access
-        if (Rb != null)
-            Rb.AddForce(Vector3.up);
-    }
-}
-
-// ✓ MODERN - Using null-coalescing assignment (C# 8.0+)
-public class ModernLazyCache : MonoBehaviour
-{
-    private Rigidbody rb;
-
-    private void Update()
-    {
-        // Cache on first use
-        rb ??= GetComponent<Rigidbody>();
-
-        if (rb != null)
-            rb.AddForce(Vector3.up);
+        if (rigidBody != null)
+            rigidBody.AddForce(Vector3.up);
     }
 }
 ```
@@ -422,30 +411,30 @@ private void PerformanceTest()
 
     stopwatch.Restart();
 
-    // Test 2: TryGetComponent
+    // Test 2: TryGetComponent (Fast)
     for (int i = 0; i < 10000; i++)
     {
         TryGetComponent<Rigidbody>(out var rb);
     }
-    Debug.Log($"TryGetComponent: {stopwatch.ElapsedMilliseconds}ms");  // ~200ms
+    Debug.Log($"TryGetComponent: {stopwatch.ElapsedMilliseconds}ms");
 
     stopwatch.Restart();
 
-    // Test 3: GetComponent
+    // Test 3: GetComponent (Slightly slower)
     for (int i = 0; i < 10000; i++)
     {
         var rb = GetComponent<Rigidbody>();
     }
-    Debug.Log($"GetComponent: {stopwatch.ElapsedMilliseconds}ms");  // ~250ms
+    Debug.Log($"GetComponent: {stopwatch.ElapsedMilliseconds}ms");
 
     stopwatch.Restart();
 
     // Test 4: GetComponentInChildren (SLOWEST)
-    for (int i = 0; i < 1000; i++)  // Only 1000 iterations!
+    for (int i = 0; i < 10000; i++)  // Only 1000 iterations!
     {
         var rb = GetComponentInChildren<Rigidbody>();
     }
-    Debug.Log($"GetComponentInChildren: {stopwatch.ElapsedMilliseconds}ms");  // ~1000ms
+    Debug.Log($"GetComponentInChildren: {stopwatch.ElapsedMilliseconds}ms");
 }
 ```
 
@@ -501,7 +490,7 @@ public class OptimalComponent : MonoBehaviour
 ### 2. Use RequireComponent for Dependencies
 
 ```csharp
-// ✓ BEST - Enforces dependencies at edit time
+// ✓ BEST - Enforces dependencies at edit time (Unity will auto-add these components when this script is added)
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(AudioSource))]
@@ -685,7 +674,8 @@ public class SafeComponent : MonoBehaviour
 private void Update()
 {
     Animator anim = GetComponentInChildren<Animator>();
-    anim?.SetFloat("Speed", 5f);
+    if (anim != null)
+        anim.SetFloat("Speed", 5f);
 }
 
 // ✓ CORRECT - Cache in Awake
@@ -698,11 +688,12 @@ private void Awake()
 
 private void Update()
 {
-    anim?.SetFloat("Speed", 5f);
+    if (anim != null)
+        anim.SetFloat("Speed", 5f);
 }
 ```
 
-**Why it's catastrophic**: With a deep hierarchy, this can take milliseconds per frame!
+**Why it's catastrophic**: With a deep hierarchy, this can cause frame lag!
 
 ### Pitfall 4: Not Using List Overloads
 
@@ -723,7 +714,7 @@ private List<Renderer> renderers = new List<Renderer>();
 
 public void DisableAllRenderers()
 {
-    renderers.Clear();  // Clear previous contents
+    // GetComponentsInChildren automatically clears previous contents
     GetComponentsInChildren<Renderer>(renderers);
 
     foreach (var renderer in renderers)
@@ -821,8 +812,9 @@ private void ProcessEnemy(GameObject enemy)
 3. ✓ `GetComponent`
 4. ⚠️ `GetComponentInChildren` (use once in Start)
 5. ⚠️ `GetComponentInParent` (use once in Start)
-6. ❌ `FindObjectOfType` (avoid in Update)
-7. ❌ `Find` with string (avoid always)
+6. ⚠️ `FindGameObjectWithTag` (Use sparingly, more efficient than Find)
+7. ❌ `FindObjectOfType` (avoid in Update)
+8. ❌ `Find` with string (avoid always)
 
 ### Always Cache These
 

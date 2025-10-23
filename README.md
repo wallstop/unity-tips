@@ -4,6 +4,23 @@
 
 ---
 
+> **⚠️ PAID ASSETS WARNING**
+>
+> This repository includes recommendations for 3rd party paid assets (unaffiliated). These assets
+> are valuable tools that solve specific problems, but they **cost money** and sometimes have free
+> alternatives.
+>
+> **Do NOT purchase these assets unless:**
+>
+> - You have personally experienced the problem they solve
+> - You have exhausted all free alternatives
+> - The time saved justifies the cost for your specific project
+>
+> Start with the free tools and best practices first. Only invest in paid tools when you hit their
+> specific pain points.
+
+---
+
 ## 🎯 What Problem Does This Solve?
 
 **The Problem:** Unity is powerful but has hidden pitfalls—`is null` fails silently,

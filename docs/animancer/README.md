@@ -5,6 +5,60 @@ that replaces complex Animator Controllers with elegant, code-driven animation c
 
 ---
 
+## 💰 Free Alternatives & Lite Version
+
+### Animancer Lite (Free Trial)
+
+**[Animancer Lite](https://kybernetik.itch.io/animancer-lite)** is the FREE version from the same
+developer:
+
+- ✅ **FREE for Unity Editor** — Try all Pro features during development
+- ✅ **Perfect for prototyping** — Test before you commit
+- ❌ **Runtime build restrictions** — Pro features disabled in actual builds
+- ❌ **No source code access** — Uses pre-compiled DLLs
+- 💡 **Best for:** Evaluating Animancer before purchase, small hobby projects
+
+**Upgrade path:** Purchase Animancer Pro (~$50-75) when you need to build/ship
+
+### Free Open-Source Alternatives
+
+**[Reanimation](https://github.com/aarthificial/reanimation)** (GitHub - Free & Open Source)
+
+- ⚠️ Unmaintained
+- ✅ Completely free, MIT licensed
+- ✅ Tailored for traditional frame-by-frame animation (sprite sheets)
+- ✅ Tree-based graph structure (not state machines)
+- ⚠️ Different paradigm than Animancer — specialized use case
+- 💡 **Best for:** 2D sprite-based games with cel animation
+
+**Unity's Playables API** (Built-in - Free)
+
+- ✅ Native Unity API, no extra package needed
+- ✅ Full control and performance
+- ❌ Much more complex to use than Animancer
+- ❌ Requires deep understanding of Unity's animation system
+- 💡 **Best for:** Advanced users who want zero dependencies
+
+**Custom Animation Scripts**
+
+- ✅ Complete control, zero dependencies
+- ❌ Time-consuming to build
+- ❌ Requires significant programming expertise
+- 💡 **Best for:** Very simple animation needs or extreme performance requirements
+
+### Which Should You Choose?
+
+| Use Case                       | Recommendation                        |
+| ------------------------------ | ------------------------------------- |
+| **Evaluating Animancer**       | Start with **Animancer Lite**         |
+| **Hobby/learning project**     | **Animancer Lite** (free in Editor)   |
+| **Commercial game**            | **Animancer Pro** (~$50-75, one-time) |
+| **2D sprite/cel animation**    | Consider **Reanimation** (free)       |
+| **Zero external dependencies** | **Playables API** (built-in)          |
+| **Very tight budget**          | **Unity Animator** or custom scripts  |
+
+---
+
 ## 📚 What is Animancer?
 
 Animancer is a plugin that gives you **direct control** over Unity animations through C# code.
