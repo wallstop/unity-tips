@@ -32,15 +32,16 @@ asset pipeline once a project leaves prototype phase.
 
 ```csharp
 // Async load with handle tracking
-yield return Addressables.LoadAssetAsync<GameObject>(enemyKey);
+AsyncOperationHandle<GameObject> enemyHandle = Addressables.LoadAssetAsync<GameObject>(enemyKey);
+yield return enemyHandle;
 
 // Prefab instantiation with automatic release handle
-var handle = Addressables.InstantiateAsync(uiPanelKey, parent);
-await handle.Task;
+AsyncOperationHandle<GameObject> uiHandle = Addressables.InstantiateAsync(uiPanelKey, parent);
+yield return uiHandle;
 ```
 
-- Wrap load handles so you can call `Addressables.Release(handle);` when the asset is no longer
-  needed.
+- Wrap load handles so you can `yield return handle;` inside coroutines and call
+  `Addressables.Release(handle);` when the asset is no longer needed.
 - For repeated loads, use `Addressables.LoadAssetAsync` once, cache the result, and release after
   the final consumer finishes.
 - Keep catalogs lean by grouping per-level or per-feature; avoid monolithic groups that defeat the
