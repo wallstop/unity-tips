@@ -166,15 +166,17 @@ public class FloatEventListener : ScriptableEventListener<float, FloatEvent> { }
 **Scenario:** Designer wants health changes to update UI and trigger low-health warning.
 
 **Steps (no code required):**
-1. Right-click Project → Create → Events → Int Event → name it "OnHealthChanged"
+1. Right-click Project → Create → Events → Int Event → name it "OnPlayerHealthChanged"
 2. Add `IntEventListener` component to HealthBar prefab
-3. Drag "OnHealthChanged" asset to listener's Event Asset field
+3. Drag "OnPlayerHealthChanged" asset to listener's Event Asset field
 4. Wire UnityEvent to `HealthBar.UpdateDisplay()` method in Inspector
 5. Add another `IntEventListener` to WarningUI prefab
-6. Drag same "OnHealthChanged" asset
+6. Drag same "OnPlayerHealthChanged" asset
 7. Wire UnityEvent to `WarningUI.CheckLowHealth()` method
 
 **Result:** Designer created event chain with zero code changes, zero programmer involvement.
+
+**Important Note on Asset Proliferation:** If the game also needs to track enemy health, boss health, or shield values, the designer must create separate asset instances for each: `OnEnemyHealthChanged`, `OnBossHealthChanged`, `OnPlayerShieldChanged`, etc. Each conceptually similar event (health tracking, damage tracking, score tracking) requires its own asset instance per usage context. This is by design—ScriptableObject events use assets as communication channels, so each distinct channel needs its own asset.
 
 ### Raising Events from Code
 
@@ -232,16 +234,19 @@ public class Player : MonoBehaviour {
 - ❌ Inspector references can break when moving/renaming assets
 
 **Manual Overhead:**
-- ❌ Must create asset for each event type (project overhead)
+- ❌ Must define each event type as a concrete class (e.g., `IntEvent`, `FloatEvent`, `HealthChangedEvent`)
+- ❌ Must create a separate asset instance for each distinct use case (e.g., `PlayerHealth_SO`, `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO`)
+- ❌ Asset proliferation: A "health changed" event needs separate instances for player health, each enemy type's health, boss health, etc.
+- ❌ Both code churn (defining event types) and asset churn (creating instances for each usage context)
 - ❌ Must wire assets in Inspector for every component (manual labor)
 - ❌ Must manually update references when refactoring event names (if an in-place rename doesn't work)
 - ❌ Problematic Inspector wiring (wrong/no asset = runtime bug)
 
 **Performance Considerations:**
-- ❌ UnityEvent allocates 136 bytes on first invocation (subsequent calls are zero-allocation)[^1]
-- ❌ UnityEvent is 6-40x slower than C# events depending on listener count and parameters[^1]
-- ❌ Passing complex data requires even more types (classes or classes)
-- ❌ Not suitable for high-frequency events (>10000/second sustained)
+- ⚠️ UnityEvent allocates 136 bytes on first invocation (subsequent invocations don't allocate)[^1]
+- ⚠️ UnityEvent is slower than C# events (8-13x in benchmarks, varies by listener count)[^1]
+- ⚠️ Passing complex data requires class/struct instances (possible heap allocation) or tuples
+- ⚠️ May not be suitable for high-frequency events in performance-critical scenarios
 
 **Missing Advanced Features:**
 - ⚠️ Concept is very simple - essentially just actions. Most event busses have advanced features like ordering, global listeners, message mutation, message prevention.
@@ -338,10 +343,10 @@ public class WarningUI : MessageAwareComponent {
 - ✅ No Inspector wiring required
 
 **Performance:**
-- ✅ Zero-allocation design with readonly structs
-- ✅ Suitable for high-frequency events (damage ticks, input polling)
-- ✅ No UnityEvent overhead
-- ✅ Cache-friendly struct layouts
+- ✅ Zero/Low-allocation design possible with readonly structs (when passed by ref)
+- ✅ Can be suitable for high-frequency events (with proper implementation)
+- ✅ Avoids UnityEvent overhead
+- ✅ Can use cache-friendly struct layouts
 
 **Debugging & Observability:**
 - ✅ Full stack traces on message emission
@@ -375,12 +380,32 @@ public class WarningUI : MessageAwareComponent {
 
 ### Best Practices
 
-1. **Use readonly structs** - Prevents allocations and accidental mutations
+1. **Use readonly structs with ref parameters** - Minimizes allocations and prevents accidental mutations
 2. **Namespace organization** - Group related messages (Gameplay.Combat.*, UI.Dialogs.*)
 3. **Descriptive message names** - Past tense for events (PlayerDied), present for state (HealthChanged)
 4. **Minimal message data** - Only include essential information
 5. **Unregister in OnDisable** - Or use lifecycle-aware base classes
 6. **Document message contracts** - XML comments explaining when/why message fires
+
+### Performance Reality Check
+
+While event buses **can** be more performant than UnityEvents, claiming "zero allocations" oversimplifies reality:
+
+**What Actually Happens:**
+- ✅ Readonly structs passed by `ref` avoid copying
+- ✅ Avoids UnityEvent's reflection overhead
+- ⚠️ Listener storage still requires memory (lists, dictionaries, etc.)
+- ⚠️ Delegate creation/caching affects allocations
+- ⚠️ Boxing occurs if structs are cast to interfaces or stored in object fields
+- ⚠️ Large structs (>16 bytes) passed by value cause expensive copying
+
+**Actual Allocation Sources in Message Buses:**
+1. Listener registration (dictionary/list growth)
+2. Delegate allocation (unless pre-cached)
+3. Message routing data structures
+4. Boxing if implementation uses object/interface storage
+
+**The Truth:** Well-implemented event buses have **lower** allocations than UnityEvents, not necessarily **zero** allocations. Always profile your specific implementation.
 
 ---
 
@@ -391,15 +416,16 @@ public class WarningUI : MessageAwareComponent {
 |---------|------------------------|---------------------|
 | **Workflow** |
 | Designer creates events | ✅ Yes (Inspector only) | ❌ No (code required) |
-| Programmer creates events | ⚠️ Verbose (asset + wiring) | ✅ Simple (message struct) |
+| Programmer creates events | ⚠️ Verbose (type definition + asset instances) | ✅ Simple (message struct) |
+| Asset/instance overhead | ❌ Separate asset per use case | ✅ Single type for all uses |
 | Visual event wiring | ✅ Inspector drag-drop | ❌ Code-only |
 | Animation event integration | ✅ Excellent | ⚠️ Requires wrapper |
 | **Technical** |
 | Memory management | ⚠️ Manual (proper base class helps) | ✅ Automatic |
-| Memory leak risk | ⚠️ Moderate (if base classes not used) | ✅ Zero |
+| Memory leak risk | ⚠️ Moderate (if base classes not used) | ✅ Zero/Minimal (with lifecycle management) |
 | Compile-time type safety | ❌ Inspector wiring | ✅ Full |
-| Performance (allocations) | ❌ UnityEvent overhead | ✅ Zero-allocation |
-| High-frequency events | ⚠️ Risk of speed | ✅ Excellent |
+| Performance (allocations) | ⚠️ UnityEvent overhead | ✅ Low-allocation (with structs) |
+| High-frequency events | ⚠️ May be problematic | ✅ Can handle well |
 | **Debugging** |
 | Find all listeners | ❌ Custom tools needed | ✅ "Find References" |
 | Find all emitters | ⚠️ String search | ✅ "Find References" |
@@ -410,9 +436,10 @@ public class WarningUI : MessageAwareComponent {
 | Find usages | ❌ Asset search | ✅ IDE search |
 | Break-on-change | ❌ Runtime errors | ✅ Compile errors |
 | **Scalability** |
-| 1-20 events | ✅ Simple | ✅ Simple |
-| 20-100 events | ⚠️ Needs organization | ✅ Simple |
-| 100+ events | ❌ Custom tools required | ✅ Scales naturally |
+| 1-20 event instances | ✅ Simple | ✅ Simple |
+| 20-100 event instances | ⚠️ Needs organization | ✅ Simple |
+| 100+ event instances | ❌ Custom tools required | ✅ Scales naturally |
+| Asset/type count growth | ❌ O(n) per usage context | ✅ O(1) per semantic type |
 | **Dependencies** |
 | External packages | ✅ None | ⚠️ Required |
 | Unity version | ✅ Any | ⚠️ Package dependent |
@@ -588,7 +615,7 @@ public class WarningUI : MessageAwareComponent {
 }
 ```
 
-**Benefit:** Message includes both current and max health. Type-safe access. No allocations.
+**Benefit:** Message includes both current and max health. Type-safe access. Minimal allocations when using structs passed by ref.
 
 ---
 
@@ -654,7 +681,112 @@ public class HealthComponent : MessageAwareComponent {
 }
 ```
 
-**Benefit:** Clean struct with named fields. Zero allocations. Targeted delivery (only damaged component receives).
+**Benefit:** Clean struct with named fields. Minimal allocations with ref parameters. Targeted delivery (only damaged component receives).
+
+---
+
+### Example 4: Multiple Entities with Same Event Type (Asset Proliferation)
+
+#### ScriptableObject Approach
+
+```csharp
+// === Programmer defines base event type (once) ===
+[CreateAssetMenu(menuName = "Events/Int Event")]
+public class IntEvent : ScriptableEvent<int> { }
+
+// === Designer must create separate asset instances for each usage ===
+// Project Assets:
+//   Events/
+//     OnPlayerHealthChanged (IntEvent asset)
+//     OnEnemy1HealthChanged (IntEvent asset)
+//     OnEnemy2HealthChanged (IntEvent asset)
+//     OnBossHealthChanged (IntEvent asset)
+//     OnPlayerShieldChanged (IntEvent asset)
+//     OnPlayerManaChanged (IntEvent asset)
+//     ... (more assets as game grows)
+
+public class Player : MonoBehaviour {
+    [SerializeField] private IntEvent onPlayerHealthChanged;
+    [SerializeField] private IntEvent onPlayerShieldChanged;
+    [SerializeField] private IntEvent onPlayerManaChanged;
+    // Designer must wire three different asset instances in Inspector
+}
+
+public class Enemy : MonoBehaviour {
+    [SerializeField] private IntEvent onEnemyHealthChanged;
+    // Each enemy prefab needs its own dedicated asset instance
+    // Enemy1 can't share the same asset as Enemy2 if they need independent tracking
+}
+```
+
+**Reality Check:** For a game with:
+- 1 player (health, shield, mana) = 3 IntEvent assets
+- 5 enemy types (health each) = 5 IntEvent assets
+- 3 bosses (health, shield each) = 6 IntEvent assets
+- 10 UI elements (score, timer, etc.) = 10+ more assets
+
+**Total: 24+ IntEvent asset instances**, all from one `IntEvent` type definition. Each asset must be created, named, organized in folders, and manually wired in Inspector.
+
+#### Event Bus Approach
+
+```csharp
+// === Programmer defines message types (once per semantic concept) ===
+[DxBroadcastMessage]
+[DxAutoConstructor]
+public readonly partial struct HealthChanged {
+    public readonly int current;
+    public readonly int max;
+}
+
+[DxBroadcastMessage]
+[DxAutoConstructor]
+public readonly partial struct ShieldChanged {
+    public readonly int current;
+    public readonly int max;
+}
+
+// === All entities use the same message type ===
+public class Player : MessageAwareComponent {
+    private int health = 100;
+
+    public void TakeDamage(int damage) {
+        health -= damage;
+        var healthChanged = new HealthChanged(health, 100);
+        healthChanged.EmitGameObjectBroadcast(gameObject);
+        // Same type for player, no asset needed
+    }
+}
+
+public class Enemy : MessageAwareComponent {
+    private int health = 50;
+
+    public void TakeDamage(int damage) {
+        health -= damage;
+        var healthChanged = new HealthChanged(health, 50);
+        healthChanged.EmitGameObjectBraodcast(gameObject);
+        // Same HealthChanged type, works for all enemies
+    }
+}
+
+public class HealthBar : MessageAwareComponent {
+
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterGameObjectBroadcast<HealthChanged>(gameObject, OnHealthChanged);
+    }
+
+    void OnHealthChanged(ref HealthChanged msg) {
+        UpdateDisplay(msg.current, msg.max);
+    }
+}
+```
+
+**Reality Check:** For the same game:
+- 2 message type definitions (`HealthChanged`, `ShieldChanged`)
+- 0 asset instances
+- All entities share the same message types
+- Filtering by entity happens in code, not asset wiring
+
+**Summary:** ScriptableObject events require **O(n) assets per usage context**. Event buses require **O(1) message type definitions per semantic concept**. This is the core scalability difference.
 
 ---
 
@@ -772,7 +904,7 @@ public class Listener : MonoBehaviour {
 ### Pitfall 2: Not Clearing ScriptableObject Listeners in OnEnable
 
 ```csharp
-// ❌ PROBLEM: Listeners accumulate between Play Mode sessions
+// ❌ PROBLEM: Listeners can accumulate between Play Mode sessions within Editor
 [CreateAssetMenu]
 public class GameEvent : ScriptableObject {
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
@@ -844,12 +976,12 @@ void Update() {
 }
 ```
 
-**Performance Impact:** UnityEvent is 6-40x slower than C# events and allocates 136 bytes on first dispatch (zero thereafter).[^1] However, frequent AddListener/RemoveListener calls allocate new listener arrays each time, causing GC pressure with dynamic subscriptions.
+**Performance Impact:** UnityEvent is slower than C# events (8-13x in benchmarks)[^1] and allocates 136 bytes on first dispatch. For high-frequency events (60+ per second), this overhead can accumulate. However, frequent AddListener/RemoveListener calls allocate new listener arrays each time, causing additional GC pressure with dynamic subscriptions.
 
-**Solution:** Use event bus with zero-allocation structs:
+**Solution:** For high-frequency events, use event bus with struct messages:
 
 ```csharp
-// ✅ GOOD: Zero allocations
+// ✅ BETTER: Lower allocations with structs
 [DxUntargetedMessage]
 public readonly partial struct DamageDealt {
     public readonly int amount;
@@ -857,9 +989,11 @@ public readonly partial struct DamageDealt {
 
 void Update() {
     var damageDealt = new DamageDealt(10);
-    damageDealt.EmitUntargeted();  // No allocations!
+    damageDealt.EmitUntargeted();  // Minimal allocations (depends on implementation)
 }
 ```
+
+**Note:** Actual allocation behavior depends on the specific message bus implementation and how it manages listener storage and invocation.
 
 ### Pitfall 5: Event Bus Without Proper Cleanup
 
@@ -963,14 +1097,20 @@ for (int i = 0; i < 10000; i++) {
 }
 ```
 
-**Result:**
-- **0 allocations** (readonly struct, stack-only)
-- **0 GC collections**
-- **<0.1ms frame time**
+**Result (varies by implementation):**
+- **Minimal allocations** (readonly struct passed by ref reduces copies)
+- **Note:** Actual allocation depends on the message bus implementation details (listener storage, delegate allocation, etc.)
+- **Faster than UnityEvent** (avoids reflection overhead)
 
-**Conclusion:** For high-frequency events (damage systems, input, physics), event bus with structs prevents allocations and provides 6-40x better performance. For low-frequency events (UI, progression), UnityEvent's overhead is acceptable.
+**Conclusion:** For performance-critical high-frequency events, code-driven event systems can be optimized for lower allocations and faster execution. For low-frequency events (UI, progression), UnityEvent's overhead is usually acceptable. Always profile your specific use case.
 
-[^1]: Jackson Dunstan, ["Event Performance: C# vs. UnityEvent"](https://www.jacksondunstan.com/articles/3335) - Benchmarks show UnityEvent is 6-40x slower than C# events (tested on Unity 5.3.1f1, 10M iterations). UnityEvent allocates 136 bytes on first dispatch, zero on subsequent dispatches. Adding/removing listeners allocates new arrays each time.
+**Important Caveats:**
+- "Zero allocation" claims depend on implementation details (how listeners are stored, whether delegates are cached, etc.)
+- Structs can still cause allocations if boxed (cast to interface, stored in object, etc.)
+- Passing large structs by value causes copying overhead; use `ref` or `in` parameters
+- The actual performance difference varies significantly based on Unity version, platform, and usage patterns
+
+[^1]: Jackson Dunstan, ["Event Performance: C# vs. UnityEvent"](https://www.jacksondunstan.com/articles/3335) - Benchmarks show UnityEvent is 8-13x slower than C# events (tested on Unity 5.3.1f1, 10M iterations with 2 listeners). UnityEvent allocates 136 bytes on first dispatch, zero on subsequent dispatches. These benchmarks are from 2015 and may not reflect current Unity versions.
 
 ---
 
@@ -1036,14 +1176,15 @@ Do non-programmers need to create/modify event flow?
 2. Always clear listeners in `OnEnable()` on ScriptableObject
 3. Use listener components for designer-driven workflow, not code registration
 4. Organize assets in folders with clear naming conventions
-5. Avoid for high-frequency events (>10000/second sustained)
+5. Profile performance for high-frequency events to ensure acceptable overhead
 
 **For Event Bus:**
-1. Use readonly structs for zero allocations
+1. Use readonly structs (passed by ref) to minimize allocations and copying
 2. Use lifecycle-aware base classes (MessageAwareComponent) for automatic cleanup
 3. Choose appropriate message type (Untargeted, Targeted, Broadcast)
 4. Namespace organization for large projects
 5. Document message contracts with XML comments
+6. Avoid boxing structs (casting to interfaces, storing in object fields)
 
 **Universal:**
 1. **Don't mix patterns haphazardly** - establish clear conventions
