@@ -73,8 +73,8 @@ public class PhysicsPlayerMover : MonoBehaviour
 
 ## Camera Controls
 
-Read a `Vector2` for look deltas with the `OnLook` callback. Use separate bindings for mouse and right
-stick.
+Read a `Vector2` for look deltas with the `OnLook` callback. Use separate bindings for mouse and
+right stick.
 
 ```csharp
 public class FreeLookCamera : MonoBehaviour

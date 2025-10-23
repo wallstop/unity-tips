@@ -114,8 +114,8 @@ public void SampleTerrain(NativeArray<float3> origins, NativeArray<float> height
 
 - **Crowd steering:** Run an `IJobParallelFor` to compute separation/seek vectors for every agent,
   then blend them on the main thread to update `Rigidbody` velocities.
-- **Procedural terrain:** Generate heightmaps with Burst jobs that evaluate noise ahead of time while
-  the player is still on the previous chunk.
+- **Procedural terrain:** Generate heightmaps with Burst jobs that evaluate noise ahead of time
+  while the player is still on the previous chunk.
 - **Background economy sims:** Accumulate timers, interest, or crafting progress with `IJobFor`
   while the player is in menus. Merge the results once per second instead of every frame.
 - **VFX batching:** Calculate billboard rotations, trail widths, or GPU instance matrices in jobs,

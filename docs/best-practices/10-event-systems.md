@@ -2,7 +2,9 @@
 
 ## What Problem Does This Solve?
 
-**The Problem:** Your game has systems that need to communicate (player dies → show game over UI, score changes → update HUD, enemy spawns → play sound). How should these systems talk to each other without creating tight coupling and memory leaks?
+**The Problem:** Your game has systems that need to communicate (player dies → show game over UI,
+score changes → update HUD, enemy spawns → play sound). How should these systems talk to each other
+without creating tight coupling and memory leaks?
 
 **Without Proper Event Systems (The Spaghetti Way):**
 
@@ -22,12 +24,14 @@ public class Player : MonoBehaviour {
 ```
 
 **Problems:**
+
 - Tight coupling between systems
 - Memory leaks from forgotten event unsubscriptions
 - Hard to test individual systems
 - Adding new listeners requires modifying existing code
 
-**The Solution:** Event systems decouple components. When player dies, emit one event. Any system can listen independently without the player knowing about them.
+**The Solution:** Event systems decouple components. When player dies, emit one event. Any system
+can listen independently without the player knowing about them.
 
 ---
 
@@ -35,10 +39,12 @@ public class Player : MonoBehaviour {
 
 Unity developers typically use one of two patterns for event systems:
 
-1. **ScriptableObject Events (Designer-Driven)** - Asset-based event channels wired through Inspector
+1. **ScriptableObject Events (Designer-Driven)** - Asset-based event channels wired through
+   Inspector
 2. **Event Bus/Messaging Systems (Code-Driven)** - Type-safe messaging systems managed through code
 
-**Key Insight:** These patterns serve **different team workflows**, not competing technical solutions. Choose based on who creates and modifies events.
+**Key Insight:** These patterns serve **different team workflows**, not competing technical
+solutions. Choose based on who creates and modifies events.
 
 ---
 
@@ -56,6 +62,7 @@ Unity developers typically use one of two patterns for event systems:
 ---
 
 <a id="understanding-the-two-paradigms"></a>
+
 ## Understanding the Two Paradigms
 
 ### Designer-Driven (ScriptableObject Events)
@@ -63,37 +70,46 @@ Unity developers typically use one of two patterns for event systems:
 **Philosophy:** Non-programmers create and wire events through Unity Inspector.
 
 **Workflow:**
+
 1. Designer creates event asset in Project window
 2. Designer drags asset to prefabs/components
 3. Designer wires UnityEvent callbacks in Inspector
 4. Events fire, callbacks execute
 5. No code changes required
 
-**Best For:** Teams where designers/artists need autonomy to create game flow without programmer intervention.
+**Best For:** Teams where designers/artists need autonomy to create game flow without programmer
+intervention.
 
 ### Code-Driven (Event Bus/Messaging)
 
 **Philosophy:** Programmers define and wire events through code.
 
 **Workflow:**
+
 1. Programmer defines message struct/class
 2. Programmer writes handler methods
 3. Programmer registers handlers in code
 4. Events fire, handlers execute
-5. Designer can adjust *data*, not *flow*
+5. Designer can adjust _data_, not _flow_
 
-**Best For:** Teams prioritizing type safety, refactoring support, and programmer-controlled architecture.
+**Best For:** Teams prioritizing type safety, refactoring support, and programmer-controlled
+architecture.
 
 ---
 
 <a id="scriptableobject-events-designer-driven"></a>
+
 ## ScriptableObject Events (Designer-Driven)
 
 ### Origin and Intent
 
-Popularized by Ryan Hipple's Unite Austin 2017 talk "Game Architecture with Scriptable Objects" ([video](https://www.youtube.com/watch?v=raQ3iHhE_Kk), [source](https://github.com/roboryantron/Unite2017)), this pattern was designed to enable non-programmers to create game flow independently.
+Popularized by Ryan Hipple's Unite Austin 2017 talk "Game Architecture with Scriptable Objects"
+([video](https://www.youtube.com/watch?v=raQ3iHhE_Kk),
+[source](https://github.com/roboryantron/Unite2017)), this pattern was designed to enable
+non-programmers to create game flow independently.
 
 **Original Design Goals:**
+
 - Designers create events without writing code
 - Animation events trigger prefab responses
 - Eliminate cross-scene references that break on despawn
@@ -166,6 +182,7 @@ public class FloatEventListener : ScriptableEventListener<float, FloatEvent> { }
 **Scenario:** Designer wants health changes to update UI and trigger low-health warning.
 
 **Steps (no code required):**
+
 1. Right-click Project → Create → Events → Int Event → name it "OnPlayerHealthChanged"
 2. Add `IntEventListener` component to HealthBar prefab
 3. Drag "OnPlayerHealthChanged" asset to listener's Event Asset field
@@ -176,7 +193,12 @@ public class FloatEventListener : ScriptableEventListener<float, FloatEvent> { }
 
 **Result:** Designer created event chain with zero code changes, zero programmer involvement.
 
-**Important Note on Asset Proliferation:** If the game also needs to track enemy health, boss health, or shield values, the designer must create separate asset instances for each: `OnEnemyHealthChanged`, `OnBossHealthChanged`, `OnPlayerShieldChanged`, etc. Each conceptually similar event (health tracking, damage tracking, score tracking) requires its own asset instance per usage context. This is by design—ScriptableObject events use assets as communication channels, so each distinct channel needs its own asset.
+**Important Note on Asset Proliferation:** If the game also needs to track enemy health, boss
+health, or shield values, the designer must create separate asset instances for each:
+`OnEnemyHealthChanged`, `OnBossHealthChanged`, `OnPlayerShieldChanged`, etc. Each conceptually
+similar event (health tracking, damage tracking, score tracking) requires its own asset instance per
+usage context. This is by design—ScriptableObject events use assets as communication channels, so
+each distinct channel needs its own asset.
 
 ### Raising Events from Code
 
@@ -201,6 +223,7 @@ public class Player : MonoBehaviour {
 ### Advantages
 
 **Designer Empowerment:**
+
 - ✅ Non-programmers create game flow independently
 - ✅ Rapid iteration without code review cycle
 - ✅ Visual workflow (drag-drop assets, wire callbacks)
@@ -208,11 +231,13 @@ public class Player : MonoBehaviour {
 - ✅ No code compilation required for event chain changes
 
 **Collaboration Benefits:**
+
 - ✅ Reduces merge conflicts (designers modify assets, programmers modify scripts)
 - ✅ Clear separation: programmers build systems, designers orchestrate flow
 - ✅ Designers can test event chains without programmer availability
 
 **Technical Benefits:**
+
 - ✅ No external dependencies
 - ✅ Simple conceptual model (assets are event channels)
 - ✅ Automatic cleanup with proper base class implementation
@@ -221,6 +246,7 @@ public class Player : MonoBehaviour {
 ### Disadvantages
 
 **Debugging Challenges:**
+
 - ❌ Cannot trace all listeners to an event without custom editor tools
 - ❌ Cannot find all raisers of an event through code search alone
 - ❌ Asset references don't appear in "Find References" (IDE limitation)
@@ -228,33 +254,44 @@ public class Player : MonoBehaviour {
 - ❌ Event flow invisible without visualizer tools
 
 **Scalability Concerns:**
+
 - ❌ 50+ events require folder organization and naming conventions
 - ❌ 100+ events typically need custom editor visualization tools
 - ❌ Asset count grows linearly with event types
 - ❌ Inspector references can break when moving/renaming assets
 
 **Manual Overhead:**
-- ❌ Must define each event type as a concrete class (e.g., `IntEvent`, `FloatEvent`, `HealthChangedEvent`)
-- ❌ Must create a separate asset instance for each distinct use case (e.g., `PlayerHealth_SO`, `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO`)
-- ❌ Asset proliferation: A "health changed" event needs separate instances for player health, each enemy type's health, boss health, etc.
-- ❌ Both code churn (defining event types) and asset churn (creating instances for each usage context)
+
+- ❌ Must define each event type as a concrete class (e.g., `IntEvent`, `FloatEvent`,
+  `HealthChangedEvent`)
+- ❌ Must create a separate asset instance for each distinct use case (e.g., `PlayerHealth_SO`,
+  `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO`)
+- ❌ Asset proliferation: A "health changed" event needs separate instances for player health, each
+  enemy type's health, boss health, etc.
+- ❌ Both code churn (defining event types) and asset churn (creating instances for each usage
+  context)
 - ❌ Must wire assets in Inspector for every component (manual labor)
-- ❌ Must manually update references when refactoring event names (if an in-place rename doesn't work)
+- ❌ Must manually update references when refactoring event names (if an in-place rename doesn't
+  work)
 - ❌ Problematic Inspector wiring (wrong/no asset = runtime bug)
 
 **Performance Considerations:**
+
 - ⚠️ UnityEvent allocates 136 bytes on first invocation (subsequent invocations don't allocate)[^1]
 - ⚠️ UnityEvent is slower than C# events (8-13x in benchmarks, varies by listener count)[^1]
 - ⚠️ Passing complex data requires class/struct instances (possible heap allocation) or tuples
 - ⚠️ May not be suitable for high-frequency events in performance-critical scenarios
 
 **Missing Advanced Features:**
-- ⚠️ Concept is very simple - essentially just actions. Most event busses have advanced features like ordering, global listeners, message mutation, message prevention.
+
+- ⚠️ Concept is very simple - essentially just actions. Most event busses have advanced features
+  like ordering, global listeners, message mutation, message prevention.
 
 ### Best Practices
 
 1. **Always use generic base classes** - Don't create separate event classes manually
-2. **Always implement OnEnable() clearing** - Prevents listener accumulation between Play Mode sessions
+2. **Always implement OnEnable() clearing** - Prevents listener accumulation between Play Mode
+   sessions
 3. **Use listener components, not code registration** - Embraces designer-driven workflow
 4. **Organize assets in folders** - Create Events/ folder with subfolders by category
 5. **Naming convention** - Prefix with "On" (OnHealthChanged, OnEnemySpawned)
@@ -263,13 +300,16 @@ public class Player : MonoBehaviour {
 ---
 
 <a id="event-busmessaging-code-driven"></a>
+
 ## Event Bus/Messaging (Code-Driven)
 
 ### Philosophy and Design
 
-Event buses provide centralized message routing with type-safe, code-driven subscription management. Messages are defined as types (structs/classes) rather than assets.
+Event buses provide centralized message routing with type-safe, code-driven subscription management.
+Messages are defined as types (structs/classes) rather than assets.
 
 **Design Goals:**
+
 - Compile-time type safety
 - Zero-allocation messaging (struct-based)
 - Automatic memory management
@@ -278,11 +318,13 @@ Event buses provide centralized message routing with type-safe, code-driven subs
 
 ### Comparisons of Modern Event Systems
 
-See a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging [here](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md).
+See a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging
+[here](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md).
 
 ### Example: DxMessaging
 
-DxMessaging is a modern Unity messaging system with automatic lifecycle management. [GitHub](https://github.com/wallstop/DxMessaging)
+DxMessaging is a modern Unity messaging system with automatic lifecycle management.
+[GitHub](https://github.com/wallstop/DxMessaging)
 
 ```csharp
 // 1. Define message (no asset needed!)
@@ -335,6 +377,7 @@ public class WarningUI : MessageAwareComponent {
 ### Advantages
 
 **Developer Productivity:**
+
 - ✅ Zero memory leaks (automatic cleanup via Token/IDisposable pattern)
 - ✅ IDE "Find References" works (find all listeners instantly)
 - ✅ IDE "Rename" works (refactor message types automatically)
@@ -343,18 +386,21 @@ public class WarningUI : MessageAwareComponent {
 - ✅ No Inspector wiring required
 
 **Performance:**
+
 - ✅ Zero/Low-allocation design possible with readonly structs (when passed by ref)
 - ✅ Can be suitable for high-frequency events (with proper implementation)
 - ✅ Avoids UnityEvent overhead
 - ✅ Can use cache-friendly struct layouts
 
 **Debugging & Observability:**
+
 - ✅ Full stack traces on message emission
 - ✅ Can set breakpoints on message handler registration
 - ✅ Built-in Inspector shows all message flow (DxMessaging)
 - ✅ Can trace all listeners through "Find References"
 
 **Scalability:**
+
 - ✅ Scales to thousands of message types (no asset overhead)
 - ✅ Namespace organization for large projects
 - ✅ No Inspector reference breakage on refactors
@@ -363,35 +409,42 @@ public class WarningUI : MessageAwareComponent {
 ### Disadvantages
 
 **Programmer-Required:**
+
 - ⚠️ Designers cannot create new messages without code
 - ⚠️ Designers cannot wire event chains through Inspector
 - ⚠️ Requires programming knowledge to modify flow
 - ⚠️ Less visual feedback (no asset graph, unless custom tools built)
 
 **External Dependency:**
+
 - ⚠️ Requires package installation (not built into Unity)
 - ⚠️ Team must learn specific library's patterns
 - ⚠️ Package maintenance risk (though many are well-maintained)
 
 **Learning Curve:**
+
 - ⚠️ More complex than ScriptableObject concept
 - ⚠️ Multiple message types (Untargeted, Targeted, Broadcast) to understand
 - ⚠️ Requires understanding of memory management patterns
 
 ### Best Practices
 
-1. **Use readonly structs with ref parameters** - Minimizes allocations and prevents accidental mutations
-2. **Namespace organization** - Group related messages (Gameplay.Combat.*, UI.Dialogs.*)
-3. **Descriptive message names** - Past tense for events (PlayerDied), present for state (HealthChanged)
+1. **Use readonly structs with ref parameters** - Minimizes allocations and prevents accidental
+   mutations
+2. **Namespace organization** - Group related messages (Gameplay.Combat._, UI.Dialogs._)
+3. **Descriptive message names** - Past tense for events (PlayerDied), present for state
+   (HealthChanged)
 4. **Minimal message data** - Only include essential information
 5. **Unregister in OnDisable** - Or use lifecycle-aware base classes
 6. **Document message contracts** - XML comments explaining when/why message fires
 
 ### Performance Reality Check
 
-While event buses **can** be more performant than UnityEvents, claiming "zero allocations" oversimplifies reality:
+While event buses **can** be more performant than UnityEvents, claiming "zero allocations"
+oversimplifies reality:
 
 **What Actually Happens:**
+
 - ✅ Readonly structs passed by `ref` avoid copying
 - ✅ Avoids UnityEvent's reflection overhead
 - ⚠️ Listener storage still requires memory (lists, dictionaries, etc.)
@@ -400,59 +453,64 @@ While event buses **can** be more performant than UnityEvents, claiming "zero al
 - ⚠️ Large structs (>16 bytes) passed by value cause expensive copying
 
 **Actual Allocation Sources in Message Buses:**
+
 1. Listener registration (dictionary/list growth)
 2. Delegate allocation (unless pre-cached)
 3. Message routing data structures
 4. Boxing if implementation uses object/interface storage
 
-**The Truth:** Well-implemented event buses have **lower** allocations than UnityEvents, not necessarily **zero** allocations. Always profile your specific implementation.
+**The Truth:** Well-implemented event buses have **lower** allocations than UnityEvents, not
+necessarily **zero** allocations. Always profile your specific implementation.
 
 ---
 
 <a id="feature-comparison"></a>
+
 ## Feature Comparison
 
-| Feature | ScriptableObject Events | Event Bus/Messaging |
-|---------|------------------------|---------------------|
-| **Workflow** |
-| Designer creates events | ✅ Yes (Inspector only) | ❌ No (code required) |
-| Programmer creates events | ⚠️ Verbose (type definition + asset instances) | ✅ Simple (message struct) |
-| Asset/instance overhead | ❌ Separate asset per use case | ✅ Single type for all uses |
-| Visual event wiring | ✅ Inspector drag-drop | ❌ Code-only |
-| Animation event integration | ✅ Excellent | ⚠️ Requires wrapper |
-| **Technical** |
-| Memory management | ⚠️ Manual (proper base class helps) | ✅ Automatic |
-| Memory leak risk | ⚠️ Moderate (if base classes not used) | ✅ Zero/Minimal (with lifecycle management) |
-| Compile-time type safety | ❌ Inspector wiring | ✅ Full |
-| Performance (allocations) | ⚠️ UnityEvent overhead | ✅ Low-allocation (with structs) |
-| High-frequency events | ⚠️ May be problematic | ✅ Can handle well |
-| **Debugging** |
-| Find all listeners | ❌ Custom tools needed | ✅ "Find References" |
-| Find all emitters | ⚠️ String search | ✅ "Find References" |
-| Stack traces | ✅ Yes | ✅ Yes |
-| Runtime inspection | ⚠️ UnityEvent list | ✅ Built-in (DxMessaging) |
-| **Refactoring** |
-| Rename event | ❌ Manual Inspector updates | ✅ IDE rename |
-| Find usages | ❌ Asset search | ✅ IDE search |
-| Break-on-change | ❌ Runtime errors | ✅ Compile errors |
-| **Scalability** |
-| 1-20 event instances | ✅ Simple | ✅ Simple |
-| 20-100 event instances | ⚠️ Needs organization | ✅ Simple |
-| 100+ event instances | ❌ Custom tools required | ✅ Scales naturally |
-| Asset/type count growth | ❌ O(n) per usage context | ✅ O(1) per semantic type |
-| **Dependencies** |
-| External packages | ✅ None | ⚠️ Required |
-| Unity version | ✅ Any | ⚠️ Package dependent |
-| **Team Dynamics** |
-| Non-programmer autonomy | ✅ Full | ❌ None |
-| Merge conflicts | ✅ Reduced | ⚠️ Code conflicts |
-| Onboarding time | ✅ Low (visual) | ⚠️ Moderate (code concepts) |
+| Feature                     | ScriptableObject Events                        | Event Bus/Messaging                         |
+| --------------------------- | ---------------------------------------------- | ------------------------------------------- |
+| **Workflow**                |
+| Designer creates events     | ✅ Yes (Inspector only)                        | ❌ No (code required)                       |
+| Programmer creates events   | ⚠️ Verbose (type definition + asset instances) | ✅ Simple (message struct)                  |
+| Asset/instance overhead     | ❌ Separate asset per use case                 | ✅ Single type for all uses                 |
+| Visual event wiring         | ✅ Inspector drag-drop                         | ❌ Code-only                                |
+| Animation event integration | ✅ Excellent                                   | ⚠️ Requires wrapper                         |
+| **Technical**               |
+| Memory management           | ⚠️ Manual (proper base class helps)            | ✅ Automatic                                |
+| Memory leak risk            | ⚠️ Moderate (if base classes not used)         | ✅ Zero/Minimal (with lifecycle management) |
+| Compile-time type safety    | ❌ Inspector wiring                            | ✅ Full                                     |
+| Performance (allocations)   | ⚠️ UnityEvent overhead                         | ✅ Low-allocation (with structs)            |
+| High-frequency events       | ⚠️ May be problematic                          | ✅ Can handle well                          |
+| **Debugging**               |
+| Find all listeners          | ❌ Custom tools needed                         | ✅ "Find References"                        |
+| Find all emitters           | ⚠️ String search                               | ✅ "Find References"                        |
+| Stack traces                | ✅ Yes                                         | ✅ Yes                                      |
+| Runtime inspection          | ⚠️ UnityEvent list                             | ✅ Built-in (DxMessaging)                   |
+| **Refactoring**             |
+| Rename event                | ❌ Manual Inspector updates                    | ✅ IDE rename                               |
+| Find usages                 | ❌ Asset search                                | ✅ IDE search                               |
+| Break-on-change             | ❌ Runtime errors                              | ✅ Compile errors                           |
+| **Scalability**             |
+| 1-20 event instances        | ✅ Simple                                      | ✅ Simple                                   |
+| 20-100 event instances      | ⚠️ Needs organization                          | ✅ Simple                                   |
+| 100+ event instances        | ❌ Custom tools required                       | ✅ Scales naturally                         |
+| Asset/type count growth     | ❌ O(n) per usage context                      | ✅ O(1) per semantic type                   |
+| **Dependencies**            |
+| External packages           | ✅ None                                        | ⚠️ Required                                 |
+| Unity version               | ✅ Any                                         | ⚠️ Package dependent                        |
+| **Team Dynamics**           |
+| Non-programmer autonomy     | ✅ Full                                        | ❌ None                                     |
+| Merge conflicts             | ✅ Reduced                                     | ⚠️ Code conflicts                           |
+| Onboarding time             | ✅ Low (visual)                                | ⚠️ Moderate (code concepts)                 |
 
-**Summary:** ScriptableObject events excel at designer empowerment and visual workflows. Event buses excel at programmer productivity, performance, and scalability.
+**Summary:** ScriptableObject events excel at designer empowerment and visual workflows. Event buses
+excel at programmer productivity, performance, and scalability.
 
 ---
 
 <a id="side-by-side-examples"></a>
+
 ## Side-by-Side Examples
 
 ### Example 1: Player Death Event
@@ -533,7 +591,8 @@ public class AchievementManager : MessageAwareComponent {
 }
 ```
 
-**Programmer Outcome:** Compile-time safety, automatic cleanup, "Find References" shows all listeners instantly.
+**Programmer Outcome:** Compile-time safety, automatic cleanup, "Find References" shows all
+listeners instantly.
 
 ---
 
@@ -566,7 +625,8 @@ public class Player : MonoBehaviour {
 // 5. Wire to WarningUI.CheckLowHealth(int)
 ```
 
-**Challenge:** Designer can wire callbacks, but callbacks must accept `int`. If HealthBar needs current + max health, requires more complex event type or multiple events.
+**Challenge:** Designer can wire callbacks, but callbacks must accept `int`. If HealthBar needs
+current + max health, requires more complex event type or multiple events.
 
 #### Event Bus Approach
 
@@ -615,7 +675,8 @@ public class WarningUI : MessageAwareComponent {
 }
 ```
 
-**Benefit:** Message includes both current and max health. Type-safe access. Minimal allocations when using structs passed by ref.
+**Benefit:** Message includes both current and max health. Type-safe access. Minimal allocations
+when using structs passed by ref.
 
 ---
 
@@ -645,7 +706,8 @@ public class Weapon : MonoBehaviour {
 // UnityEvent doesn't natively support tuples well - requires wrapper method
 ```
 
-**Challenge:** Tuples work in code but awkward with UnityEvents. Designers may need programmer to create wrapper methods.
+**Challenge:** Tuples work in code but awkward with UnityEvents. Designers may need programmer to
+create wrapper methods.
 
 #### Event Bus Approach
 
@@ -681,7 +743,8 @@ public class HealthComponent : MessageAwareComponent {
 }
 ```
 
-**Benefit:** Clean struct with named fields. Minimal allocations with ref parameters. Targeted delivery (only damaged component receives).
+**Benefit:** Clean struct with named fields. Minimal allocations with ref parameters. Targeted
+delivery (only damaged component receives).
 
 ---
 
@@ -720,12 +783,14 @@ public class Enemy : MonoBehaviour {
 ```
 
 **Reality Check:** For a game with:
+
 - 1 player (health, shield, mana) = 3 IntEvent assets
 - 5 enemy types (health each) = 5 IntEvent assets
 - 3 bosses (health, shield each) = 6 IntEvent assets
 - 10 UI elements (score, timer, etc.) = 10+ more assets
 
-**Total: 24+ IntEvent asset instances**, all from one `IntEvent` type definition. Each asset must be created, named, organized in folders, and manually wired in Inspector.
+**Total: 24+ IntEvent asset instances**, all from one `IntEvent` type definition. Each asset must be
+created, named, organized in folders, and manually wired in Inspector.
 
 #### Event Bus Approach
 
@@ -781,31 +846,35 @@ public class HealthBar : MessageAwareComponent {
 ```
 
 **Reality Check:** For the same game:
+
 - 2 message type definitions (`HealthChanged`, `ShieldChanged`)
 - 0 asset instances
 - All entities share the same message types
 - Filtering by entity happens in code, not asset wiring
 
-**Summary:** ScriptableObject events require **O(n) assets per usage context**. Event buses require **O(1) message type definitions per semantic concept**. This is the core scalability difference.
+**Summary:** ScriptableObject events require **O(n) assets per usage context**. Event buses require
+**O(1) message type definitions per semantic concept**. This is the core scalability difference.
 
 ---
 
 <a id="when-to-use-each"></a>
+
 ## When to Use Each
 
 ### Use ScriptableObject Events When:
 
-| Scenario | Why |
-|----------|-----|
-| **Non-programmers create game flow** | Designers/artists need autonomy without code review |
-| **Animation-driven events** | Animator needs to trigger prefab logic without code |
+| Scenario                             | Why                                                  |
+| ------------------------------------ | ---------------------------------------------------- |
+| **Non-programmers create game flow** | Designers/artists need autonomy without code review  |
+| **Animation-driven events**          | Animator needs to trigger prefab logic without code  |
 | **Rapid prototyping by mixed teams** | Game jams, quick prototypes with non-technical staff |
-| **Low event count (< 50)** | Simple games where asset overhead is minimal |
-| **Inspector-centric workflow** | Team prefers visual wiring over code |
-| **Zero external dependencies** | Cannot use packages, Unity-only |
-| **Event frequency < 10000/second** | Performance overhead acceptable |
+| **Low event count (< 50)**           | Simple games where asset overhead is minimal         |
+| **Inspector-centric workflow**       | Team prefers visual wiring over code                 |
+| **Zero external dependencies**       | Cannot use packages, Unity-only                      |
+| **Event frequency < 10000/second**   | Performance overhead acceptable                      |
 
 **Example Use Cases:**
+
 - Cutscene system where designers wire animation events to game responses
 - Educational project where students learn Unity through visual scripting
 - Mobile puzzle game with 10 simple events (LevelComplete, ScoreChanged, etc.)
@@ -813,17 +882,18 @@ public class HealthBar : MessageAwareComponent {
 
 ### Use Event Bus/Messaging When:
 
-| Scenario | Why |
-|----------|-----|
-| **Programmer-centric team** | Developers prefer code over Inspector wiring |
-| **High event count (> 50)** | Scalability matters, asset overhead unacceptable |
-| **Performance critical** | Mobile/VR where GC spikes cause frame drops |
-| **High-frequency events** | Damage ticks, input polling, collision checks |
-| **Complex message data** | Multi-parameter messages with type safety |
-| **Long-term maintainability** | Need refactoring support, "Find References" |
-| **Large team** | Need traceability, code review, compile errors vs runtime errors |
+| Scenario                      | Why                                                              |
+| ----------------------------- | ---------------------------------------------------------------- |
+| **Programmer-centric team**   | Developers prefer code over Inspector wiring                     |
+| **High event count (> 50)**   | Scalability matters, asset overhead unacceptable                 |
+| **Performance critical**      | Mobile/VR where GC spikes cause frame drops                      |
+| **High-frequency events**     | Damage ticks, input polling, collision checks                    |
+| **Complex message data**      | Multi-parameter messages with type safety                        |
+| **Long-term maintainability** | Need refactoring support, "Find References"                      |
+| **Large team**                | Need traceability, code review, compile errors vs runtime errors |
 
 **Example Use Cases:**
+
 - Multiplayer game with hundreds of network messages
 - Action RPG with damage system firing 60+ times/second
 - Large project with 20+ programmers needing clear code contracts
@@ -834,7 +904,9 @@ public class HealthBar : MessageAwareComponent {
 Many successful projects use **both patterns** for different purposes:
 
 **Example Architecture:**
-- **ScriptableObject Events** for designer-facing game events (UI triggers, level progression, cutscenes)
+
+- **ScriptableObject Events** for designer-facing game events (UI triggers, level progression,
+  cutscenes)
 - **Event Bus** for system-level communication (combat, networking, state machines)
 
 ```csharp
@@ -851,11 +923,13 @@ public readonly partial struct TakeDamage {
 ```
 
 **Benefits of Hybrid:**
+
 - ✅ Designers work independently on game flow
 - ✅ Programmers maintain performance-critical systems
 - ✅ Clear separation: gameplay events vs system events
 
 **Challenges of Hybrid:**
+
 - ⚠️ Team must learn both patterns
 - ⚠️ Inconsistent architecture can confuse new developers
 - ⚠️ Must establish clear conventions for which pattern when
@@ -863,11 +937,13 @@ public readonly partial struct TakeDamage {
 ---
 
 <a id="common-pitfalls"></a>
+
 ## Common Pitfalls
 
 ### Pitfall 1: ScriptableObject Memory Leaks (Code-Driven Pattern)
 
-**The Problem:** Many developers use ScriptableObjects with code-based registration (OnEnable/OnDisable), conflating code-driven and designer-driven patterns.
+**The Problem:** Many developers use ScriptableObjects with code-based registration
+(OnEnable/OnDisable), conflating code-driven and designer-driven patterns.
 
 ```csharp
 // ❌ WRONG: Using ScriptableObjects in code-driven pattern
@@ -893,13 +969,14 @@ public class Listener : MonoBehaviour {
 ```
 
 **Why This Is Wrong:**
+
 - Combines worst of both worlds: asset creation overhead + manual code management
 - No designer autonomy (requires code changes)
 - Memory leak risk if OnDisable forgotten
 - Asset overhead with no designer benefit
 
-**Solution A:** Use proper designer-driven pattern with listener components
-**Solution B:** Switch to event bus for code-driven pattern
+**Solution A:** Use proper designer-driven pattern with listener components **Solution B:** Switch
+to event bus for code-driven pattern
 
 ### Pitfall 2: Not Clearing ScriptableObject Listeners in OnEnable
 
@@ -924,8 +1001,12 @@ public class GameEvent : ScriptableObject {
 ```
 
 **References:**
-- Unity Issue Tracker: "Memory leak when subscribing to C# event in referenced serialized ScriptableObject" ([Stack Overflow](https://stackoverflow.com/questions/58334248/how-do-i-avoid-memory-leak-in-unity-when-subscribing-to-c-sharp-event-in-referen))
-- Unity Memory Profiler documentation on managed shell objects ([Unity Docs](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html))
+
+- Unity Issue Tracker: "Memory leak when subscribing to C# event in referenced serialized
+  ScriptableObject"
+  ([Stack Overflow](https://stackoverflow.com/questions/58334248/how-do-i-avoid-memory-leak-in-unity-when-subscribing-to-c-sharp-event-in-referen))
+- Unity Memory Profiler documentation on managed shell objects
+  ([Unity Docs](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html))
 
 ### Pitfall 3: Wrong Event Asset in Inspector (Runtime Bug)
 
@@ -976,7 +1057,10 @@ void Update() {
 }
 ```
 
-**Performance Impact:** UnityEvent is slower than C# events (8-13x in benchmarks)[^1] and allocates 136 bytes on first dispatch. For high-frequency events (60+ per second), this overhead can accumulate. However, frequent AddListener/RemoveListener calls allocate new listener arrays each time, causing additional GC pressure with dynamic subscriptions.
+**Performance Impact:** UnityEvent is slower than C# events (8-13x in benchmarks)[^1] and allocates
+136 bytes on first dispatch. For high-frequency events (60+ per second), this overhead can
+accumulate. However, frequent AddListener/RemoveListener calls allocate new listener arrays each
+time, causing additional GC pressure with dynamic subscriptions.
 
 **Solution:** For high-frequency events, use event bus with struct messages:
 
@@ -993,7 +1077,8 @@ void Update() {
 }
 ```
 
-**Note:** Actual allocation behavior depends on the specific message bus implementation and how it manages listener storage and invocation.
+**Note:** Actual allocation behavior depends on the specific message bus implementation and how it
+manages listener storage and invocation.
 
 ### Pitfall 5: Event Bus Without Proper Cleanup
 
@@ -1043,11 +1128,13 @@ takeDamage.EmitComponentTargeted(targetHealth);
 ### Allocation Test: 10,000 Events with Multiple Parameters
 
 **Test Setup:**
+
 ```csharp
 // Fire 10,000 events with 3 parameters (int, Vector3, GameObject)
 ```
 
 **ScriptableObject Events (UnityEvent):**
+
 ```csharp
 [System.Serializable]
 public class DamageData {
@@ -1076,11 +1163,13 @@ for (int i = 0; i < 10000; i++) {
 ```
 
 **Result:**
+
 - **~400 KB allocations** (DamageData class instances: 10,000 × ~40 bytes)
 - **~50-100ms total execution time** (UnityEvent is 6-40x slower than C# events[^1])
 - **1-2 GC collections**
 
 **Event Bus (DxMessaging with Readonly Struct):**
+
 ```csharp
 [DxUntargetedMessage]
 [DxAutoConstructor]
@@ -1098,19 +1187,32 @@ for (int i = 0; i < 10000; i++) {
 ```
 
 **Result (varies by implementation):**
+
 - **Minimal allocations** (readonly struct passed by ref reduces copies)
-- **Note:** Actual allocation depends on the message bus implementation details (listener storage, delegate allocation, etc.)
+- **Note:** Actual allocation depends on the message bus implementation details (listener storage,
+  delegate allocation, etc.)
 - **Faster than UnityEvent** (avoids reflection overhead)
 
-**Conclusion:** For performance-critical high-frequency events, code-driven event systems can be optimized for lower allocations and faster execution. For low-frequency events (UI, progression), UnityEvent's overhead is usually acceptable. Always profile your specific use case.
+**Conclusion:** For performance-critical high-frequency events, code-driven event systems can be
+optimized for lower allocations and faster execution. For low-frequency events (UI, progression),
+UnityEvent's overhead is usually acceptable. Always profile your specific use case.
 
 **Important Caveats:**
-- "Zero allocation" claims depend on implementation details (how listeners are stored, whether delegates are cached, etc.)
+
+- "Zero allocation" claims depend on implementation details (how listeners are stored, whether
+  delegates are cached, etc.)
 - Structs can still cause allocations if boxed (cast to interface, stored in object, etc.)
 - Passing large structs by value causes copying overhead; use `ref` or `in` parameters
-- The actual performance difference varies significantly based on Unity version, platform, and usage patterns
+- The actual performance difference varies significantly based on Unity version, platform, and usage
+  patterns
 
-[^1]: Jackson Dunstan, ["Event Performance: C# vs. UnityEvent"](https://www.jacksondunstan.com/articles/3335) - Benchmarks show UnityEvent is 8-13x slower than C# events (tested on Unity 5.3.1f1, 10M iterations with 2 listeners). UnityEvent allocates 136 bytes on first dispatch, zero on subsequent dispatches. These benchmarks are from 2015 and may not reflect current Unity versions.
+[^1]:
+    Jackson Dunstan,
+    ["Event Performance: C# vs. UnityEvent"](https://www.jacksondunstan.com/articles/3335) -
+    Benchmarks show UnityEvent is 8-13x slower than C# events (tested on Unity 5.3.1f1, 10M
+    iterations with 2 listeners). UnityEvent allocates 136 bytes on first dispatch, zero on
+    subsequent dispatches. These benchmarks are from 2015 and may not reflect current Unity
+    versions.
 
 ---
 
@@ -1146,32 +1248,40 @@ Do non-programmers need to create/modify event flow?
 
 ### Key Insights
 
-1. **ScriptableObject Events and Event Buses serve different workflows**, not competing technical solutions
-2. **ScriptableObject Events** excel when **designers need autonomy** to create game flow without programmer bottlenecks
-3. **Event Buses** excel when **programmers prioritize type safety**, performance, and refactoring support
+1. **ScriptableObject Events and Event Buses serve different workflows**, not competing technical
+   solutions
+2. **ScriptableObject Events** excel when **designers need autonomy** to create game flow without
+   programmer bottlenecks
+3. **Event Buses** excel when **programmers prioritize type safety**, performance, and refactoring
+   support
 4. **Hybrid approaches** are valid: designer-driven for gameplay, code-driven for systems
 5. **Neither pattern is universally superior** - choose based on team composition and project needs
 
 ### Recommendations by Project Type
 
 **Small Prototype (< 1 month, < 20 events):**
+
 - ScriptableObject Events if mixed team
 - Event Bus if programmer-only
 
 **Medium Game (3-12 months, 20-100 events):**
+
 - Hybrid approach (both patterns for different purposes)
 - Pure event bus if programmer-centric team
 
 **Large Game (> 12 months, 100+ events):**
+
 - Event bus for system architecture
 - ScriptableObjects for designer-facing game events (if needed)
 
 **Live Service Game:**
+
 - Event bus (refactoring support critical for ongoing development)
 
 ### Golden Rules
 
 **For ScriptableObject Events:**
+
 1. Use generic base classes, not hand-written event classes
 2. Always clear listeners in `OnEnable()` on ScriptableObject
 3. Use listener components for designer-driven workflow, not code registration
@@ -1179,6 +1289,7 @@ Do non-programmers need to create/modify event flow?
 5. Profile performance for high-frequency events to ensure acceptable overhead
 
 **For Event Bus:**
+
 1. Use readonly structs (passed by ref) to minimize allocations and copying
 2. Use lifecycle-aware base classes (MessageAwareComponent) for automatic cleanup
 3. Choose appropriate message type (Untargeted, Targeted, Broadcast)
@@ -1187,6 +1298,7 @@ Do non-programmers need to create/modify event flow?
 6. Avoid boxing structs (casting to interfaces, storing in object fields)
 
 **Universal:**
+
 1. **Don't mix patterns haphazardly** - establish clear conventions
 2. **Measure before optimizing** - profile to confirm performance needs
 3. **Consider team composition** - designer empowerment vs programmer control
@@ -1197,22 +1309,35 @@ Do non-programmers need to create/modify event flow?
 ## Additional Resources
 
 ### ScriptableObject Events
-- **[Ryan Hipple's Unite 2017 Talk](https://www.youtube.com/watch?v=raQ3iHhE_Kk)** - Original "Game Architecture with Scriptable Objects" presentation
-- **[Unite 2017 Sample Project](https://github.com/roboryantron/Unite2017)** - Official sample code from Ryan Hipple's talk
-- **[Unity Official Guide](https://unity.com/how-to/architect-game-code-scriptable-objects)** - Architect your code for efficient changes with ScriptableObjects
+
+- **[Ryan Hipple's Unite 2017 Talk](https://www.youtube.com/watch?v=raQ3iHhE_Kk)** - Original "Game
+  Architecture with Scriptable Objects" presentation
+- **[Unite 2017 Sample Project](https://github.com/roboryantron/Unite2017)** - Official sample code
+  from Ryan Hipple's talk
+- **[Unity Official Guide](https://unity.com/how-to/architect-game-code-scriptable-objects)** -
+  Architect your code for efficient changes with ScriptableObjects
 
 ### Event Bus/Messaging Systems
-- **[DxMessaging GitHub](https://github.com/wallstop/DxMessaging)** - Modern Unity messaging system with automatic lifecycle management
-- **[MessageBus Article](https://www.gamedeveloper.com/programming/fixing-unity-s-tendency-to-object-coupling-the-messagebus)** - Fixing Unity's tendency to object coupling
+
+- **[DxMessaging GitHub](https://github.com/wallstop/DxMessaging)** - Modern Unity messaging system
+  with automatic lifecycle management
+- **[MessageBus Article](https://www.gamedeveloper.com/programming/fixing-unity-s-tendency-to-object-coupling-the-messagebus)** -
+  Fixing Unity's tendency to object coupling
 
 ### Memory Management
-- **[Unity Memory Profiler](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html)** - Analyzing memory leaks
-- **[Stack Overflow: ScriptableObject Event Memory Leaks](https://stackoverflow.com/questions/58334248/how-do-i-avoid-memory-leak-in-unity-when-subscribing-to-c-sharp-event-in-referen)** - Common leak patterns
+
+- **[Unity Memory Profiler](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html)** -
+  Analyzing memory leaks
+- **[Stack Overflow: ScriptableObject Event Memory Leaks](https://stackoverflow.com/questions/58334248/how-do-i-avoid-memory-leak-in-unity-when-subscribing-to-c-sharp-event-in-referen)** -
+  Common leak patterns
 
 ### Architecture
-- **[ScriptableObjects Best Practices](./08-scriptable-objects.md)** - General ScriptableObject patterns
+
+- **[ScriptableObjects Best Practices](./08-scriptable-objects.md)** - General ScriptableObject
+  patterns
 - **[Performance & Memory](./07-performance-memory.md)** - GC optimization strategies
 
 ---
 
-**Choose thoughtfully, implement consistently, and measure results.** Both patterns are legitimate architectural choices when applied to their intended use cases.
+**Choose thoughtfully, implement consistently, and measure results.** Both patterns are legitimate
+architectural choices when applied to their intended use cases.

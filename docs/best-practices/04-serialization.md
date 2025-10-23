@@ -8,9 +8,12 @@ Unity's serialization determines what appears in the Inspector and what gets sav
 - Values reset after saving
 - Public fields break encapsulation
 
-**Why:** Unity only serializes specific types and structures for performance. Understanding these rules prevents debugging "why isn't this saving?" and helps you write maintainable, encapsulated code.
+**Why:** Unity only serializes specific types and structures for performance. Understanding these
+rules prevents debugging "why isn't this saving?" and helps you write maintainable, encapsulated
+code.
 
 **Key mistakes:**
+
 1. Using `public` fields instead of `[SerializeField] private`
 2. Forgetting `[Serializable]` on custom classes
 3. Trying to serialize dictionaries directly
@@ -26,7 +29,8 @@ Unity's serialization determines what appears in the Inspector and what gets sav
 
 ## SerializeField vs Public
 
-**Always prefer `[SerializeField] private` over `public`** - it keeps encapsulation while still showing in the Inspector.
+**Always prefer `[SerializeField] private` over `public`** - it keeps encapsulation while still
+showing in the Inspector.
 
 ```csharp
 // ❌ Public fields - other scripts can bypass your logic
@@ -66,6 +70,7 @@ public class ItemData
 ## What Unity Can Serialize
 
 **Unity CAN serialize:**
+
 - Basic types: `int`, `float`, `bool`, `string`
 - Unity types: `Vector3`, `Color`, `LayerMask`
 - Unity object references: `GameObject`, `Transform`, `Material`, `AudioClip`
@@ -76,6 +81,7 @@ public class ItemData
 - Concrete generic types (Unity 2020.1+)
 
 **Unity CANNOT serialize:**
+
 - Dictionaries (use wrapper - see below)
 - Properties without `[field:]` attribute
 - Static fields, const fields
@@ -86,6 +92,7 @@ public class ItemData
 ### Common Patterns
 
 **Auto-properties:**
+
 ```csharp
 // ❌ Won't serialize
 [SerializeField] private int Health { get; set; }
@@ -100,6 +107,7 @@ private float Speed { get; set; } = 5f;
 ```
 
 **Polymorphic types (Unity 2019.3+):**
+
 ```csharp
 [System.Serializable]
 public abstract class PowerUp { public string name; }
@@ -119,6 +127,7 @@ public class PowerUpManager : MonoBehaviour
 ```
 
 **Dictionary workaround:**
+
 ```csharp
 [System.Serializable]
 public class StringIntPair
@@ -168,6 +177,7 @@ public class OrganizedComponent : MonoBehaviour
 ```
 
 **Common attributes:**
+
 - `[Header("Text")]` - Section label
 - `[Tooltip("Text")]` - Hover description
 - `[Space(pixels)]` - Vertical spacing
@@ -178,6 +188,7 @@ public class OrganizedComponent : MonoBehaviour
 - `[RequireComponent(typeof(T))]` - Force component dependency
 
 **Nested classes:**
+
 ```csharp
 [System.Serializable]
 public class WeaponStats
@@ -300,6 +311,7 @@ public class AutoReferences : MonoBehaviour
 ## Quick Reference
 
 **Always use:**
+
 - `[SerializeField] private` instead of `public`
 - `[Serializable]` on custom classes
 - `[Header]` and `[Tooltip]` for organization
@@ -308,6 +320,7 @@ public class AutoReferences : MonoBehaviour
 - `[field: SerializeField]` for auto-properties
 
 **Never:**
+
 - Public fields for internal state
 - Serialize properties without `[field:]`
 - Serialize static fields or dictionaries directly
@@ -328,6 +341,7 @@ public class AutoReferences : MonoBehaviour
 8. Auto-find same-GameObject components in `Awake()`
 
 **Pattern:**
+
 ```csharp
 public class ProperComponent : MonoBehaviour
 {

@@ -9,7 +9,8 @@ that replaces complex Animator Controllers with elegant, code-driven animation c
 
 ### Animancer Lite (Free Trial)
 
-**[Animancer Lite](https://kybernetik.itch.io/animancer-lite)** is the FREE version from the same developer:
+**[Animancer Lite](https://kybernetik.itch.io/animancer-lite)** is the FREE version from the same
+developer:
 
 - ✅ **FREE for Unity Editor** — Try all Pro features during development
 - ✅ **Perfect for prototyping** — Test before you commit
@@ -22,6 +23,7 @@ that replaces complex Animator Controllers with elegant, code-driven animation c
 ### Free Open-Source Alternatives
 
 **[Reanimation](https://github.com/aarthificial/reanimation)** (GitHub - Free & Open Source)
+
 - ⚠️ Unmaintained
 - ✅ Completely free, MIT licensed
 - ✅ Tailored for traditional frame-by-frame animation (sprite sheets)
@@ -30,6 +32,7 @@ that replaces complex Animator Controllers with elegant, code-driven animation c
 - 💡 **Best for:** 2D sprite-based games with cel animation
 
 **Unity's Playables API** (Built-in - Free)
+
 - ✅ Native Unity API, no extra package needed
 - ✅ Full control and performance
 - ❌ Much more complex to use than Animancer
@@ -37,6 +40,7 @@ that replaces complex Animator Controllers with elegant, code-driven animation c
 - 💡 **Best for:** Advanced users who want zero dependencies
 
 **Custom Animation Scripts**
+
 - ✅ Complete control, zero dependencies
 - ❌ Time-consuming to build
 - ❌ Requires significant programming expertise
@@ -44,14 +48,14 @@ that replaces complex Animator Controllers with elegant, code-driven animation c
 
 ### Which Should You Choose?
 
-| Use Case | Recommendation |
-|----------|----------------|
-| **Evaluating Animancer** | Start with **Animancer Lite** |
-| **Hobby/learning project** | **Animancer Lite** (free in Editor) |
-| **Commercial game** | **Animancer Pro** (~$50-75, one-time) |
-| **2D sprite/cel animation** | Consider **Reanimation** (free) |
-| **Zero external dependencies** | **Playables API** (built-in) |
-| **Very tight budget** | **Unity Animator** or custom scripts |
+| Use Case                       | Recommendation                        |
+| ------------------------------ | ------------------------------------- |
+| **Evaluating Animancer**       | Start with **Animancer Lite**         |
+| **Hobby/learning project**     | **Animancer Lite** (free in Editor)   |
+| **Commercial game**            | **Animancer Pro** (~$50-75, one-time) |
+| **2D sprite/cel animation**    | Consider **Reanimation** (free)       |
+| **Zero external dependencies** | **Playables API** (built-in)          |
+| **Very tight budget**          | **Unity Animator** or custom scripts  |
 
 ---
 

@@ -5,8 +5,8 @@ and Play Mode tests headlessly, making it easy to add guardrails in continuous i
 
 ## Unity Test Runner
 
-Unity's built-in Test Runner (Window > General > Test Runner) provides a comprehensive testing framework
-based on NUnit. Tests appear in two tabs:
+Unity's built-in Test Runner (Window > General > Test Runner) provides a comprehensive testing
+framework based on NUnit. Tests appear in two tabs:
 
 - **EditMode** – Tests run in the editor context without entering Play Mode
 - **PlayMode** – Tests run in the actual Unity runtime with full engine simulation

@@ -69,10 +69,12 @@ dotnet_naming_style.pascal_case.capitalization = pascal_case
 - Interfaces start with `I` (`IPlayer`, `IEnemy`).
 - Events start with `On` (`OnClick`, `OnPlayerDied`).
 - Type parameters start with `T` (`TComponent`, `TValue`).
-- Private fields use `_camelCase` (`_health`, `_playerSpeed`), or `camelCase` (`health`, `playerSpeed`)
+- Private fields use `_camelCase` (`_health`, `_playerSpeed`), or `camelCase` (`health`,
+  `playerSpeed`)
 - Public fields use `camelCase` unless Unity's serializer requires otherwise.
 - Properties use `PascalCase` (`Health`, `PlayerSpeed`).
-- Always include braces for `if`, `for`, `while`, etc. The samples in this documentation omit braces for brevity.
+- Always include braces for `if`, `for`, `while`, etc. The samples in this documentation omit braces
+  for brevity.
 
 ---
 

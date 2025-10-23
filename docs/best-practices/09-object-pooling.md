@@ -2,7 +2,9 @@
 
 ## What Problem Does This Solve?
 
-**The Problem:** Your game spawns 100 bullets per second. Each `Instantiate()` allocates, taking real wallclock time. [Reference](https://discussions.unity.com/t/gameobject-pool-to-avoid-performance-issues-in-instantiating-many-objects/33256/5).
+**The Problem:** Your game spawns 100 bullets per second. Each `Instantiate()` allocates, taking
+real wallclock time.
+[Reference](https://discussions.unity.com/t/gameobject-pool-to-avoid-performance-issues-in-instantiating-many-objects/33256/5).
 
 **Why Instantiate is Slow:**
 

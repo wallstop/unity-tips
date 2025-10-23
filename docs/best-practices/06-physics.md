@@ -1,6 +1,8 @@
 # Unity Physics Best Practices
 
-> **Unity Version Note**: This guide uses Unity 6 property names. If you're using Unity 5.x or earlier versions:
+> **Unity Version Note**: This guide uses Unity 6 property names. If you're using Unity 5.x or
+> earlier versions:
+>
 > - Use `velocity` instead of `linearVelocity`
 > - Use `angularVelocity` (unchanged across versions)
 > - Note that `drag` (Inspector UI) is accessed as `linearDamping` in code (Unity 6+)
@@ -35,16 +37,22 @@ synchronized with physics simulation.
 
 **The most common physics mistakes:**
 
-1. 🔴 **CRITICAL**: Modifying physics in `Update()` instead of `FixedUpdate()` - causes frame-rate dependent behavior
-2. 🟡 **QUALITY**: Using legacy Input polling (`Input.GetKey`, `Input.GetAxis`) instead of Unity's Input System package
-3. 🟡 **QUALITY**: Using `transform.position` instead of `Rigidbody.MovePosition()` - causes jitter and collision issues
+1. 🔴 **CRITICAL**: Modifying physics in `Update()` instead of `FixedUpdate()` - causes frame-rate
+   dependent behavior
+2. 🟡 **QUALITY**: Using legacy Input polling (`Input.GetKey`, `Input.GetAxis`) instead of Unity's
+   Input System package
+3. 🟡 **QUALITY**: Using `transform.position` instead of `Rigidbody.MovePosition()` - causes jitter
+   and collision issues
 4. 🟢 **NOTE**: Impulse forces CAN be called from Update (Unity queues them for next physics step)
 
 ### ⚠️ About Input Polling in Examples
 
-> **IMPORTANT**: All code examples in this document use the **legacy Input Manager** (`Input.GetKey`, `Input.GetAxis`) for simplicity. However, **Unity now recommends the Input System package** for production projects.
+> **IMPORTANT**: All code examples in this document use the **legacy Input Manager**
+> (`Input.GetKey`, `Input.GetAxis`) for simplicity. However, **Unity now recommends the Input System
+> package** for production projects.
 >
 > **Why the new Input System is better:**
+>
 > - **Event-driven** instead of polling (more efficient, no Update() checks needed)
 > - **Automatic multi-platform** support (gamepad, keyboard, touch, VR all work with same code)
 > - **Rebindable controls** without code changes (players can customize bindings in-game)
@@ -52,28 +60,33 @@ synchronized with physics simulation.
 > - **Better for multiplayer** and modern hardware support
 >
 > **Legacy Input limitations:**
+>
 > - Must poll every frame with `Input.GetKey()` (less efficient)
 > - Hard-coded keybindings (changing keys requires code modifications)
 > - Poor gamepad/VR/touch support (separate code paths needed)
 > - Not receiving updates for new hardware
 >
-> **For production projects**, strongly consider migrating to the Input System package. The physics principles in this document apply to both—just replace `Input.GetKey()` polling with Input Action callbacks.
+> **For production projects**, strongly consider migrating to the Input System package. The physics
+> principles in this document apply to both—just replace `Input.GetKey()` polling with Input Action
+> callbacks.
 
 ### Will These Mistakes "Still Work"?
 
 **Short answer: Yes, but with significant quality issues.**
 
-These aren't compile errors or crashes - they're **quality and consistency problems** that separate amateur from professional Unity development:
+These aren't compile errors or crashes - they're **quality and consistency problems** that separate
+amateur from professional Unity development:
 
-| Practice | Will It Move? | What Actually Happens |
-|----------|--------------|------------------------|
-| `transform.position` on Rigidbody | ✅ Yes | ❌ Jitters, breaks interpolation, ignores collisions, causes desync |
-| Continuous force in `Update()` | ✅ Yes | ❌ Frame-rate dependent (30fps ≠ 144fps), inconsistent, non-deterministic |
-| Impulse force in `Update()` | ✅ Yes | ✅ Actually fine - Unity queues it for next physics step |
-| Force in `FixedUpdate()` | ✅ Yes | ✅ Smooth, consistent, deterministic |
-| `MovePosition()` in `FixedUpdate()` | ✅ Yes | ✅ Smooth, collision-aware, professional |
+| Practice                            | Will It Move? | What Actually Happens                                                     |
+| ----------------------------------- | ------------- | ------------------------------------------------------------------------- |
+| `transform.position` on Rigidbody   | ✅ Yes        | ❌ Jitters, breaks interpolation, ignores collisions, causes desync       |
+| Continuous force in `Update()`      | ✅ Yes        | ❌ Frame-rate dependent (30fps ≠ 144fps), inconsistent, non-deterministic |
+| Impulse force in `Update()`         | ✅ Yes        | ✅ Actually fine - Unity queues it for next physics step                  |
+| Force in `FixedUpdate()`            | ✅ Yes        | ✅ Smooth, consistent, deterministic                                      |
+| `MovePosition()` in `FixedUpdate()` | ✅ Yes        | ✅ Smooth, collision-aware, professional                                  |
 
 **Reality Check:**
+
 - Your game won't crash, but players will notice the jank
 - "Works on my machine" but behaves differently on faster/slower hardware
 - Single-player might seem fine, but multiplayer will be a nightmare
@@ -817,6 +830,7 @@ private void OnCollisionExit(Collision collision)
 
 Breaking these rules won't crash your game or prevent compilation. Your objects will still move.
 However, you'll get:
+
 - Visible jitter and stuttering (unprofessional feel)
 - Inconsistent behavior across different frame rates and hardware
 - Collision detection issues (tunneling, phasing through walls)
@@ -824,6 +838,7 @@ However, you'll get:
 - "Works on my machine" problems that break for players
 
 The difference between following these practices and ignoring them is the difference between:
+
 - ❌ "My character controller works but feels janky"
 - ✅ "My character controller feels smooth and professional"
 

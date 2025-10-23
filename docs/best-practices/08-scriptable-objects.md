@@ -58,7 +58,10 @@ Designers can balance without touching prefabs.
 ScriptableObjects are data containers that exist independently of scenes and GameObjects. They're
 like MonoBehaviours, but for data instead of behavior.
 
-**Primary Use:** ScriptableObjects should primarily be used as **data containers** for shared configuration, databases, and runtime collections. While they can also be used for event systems, see the [Event Systems documentation](./10-event-systems.md) for a comprehensive comparison of different event approaches.
+**Primary Use:** ScriptableObjects should primarily be used as **data containers** for shared
+configuration, databases, and runtime collections. While they can also be used for event systems,
+see the [Event Systems documentation](./10-event-systems.md) for a comprehensive comparison of
+different event approaches.
 
 **Simple Analogy**: Think of MonoBehaviours as "actors" (they do things in your scene), and
 ScriptableObjects as "recipes" (they hold information that actors can read from).
@@ -128,9 +131,13 @@ public class ItemData : ScriptableObject
 
 ### 3. Event Systems (Consider Alternatives)
 
-ScriptableObjects can be used for event systems, allowing components to communicate through shared event assets.
+ScriptableObjects can be used for event systems, allowing components to communicate through shared
+event assets.
 
-> **Note:** While ScriptableObject events are a valid pattern (especially for designer-driven workflows), there are multiple approaches to event systems in Unity, each with different trade-offs. For a comprehensive comparison of ScriptableObject events vs code-driven event buses, see the **[Event Systems documentation](./10-event-systems.md)**.
+> **Note:** While ScriptableObject events are a valid pattern (especially for designer-driven
+> workflows), there are multiple approaches to event systems in Unity, each with different
+> trade-offs. For a comprehensive comparison of ScriptableObject events vs code-driven event buses,
+> see the **[Event Systems documentation](./10-event-systems.md)**.
 
 **Quick Example:**
 
@@ -165,6 +172,7 @@ public class IntEvent : ScriptableObject
 ```
 
 **When to consider this approach:**
+
 - Designer-driven workflows where non-programmers create game flow
 - Animation events triggering prefab logic
 - Smaller projects with < 50 event types
@@ -173,15 +181,19 @@ public class IntEvent : ScriptableObject
 
 > **⚠️ Warning: Using ScriptableObjects for mutable runtime state is generally not recommended.**
 >
-> ScriptableObjects were designed as **immutable data containers**, not runtime state managers. Using them for mutable data causes several problems:
+> ScriptableObjects were designed as **immutable data containers**, not runtime state managers.
+> Using them for mutable data causes several problems:
 >
-> - **Editor vs Build inconsistency**: Changes persist in Editor between play sessions but reset in builds[^1]
-> - **Domain reload issues**: Disabling domain/scene reload causes unpredictable state persistence[^2]
+> - **Editor vs Build inconsistency**: Changes persist in Editor between play sessions but reset in
+>   builds[^1]
+> - **Domain reload issues**: Disabling domain/scene reload causes unpredictable state
+>   persistence[^2]
 > - **Debugging difficulties**: Hard to trace which scripts modify which ScriptableObjects[^2]
 > - **Scalability problems**: Managing many runtime variables as assets becomes unwieldy[^2]
 > - **Inspector limitations**: Can't serialize scene objects, causing "Type mismatch" errors[^3]
 >
 > **Better alternatives:**
+>
 > - Use regular C# classes/structs for runtime state
 > - Use static classes or dependency injection for shared state
 > - Use proper save/load systems for persistent data
@@ -240,6 +252,7 @@ public class Enemy : MonoBehaviour
 ```
 
 **Problems with this approach:**
+
 - State persists between Editor play sessions (confusing)
 - Can't inspect scene objects in ScriptableObject Inspector
 - Hard to debug which enemies are in the set
@@ -254,11 +267,14 @@ public class Enemy : MonoBehaviour
 > While ScriptableObjects survive scene loads, they have critical limitations for persistent data:
 >
 > - **Build behavior**: Changes only persist within a single game session, not between sessions[^1]
-> - **Editor confusion**: Data persists in Editor but resets in builds, causing unexpected behavior[^1]
+> - **Editor confusion**: Data persists in Editor but resets in builds, causing unexpected
+>   behavior[^1]
 > - **Not designed for saves**: ScriptableObjects were designed for immutable configuration data[^2]
-> - **Asset corruption risk**: Runtime modifications can accidentally be saved to the asset file in Editor
+> - **Asset corruption risk**: Runtime modifications can accidentally be saved to the asset file in
+>   Editor
 >
 > **Use proper save systems instead:**
+>
 > - PlayerPrefs for simple key-value data
 > - JSON/Binary serialization to persistent data paths
 > - Dedicated save/load systems (e.g., SaveSystem packages)
@@ -288,12 +304,14 @@ public class PlayerData : ScriptableObject
 **What actually happens:**
 
 **In Editor:**
+
 1. Player plays, gains 100 gold
 2. Exit play mode → gold = 100 (persisted!)
 3. Enter play mode again → gold = 100 (still there!)
 4. This seems to work... but it's misleading
 
 **In Build:**
+
 1. Player plays, gains 100 gold
 2. Exit game → gold data lost
 3. Restart game → gold = 0 (back to default!)
@@ -327,6 +345,7 @@ public class GameState
 ```
 
 **Why this is problematic:**
+
 - Changes persist between Editor play sessions but not in builds[^1]
 - Hard to debug which systems are modifying the values[^2]
 - Causes confusion about game state during development
@@ -512,9 +531,11 @@ public class Enemy : MonoBehaviour
 
 ### 2. Variable Reference Pattern ⚠️ (Not Recommended)
 
-> **⚠️ Warning: This is a mutable runtime state pattern - not recommended for the same reasons as Runtime Sets.**
+> **⚠️ Warning: This is a mutable runtime state pattern - not recommended for the same reasons as
+> Runtime Sets.**
 >
 > This pattern suffers from the same issues:
+>
 > - State persists between Editor play sessions but not in builds
 > - Hard to debug which systems are modifying values
 > - Doesn't scale well when you need many variables[^2]
@@ -585,6 +606,7 @@ public class HealthBar : MonoBehaviour
 ```
 
 **Problems:**
+
 - Need to create an asset for every variable (PlayerHealth, EnemyHealth, Score, etc.)
 - State persistence issues between Editor/Build
 - Hard to manage at scale
@@ -595,12 +617,15 @@ public class HealthBar : MonoBehaviour
 
 > **⚠️ Warning: This is another form of mutable runtime state - not recommended.**
 >
-> This pattern (also called "Runtime Sets") suffers from the same issues as other mutable ScriptableObject patterns:
+> This pattern (also called "Runtime Sets") suffers from the same issues as other mutable
+> ScriptableObject patterns:
+>
 > - Editor/Build behavior inconsistency[^1]
 > - Can't serialize scene objects properly[^3]
 > - Hard to debug and doesn't scale[^2]
 >
-> **Better alternative:** Use static managers with regular C# collections, or dependency injection frameworks.
+> **Better alternative:** Use static managers with regular C# collections, or dependency injection
+> frameworks.
 
 <details>
 <summary><b>Example for reference (not recommended)</b></summary>
@@ -655,7 +680,7 @@ public class EnemyManager : MonoBehavior
     {
         get
         {
-            if (instance == null) 
+            if (instance == null)
             {
                 GameObject singleton = new("EnemeyManager-Singleton", typeof(EnemyManager));
                 // instance should be auto-populated
@@ -718,6 +743,7 @@ public class PlayerData : ScriptableObject
 ```
 
 **Why immutability matters:**
+
 - Avoids Editor/Build persistence inconsistencies[^1]
 - Makes code easier to debug and understand[^2]
 - Prevents unexpected state carryover between play sessions
@@ -767,7 +793,8 @@ public class GameSettings : ScriptableObject
 
 > **⚠️ Don't use ScriptableObjects for runtime collections.** See warnings in sections above.
 
-If you inherited a codebase using this pattern and must maintain it temporarily, always clear collections in `OnEnable()`:
+If you inherited a codebase using this pattern and must maintain it temporarily, always clear
+collections in `OnEnable()`:
 
 ```csharp
 // ⚠️ Legacy pattern - avoid in new code
@@ -790,7 +817,8 @@ public class EnemySet : ScriptableObject
 }
 ```
 
-**Better approach:** Use static managers / single source of truth (see Typed Collection Pattern example above).
+**Better approach:** Use static managers / single source of truth (see Typed Collection Pattern
+example above).
 
 ### 5. Use Context Menus for Design Data Editing
 
@@ -893,7 +921,8 @@ public class GameManager : MonoBehaviour
 }
 ```
 
-**Key takeaway:** Don't try to "fix" mutable ScriptableObject state with `OnEnable()` resets. Just don't use ScriptableObjects for mutable state at all.[^2]
+**Key takeaway:** Don't try to "fix" mutable ScriptableObject state with `OnEnable()` resets. Just
+don't use ScriptableObjects for mutable state at all.[^2]
 
 ### Pitfall 2: Using ScriptableObjects for Per-Instance Data
 
@@ -1121,16 +1150,31 @@ public class CharacterData : ScriptableObject
 4. **Don't use for persistent save data** (use proper save systems instead)[^1]
 5. **Reset runtime values in OnEnable** if you must store runtime data (Editor only)
 6. **Don't store scene references** in ScriptableObjects[^3]
-7. **For event systems**, see the [Event Systems Comparison](./10-event-systems.md) to understand trade-offs
+7. **For event systems**, see the [Event Systems Comparison](./10-event-systems.md) to understand
+   trade-offs
 
-ScriptableObjects are incredibly powerful for organizing your game's **immutable configuration data** and creating decoupled, maintainable systems. Use them for what they were designed for: data containers, not state managers.
+ScriptableObjects are incredibly powerful for organizing your game's **immutable configuration
+data** and creating decoupled, maintainable systems. Use them for what they were designed for: data
+containers, not state managers.
 
 ---
 
 ## References
 
-[^1]: Unity Forums: [ScriptableObject changes persist between editor but not game sessions](https://forum.unity.com/threads/scriptable-object-changes-persist-between-editor-but-not-game-sessions.525392/). Changes to ScriptableObjects persist in Editor play sessions but reset in builds, causing confusion and bugs.
+[^1]:
+    Unity Forums:
+    [ScriptableObject changes persist between editor but not game sessions](https://forum.unity.com/threads/scriptable-object-changes-persist-between-editor-but-not-game-sessions.525392/).
+    Changes to ScriptableObjects persist in Editor play sessions but reset in builds, causing
+    confusion and bugs.
 
-[^2]: GitHub: [AntiScriptableObjectArchitecture](https://github.com/cathei/AntiScriptableObjectArchitecture). Documents problems with using ScriptableObjects for runtime state: design mismatch, debugging difficulties, scalability issues, and domain reload complications.
+[^2]:
+    GitHub:
+    [AntiScriptableObjectArchitecture](https://github.com/cathei/AntiScriptableObjectArchitecture).
+    Documents problems with using ScriptableObjects for runtime state: design mismatch, debugging
+    difficulties, scalability issues, and domain reload complications.
 
-[^3]: Unity Documentation: [Using ScriptableObject-based Runtime Sets](https://unity.com/how-to/scriptableobject-based-runtime-set). ScriptableObjects can't serialize scene objects by design, causing "Type mismatch" errors in Inspector.
+[^3]:
+    Unity Documentation:
+    [Using ScriptableObject-based Runtime Sets](https://unity.com/how-to/scriptableobject-based-runtime-set).
+    ScriptableObjects can't serialize scene objects by design, causing "Type mismatch" errors in
+    Inspector.

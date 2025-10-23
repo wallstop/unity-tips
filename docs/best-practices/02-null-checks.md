@@ -2,9 +2,12 @@
 
 ## The Problem
 
-Unity overrides the `==` operator for `UnityEngine.Object` to check if the native C++ object still exists. When you destroy a Unity object, the C# wrapper remains but the native object is gone - creating a "fake null" state.
+Unity overrides the `==` operator for `UnityEngine.Object` to check if the native C++ object still
+exists. When you destroy a Unity object, the C# wrapper remains but the native object is gone -
+creating a "fake null" state.
 
-**The danger:** C#'s `is null`, `?.`, `??`, and `ReferenceEquals()` bypass Unity's override and only check the C# wrapper, leading to false negatives on destroyed objects.
+**The danger:** C#'s `is null`, `?.`, `??`, and `ReferenceEquals()` bypass Unity's override and only
+check the C# wrapper, leading to false negatives on destroyed objects.
 
 ```csharp
 GameObject obj = /* destroyed object */;
@@ -16,7 +19,8 @@ obj?.DoSomething();     // ❌ Null-conditional - bypasses Unity (UNSAFE)
 obj = obj ?? fallback;  // ❌ Null-coalescing - bypasses Unity (UNSAFE)
 ```
 
-**Real-world impact:** You check `if (enemy != null)` and it passes, but `enemy.transform` throws NullReferenceException because the GameObject was destroyed.
+**Real-world impact:** You check `if (enemy != null)` and it passes, but `enemy.transform` throws
+NullReferenceException because the GameObject was destroyed.
 
 ## Table of Contents
 
@@ -27,7 +31,9 @@ obj = obj ?? fallback;  // ❌ Null-coalescing - bypasses Unity (UNSAFE)
 
 ## Why Unity Has "Fake Null"
 
-Unity objects exist in two places: a C# wrapper and a native C++ object. When destroyed, the native object is removed but the C# wrapper remains. Unity's `==` operator checks both sides; C#'s native operators only check the wrapper.
+Unity objects exist in two places: a C# wrapper and a native C++ object. When destroyed, the native
+object is removed but the C# wrapper remains. Unity's `==` operator checks both sides; C#'s native
+operators only check the wrapper.
 
 ```csharp
 // Three scenarios that appear "null" in Unity:
@@ -47,7 +53,8 @@ Destroy(obj2);
 
 ### For Unity Objects: Use `== null` / `!= null` Only
 
-**Use for:** `GameObject`, `Component`, `Transform`, `MonoBehaviour`, `ScriptableObject`, `Material`, `Texture`, and any `UnityEngine.Object` derived type.
+**Use for:** `GameObject`, `Component`, `Transform`, `MonoBehaviour`, `ScriptableObject`,
+`Material`, `Texture`, and any `UnityEngine.Object` derived type.
 
 ```csharp
 // ✓ SAFE - Unity's overloaded operator
@@ -230,7 +237,8 @@ private void SetEnemy(Enemy newEnemy)
 
 ## Performance Considerations
 
-Unity's `== null` is **~10-20x slower** than native C# null checks because it calls into C++ to check the native object state. However, it's necessary for correctness with Unity objects.
+Unity's `== null` is **~10-20x slower** than native C# null checks because it calls into C++ to
+check the native object state. However, it's necessary for correctness with Unity objects.
 
 **Optimization tips:**
 
@@ -300,4 +308,6 @@ value = data?.GetValue() ?? defaultValue;
 5. Cache component references to avoid repeated lookups
 6. Use `TryGetComponent` for efficiency
 
-Unity's null checking exists because destroyed objects leave C# wrappers alive. The convenient operators (`?.`, `??`) bypass Unity's override and only check the wrapper, causing crashes on destroyed objects. Always use explicit `== null` checks.
+Unity's null checking exists because destroyed objects leave C# wrappers alive. The convenient
+operators (`?.`, `??`) bypass Unity's override and only check the wrapper, causing crashes on
+destroyed objects. Always use explicit `== null` checks.

@@ -16,7 +16,9 @@ breaking Unity's compilation pipeline.
 
 ## Install via Unity Package Manager (preferred)
 
-Follow the [installation instructions](https://github.com/GlitchEnzo/NuGetForUnity?tab=readme-ov-file#how-do-i-install-nugetforunity) for your preferred method - UPM/git/unitypackage.
+Follow the
+[installation instructions](https://github.com/GlitchEnzo/NuGetForUnity?tab=readme-ov-file#how-do-i-install-nugetforunity)
+for your preferred method - UPM/git/unitypackage.
 
 ## Getting started
 
@@ -27,9 +29,9 @@ Follow the [installation instructions](https://github.com/GlitchEnzo/NuGetForUni
    to keep a dependency pinned even if no longer referenced.
 4. Visit the **Updates** tab to batch upgrade or downgrade versions with one click.
 
-NuGetForUnity writes assembly files under `Packages/NuGet`, so additions are tracked
-in source control and compile like any other UPM package. The plugin respects Unity's domain reloads
-and rebuilds, keeping the workflow seamless.
+NuGetForUnity writes assembly files under `Packages/NuGet`, so additions are tracked in source
+control and compile like any other UPM package. The plugin respects Unity's domain reloads and
+rebuilds, keeping the workflow seamless.
 
 ## Tips for production projects
 

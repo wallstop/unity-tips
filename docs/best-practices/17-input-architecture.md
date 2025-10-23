@@ -15,8 +15,8 @@ handling around actions instead of raw polling to keep gameplay responsive and d
 
 1. Create a single `InputActions` asset with multiple maps (Gameplay, UI, Debug).
 2. Generate the C# wrapper (`InputActions.cs`) if you need compile-time safety.
-3. Use `PlayerInput` with **Send Messages** or **Invoke C# Events** behavior mode to handle input via
-   callback methods. This eliminates manual action lookups and subscription management:
+3. Use `PlayerInput` with **Send Messages** or **Invoke C# Events** behavior mode to handle input
+   via callback methods. This eliminates manual action lookups and subscription management:
 
 ```csharp
 public class PlayerController : MonoBehaviour
@@ -60,12 +60,12 @@ public class PlayerController : MonoBehaviour
 }
 ```
 
-4. Scope action maps by context—disable Gameplay and enable UI when menus open, for example.
+1. Scope action maps by context—disable Gameplay and enable UI when menus open, for example.
 
 ### Why OnEvent methods?
 
-Using `PlayerInput` with callback methods (`OnJump`, `OnMove`, etc.) eliminates manual action lookups
-and event subscription management:
+Using `PlayerInput` with callback methods (`OnJump`, `OnMove`, etc.) eliminates manual action
+lookups and event subscription management:
 
 - **No manual subscription**: PlayerInput automatically routes actions to matching method names.
 - **No cleanup needed**: No `OnDisable`/`OnDestroy` to unsubscribe events.
@@ -74,7 +74,8 @@ and event subscription management:
 
 ### Physics & framerate independence
 
-When using physics (Rigidbody), always **buffer input events** and **process them in `FixedUpdate()`**:
+When using physics (Rigidbody), always **buffer input events** and **process them in
+`FixedUpdate()`**:
 
 - Input callbacks (`OnJump`, `OnMove`) fire in `Update()` and may be called zero, one, or multiple
   times between `FixedUpdate()` calls depending on framerate.

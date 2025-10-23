@@ -367,8 +367,8 @@ uses it for all animations without issues.
 ### "What about async/await?"
 
 **Prefer coroutines.** Both DOTween and PrimeTween expose yield instructions, so you can
-`yield return tween;` without creating `Task` state machines. If you truly require
-`async/await` semantics, pair your tweening calls with a lightweight wrapper such as
+`yield return tween;` without creating `Task` state machines. If you truly require `async/await`
+semantics, pair your tweening calls with a lightweight wrapper such as
 [UniTask](https://github.com/Cysharp/UniTask) to avoid the heavier allocations that come with
 `System.Threading.Tasks`.
 

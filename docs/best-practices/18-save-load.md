@@ -100,10 +100,10 @@ public static class SettingsStorage
 ## Save pipeline
 
 1. Assemble pure data models (no `MonoBehaviour` references) that describe player progress.
-1. Serialize to a memory buffer (`MemoryStream` or Unity Helpers wrapper) using
+2. Serialize to a memory buffer (`MemoryStream` or Unity Helpers wrapper) using
    `Serializer.Serialize`.
-1. Write to disk via a temp file + `File.Replace` (or platform equivalent) to avoid partial writes.
-1. Run the entire pipeline on a background thread, then switch back to the main thread before
+3. Write to disk via a temp file + `File.Replace` (or platform equivalent) to avoid partial writes.
+4. Run the entire pipeline on a background thread, then switch back to the main thread before
    touching Unity objects.
 
 ```csharp

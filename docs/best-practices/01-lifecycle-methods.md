@@ -371,7 +371,8 @@ private void OnEnable()
 }
 ```
 
-**Important**: `OnEnable` runs **after** `Awake` but can be called multiple times (whenever the GameObject is enabled)!
+**Important**: `OnEnable` runs **after** `Awake` but can be called multiple times (whenever the
+GameObject is enabled)!
 
 ### OnDisable
 
@@ -584,6 +585,7 @@ public class GizmoHelper : MonoBehaviour
 ```
 
 **Key Points:**
+
 - `[ExecuteInEditMode]` is deprecated - use `[ExecuteAlways]` instead
 - `Update()` in Edit Mode is **NOT** called every frame - only on Scene/Game view redraws
 - Always use `Application.IsPlaying(gameObject)` to separate Edit vs Play mode logic

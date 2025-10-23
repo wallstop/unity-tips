@@ -71,13 +71,15 @@ public IEnumerator LoadLevelAdditiveCoroutine(string sceneName, Scene currentSce
 
 - [`SceneManager.LoadSceneAsync`](https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html)
   returns an [`AsyncOperation`](https://docs.unity3d.com/ScriptReference/AsyncOperation.html); stage
-  additive loads by toggling [`allowSceneActivation`](https://docs.unity3d.com/ScriptReference/AsyncOperation-allowSceneActivation.html)
+  additive loads by toggling
+  [`allowSceneActivation`](https://docs.unity3d.com/ScriptReference/AsyncOperation-allowSceneActivation.html)
   once your transition completes.
 - If the content scene is delivered through Addressables, prefer
   [`Addressables.LoadSceneAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.LoadSceneAsync.html)
   so you can `yield return` the handle in a coroutine and release it with
   [`Addressables.UnloadSceneAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.UnloadSceneAsync.html).
-- Keep the [`Addressables.InstantiateAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.InstantiateAsync.html)
+- Keep the
+  [`Addressables.InstantiateAsync`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.InstantiateAsync.html)
   handle for UI such as loading screens and dispose it with
   [`Addressables.ReleaseInstance`](https://docs.unity3d.com/Packages/com.unity.addressables@1.21/api/UnityEngine.AddressableAssets.Addressables.ReleaseInstance.html)
   once the indicator is hidden.

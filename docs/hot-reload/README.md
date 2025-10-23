@@ -13,14 +13,17 @@ and you stay in flow.
 
 ### Fast Script Reload (FREE - Recommended Alternative)
 
-**[Fast Script Reload](https://github.com/handzlikchris/FastScriptReload)** (GitHub - Free & Open Source)
+**[Fast Script Reload](https://github.com/handzlikchris/FastScriptReload)** (GitHub - Free & Open
+Source)
 
 - ✅ **Completely FREE** — Open source MIT license
 - ✅ **Same core functionality** — Hot reload C# code without recompiling
 - ✅ **Works with any code editor** — VS Code, Rider, Visual Studio
 - ✅ **No code changes needed** — Just import and it works
 - ✅ **Actively maintained** — Regular updates on GitHub
-- ✅ **Also on Unity Asset Store** — Available in the [asset store](https://assetstore.unity.com/packages/tools/utilities/fast-script-reload-239351) with support
+- ✅ **Also on Unity Asset Store** — Available in the
+  [asset store](https://assetstore.unity.com/packages/tools/utilities/fast-script-reload-239351)
+  with support
 - ⚠️ **Less polished UI** compared to Hot Reload
 - ⚠️ **Fewer advanced features** than commercial Hot Reload
 - 💡 **Best for:** Indie developers, hobbyists, anyone on a budget
@@ -49,24 +52,26 @@ Unity Asset Store → Fast Script Reload
 
 ### Feature Comparison
 
-| Feature | Fast Script Reload (Free) | Hot Reload (Paid) |
-|---------|---------------------------|-------------------|
-| **Price** | FREE (open source) | ~$70 |
-| **Hot reload method bodies** | ✅ | ✅ |
-| **Works in Play Mode** | ✅ | ✅ |
-| **Works in Edit Mode** | ✅ | ✅ |
-| **Any code editor** | ✅ | ✅ |
-| **Performance** | ✅ Good | ✅ Excellent |
-| **UI/UX** | ⚠️ Functional | ✅ Polished |
-| **On-device (iOS/Android)** | ❌ | ✅ |
-| **Support** | Community | ✅ Professional |
-| **Source code access** | ✅ GitHub | ❌ |
+| Feature                      | Fast Script Reload (Free) | Hot Reload (Paid) |
+| ---------------------------- | ------------------------- | ----------------- |
+| **Price**                    | FREE (open source)        | ~$70              |
+| **Hot reload method bodies** | ✅                        | ✅                |
+| **Works in Play Mode**       | ✅                        | ✅                |
+| **Works in Edit Mode**       | ✅                        | ✅                |
+| **Any code editor**          | ✅                        | ✅                |
+| **Performance**              | ✅ Good                   | ✅ Excellent      |
+| **UI/UX**                    | ⚠️ Functional             | ✅ Polished       |
+| **On-device (iOS/Android)**  | ❌                        | ✅                |
+| **Support**                  | Community                 | ✅ Professional   |
+| **Source code access**       | ✅ GitHub                 | ❌                |
 
 ### Recommendation
 
-**For most developers:** Start with **Fast Script Reload (FREE)**. It provides 90% of the functionality.
+**For most developers:** Start with **Fast Script Reload (FREE)**. It provides 90% of the
+functionality.
 
 **Upgrade to Hot Reload if:**
+
 - You need on-device hot reload for mobile development
 - You want the most polished UI/UX
 - Your studio has budget for professional tools

@@ -16,7 +16,8 @@ editor.
 
 ### Tri-Inspector (Best Free Alternative - Recommended)
 
-**[Tri-Inspector](https://github.com/codewriter-packages/Tri-Inspector)** (GitHub - Free & Open Source)
+**[Tri-Inspector](https://github.com/codewriter-packages/Tri-Inspector)** (GitHub - Free & Open
+Source)
 
 - ✅ **Completely free** and actively maintained
 - ✅ **Most Odin-like features:** Buttons, groups, validators, conditional visibility
@@ -28,16 +29,16 @@ editor.
 
 **Feature Comparison:**
 
-| Feature | Odin | Tri-Inspector |
-|---------|------|---------------|
-| **Inspector Buttons** | ✅ | ✅ |
-| **Validation** | ✅ | ✅ |
-| **Groups/Tabs** | ✅ | ✅ |
-| **Conditional Display** | ✅ | ✅ |
-| **Property Display** | ✅ | ✅ |
-| **Dictionary Serialization** | ✅ | ❌ |
-| **Custom Type Serialization** | ✅ | ❌ |
-| **Price** | ~$55 | FREE |
+| Feature                       | Odin | Tri-Inspector |
+| ----------------------------- | ---- | ------------- |
+| **Inspector Buttons**         | ✅   | ✅            |
+| **Validation**                | ✅   | ✅            |
+| **Groups/Tabs**               | ✅   | ✅            |
+| **Conditional Display**       | ✅   | ✅            |
+| **Property Display**          | ✅   | ✅            |
+| **Dictionary Serialization**  | ✅   | ❌            |
+| **Custom Type Serialization** | ✅   | ❌            |
+| **Price**                     | ~$55 | FREE          |
 
 ### NaughtyAttributes
 
@@ -92,25 +93,27 @@ public class SerializableDictionary<TKey, TValue>
 
 ### Which Should You Choose?
 
-| Need | Recommendation | Price |
-|------|----------------|-------|
-| **Inspector buttons only** | **NaughtyAttributes** | FREE |
-| **Inspector enhancement + validation** | **Tri-Inspector** | FREE |
-| **Dictionary serialization** | **Odin Inspector** | ~$55 |
-| **Everything (dictionaries + inspector)** | **Odin Inspector & Serializer** | ~$55 |
-| **Budget constraints** | **Tri-Inspector** + JsonUtility workaround | FREE |
-| **Commercial projects** | **Odin** (best support & features) | ~$55 |
+| Need                                      | Recommendation                             | Price |
+| ----------------------------------------- | ------------------------------------------ | ----- |
+| **Inspector buttons only**                | **NaughtyAttributes**                      | FREE  |
+| **Inspector enhancement + validation**    | **Tri-Inspector**                          | FREE  |
+| **Dictionary serialization**              | **Odin Inspector**                         | ~$55  |
+| **Everything (dictionaries + inspector)** | **Odin Inspector & Serializer**            | ~$55  |
+| **Budget constraints**                    | **Tri-Inspector** + JsonUtility workaround | FREE  |
+| **Commercial projects**                   | **Odin** (best support & features)         | ~$55  |
 
 ### ROI Analysis: Is Odin Worth $55?
 
 **Time Saved:**
+
 - No custom editors needed: ~2-5 hours per complex component
 - Dictionary serialization built-in: ~1-2 hours per system
 - Inspector buttons for testing: ~30 mins per day
 
 **Break-even:** If you save ~4-6 hours of development time, Odin pays for itself.
 
-**Verdict:** For professional/commercial projects, Odin is worth it. For hobby projects or tight budgets, **Tri-Inspector** is excellent.
+**Verdict:** For professional/commercial projects, Odin is worth it. For hobby projects or tight
+budgets, **Tri-Inspector** is excellent.
 
 ---
 
