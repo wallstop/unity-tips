@@ -1,10 +1,8 @@
-# Unity Event Systems: ScriptableObject Events vs DxMessaging
+# Unity Event Systems: Choosing the Right Pattern
 
 ## What Problem Does This Solve?
 
-**The Problem:** Your game has systems that need to communicate (player dies → show game over UI,
-score changes → update HUD, enemy spawns → play sound). How should these systems talk to each other
-without creating tight coupling and memory leaks?
+**The Problem:** Your game has systems that need to communicate (player dies → show game over UI, score changes → update HUD, enemy spawns → play sound). How should these systems talk to each other without creating tight coupling and memory leaks?
 
 **Without Proper Event Systems (The Spaghetti Way):**
 
@@ -24,397 +22,525 @@ public class Player : MonoBehaviour {
 ```
 
 **Problems:**
-
 - Tight coupling between systems
 - Memory leaks from forgotten event unsubscriptions
 - Hard to test individual systems
 - Adding new listeners requires modifying existing code
 
-**The Solution:** Event systems decouple components. When player dies, emit one event. Any system
-can listen independently without the player knowing about them.
+**The Solution:** Event systems decouple components. When player dies, emit one event. Any system can listen independently without the player knowing about them.
 
 ---
 
-## Two Approaches: ScriptableObject Events vs DxMessaging
+## Two Approaches: Designer-Driven vs Code-Driven Events
 
 Unity developers typically use one of two patterns for event systems:
 
-1. **ScriptableObject Events** - Asset-based event channels (traditional approach)
-2. **DxMessaging** - Type-safe messaging system (modern approach)
+1. **ScriptableObject Events (Designer-Driven)** - Asset-based event channels wired through Inspector
+2. **Event Bus/Messaging Systems (Code-Driven)** - Type-safe messaging systems managed through code
 
-**TL;DR:** **DxMessaging is superior** for most projects due to automatic memory management, better
-type safety, zero asset overhead, and higher performance. ScriptableObject events require manual
-cleanup and asset creation but may be useful for very simple prototypes or designer-driven
-workflows.
+**Key Insight:** These patterns serve **different team workflows**, not competing technical solutions. Choose based on who creates and modifies events.
 
 ---
 
 ## Table of Contents
 
-- [ScriptableObject Events](#scriptableobject-events)
-- [DxMessaging](#dxmessaging)
+- [Understanding the Two Paradigms](#understanding-the-two-paradigms)
+- [ScriptableObject Events (Designer-Driven)](#scriptableobject-events-designer-driven)
+- [Event Bus/Messaging (Code-Driven)](#event-busmessaging-code-driven)
 - [Feature Comparison](#feature-comparison)
 - [Side-by-Side Examples](#side-by-side-examples)
 - [When to Use Each](#when-to-use-each)
-- [Migration Guide](#migration-guide)
+- [Hybrid Approaches](#hybrid-approaches)
 - [Common Pitfalls](#common-pitfalls)
 
 ---
 
-<a id="scriptableobject-events"></a>
+<a id="understanding-the-two-paradigms"></a>
+## Understanding the Two Paradigms
 
-## ScriptableObject Events
+### Designer-Driven (ScriptableObject Events)
 
-The traditional approach: create ScriptableObject assets that act as event channels.
+**Philosophy:** Non-programmers create and wire events through Unity Inspector.
 
-### How It Works
+**Workflow:**
+1. Designer creates event asset in Project window
+2. Designer drags asset to prefabs/components
+3. Designer wires UnityEvent callbacks in Inspector
+4. Events fire, callbacks execute
+5. No code changes required
 
-```csharp
-// 1. Define event class
-[CreateAssetMenu(menuName = "Events/Game Event")]
-public class GameEvent : ScriptableObject {
-    private readonly List<GameEventListener> listeners = new List<GameEventListener>();
+**Best For:** Teams where designers/artists need autonomy to create game flow without programmer intervention.
 
-    public void Raise() {
-        for (int i = listeners.Count - 1; i >= 0; i--) {
-            listeners[i].OnEventRaised();
-        }
-    }
+### Code-Driven (Event Bus/Messaging)
 
-    public void RegisterListener(GameEventListener listener) {
-        if (!listeners.Contains(listener))
-            listeners.Add(listener);
-    }
+**Philosophy:** Programmers define and wire events through code.
 
-    public void UnregisterListener(GameEventListener listener) {
-        listeners.Remove(listener);
-    }
-}
+**Workflow:**
+1. Programmer defines message struct/class
+2. Programmer writes handler methods
+3. Programmer registers handlers in code
+4. Events fire, handlers execute
+5. Designer can adjust *data*, not *flow*
 
-// 2. Create listener component
-public class GameEventListener : MonoBehaviour {
-    [SerializeField] private GameEvent gameEvent;
-    [SerializeField] private UnityEvent response;
-
-    private void OnEnable() {
-        gameEvent.RegisterListener(this);
-    }
-
-    private void OnDisable() {
-        gameEvent.UnregisterListener(this);
-    }
-
-    public void OnEventRaised() {
-        response?.Invoke();
-    }
-}
-```
-
-### Usage Steps
-
-1. Create event ScriptableObject in Project window
-2. Drag asset to components that raise/listen for events
-3. Wire up responses in Inspector (for listeners)
-4. Call `event.Raise()` to emit
-5. **CRITICAL:** Remember to unregister in `OnDisable()`
-
-### Advantages
-
-- ✅ Visible in Inspector (designers can wire events)
-- ✅ Simple concept (assets are event channels)
-- ✅ No external dependencies
-
-### Disadvantages
-
-**Memory & Lifecycle:**
-
-- ❌ **Memory leaks if you forget to unregister** (happens constantly in real projects)
-- ❌ Runtime data persists between Play Mode sessions (must manually clear)
-- ❌ Requires manual cleanup in `OnEnable`/`OnDisable` (error-prone)
-
-**Manual Workflow:**
-
-- ❌ **Asset creation overhead** - One asset per event type (dozens/hundreds of assets)
-- ❌ **Inspector wiring required** - Manually drag assets to every component
-- ❌ **Manual reference tracking** - Must track down all usages when refactoring
-- ❌ No compile-time type safety (wrong asset assigned = silent runtime failure)
-
-**Debugging Nightmare:**
-
-- ❌ **Can't trace who's listening** - No way to see all subscribers to an event
-- ❌ **Can't trace who's sending** - No way to find all event raisers
-- ❌ **Can't debug flow** - Events fire with no visibility or stack trace
-- ❌ **"Find References" doesn't work** - Can't search asset references in code
-- ❌ **Must build custom editor tools** just to understand your own event system
-
-**Scaling Disaster:**
-
-- ❌ **Hundreds of assets clutter Project** - Finding the right event is painful
-- ❌ **Inspector references break** when moving/renaming assets
-- ❌ **No refactoring support** - Rename event? Manually fix all Inspector references
-- ❌ **New team members can't trace flow** - Event chains are invisible without custom tools
-- ❌ **Complex projects become unmaintainable** - At 100+ events, requires custom visualization
-  tools
-
-**Example: Real-world debugging scenario**
-
-**Problem:** `OnPlayerDeath` event fires, but game over screen doesn't appear.
-
-**ScriptableObject debugging (30+ minutes):**
-
-1. Find `OnPlayerDeath.asset` in Project (which folder?)
-2. Click asset - Inspector shows nothing useful
-3. String search project for "onPlayerDeath" (error-prone, no context)
-4. Check every search result - listeners vs raisers?
-5. Open each component in Inspector to verify asset wiring
-6. Discover UIManager has wrong asset wired (`onHealthChanged` instead of `onPlayerDeath`)
-7. No compiler error, silent runtime failure
-
-**DxMessaging debugging (30 seconds):**
-
-1. Right-click `PlayerDied` message → "Find References"
-2. See all `RegisterUntargeted<PlayerDied>` calls instantly
-3. UIManager not in list - bug found!
-4. Compiler would have caught wrong message type
-
-**Example: Scaling to 100+ events**
-
-**ScriptableObject approach:**
-
-- 100+ event assets in Project window (organization nightmare)
-- Must build custom editor window to visualize event flow
-- New developers need documentation + custom tools to understand system
-- Refactoring requires manually updating hundreds of Inspector references
-
-**DxMessaging approach:**
-
-- Zero assets (code-only)
-- Built-in Inspector shows all message flow automatically
-- New developers use "Find References" to trace any message
-- Refactoring uses IDE rename tools (automatic)
+**Best For:** Teams prioritizing type safety, refactoring support, and programmer-controlled architecture.
 
 ---
 
-<a id="dxmessaging"></a>
+<a id="scriptableobject-events-designer-driven"></a>
+## ScriptableObject Events (Designer-Driven)
 
-## DxMessaging
+### Origin and Intent
 
-Modern type-safe messaging system with automatic memory management.
+Popularized by Ryan Hipple's Unite Austin 2017 talk "Game Architecture with Scriptable Objects" ([video](https://www.youtube.com/watch?v=raQ3iHhE_Kk), [source](https://github.com/roboryantron/Unite2017)), this pattern was designed to enable non-programmers to create game flow independently.
 
-### How It Works
+**Original Design Goals:**
+- Designers create events without writing code
+- Animation events trigger prefab responses
+- Eliminate cross-scene references that break on despawn
+- Enable rapid iteration by non-technical staff
 
-```csharp
-// 1. Define message (no asset needed!)
-[DxUntargetedMessage]
-[DxAutoConstructor]
-public readonly partial struct GameStarted { }
+### Proper Implementation
 
-// 2. Listen for message
-public class UIManager : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<GameStarted>(OnGameStarted);
-        // Token automatically unsubscribes when destroyed - zero leaks!
-    }
-
-    void OnGameStarted(ref GameStarted msg) {
-        ShowStartScreen();
-    }
-}
-
-// 3. Emit message
-public class GameManager : MonoBehaviour {
-    public void StartGame() {
-        new GameStarted().EmitUntargeted();
-    }
-}
-```
-
-### Usage Steps
-
-1. Define message struct with attributes
-2. Inherit `MessageAwareComponent` for listeners
-3. Register handlers in `RegisterMessageHandlers()`
-4. Emit messages from anywhere
-5. **That's it - automatic cleanup!**
-
-### Advantages
-
-- ✅ **Zero memory leaks** (automatic cleanup)
-- ✅ **No asset creation** (just code)
-- ✅ **Compile-time type safety** (wrong message type = compiler error)
-- ✅ **Zero-allocation design** (readonly structs)
-- ✅ **Built-in observability** (Inspector shows all message flow)
-- ✅ **Three message types** (untargeted, targeted, broadcast)
-- ✅ No persistence issues
-
-### Disadvantages
-
-- ⚠️ External dependency (DxMessaging package)
-- ⚠️ Slightly steeper learning curve (3 message types)
-- ⚠️ Less Inspector-driven (more code-driven)
-
----
-
-<a id="feature-comparison"></a>
-
-## Feature Comparison
-
-| Feature                        | ScriptableObject Events              | DxMessaging                             |
-| ------------------------------ | ------------------------------------ | --------------------------------------- |
-| **Memory Management**          | ❌ Manual cleanup                    | ✅ Automatic                            |
-| **Memory Leaks**               | ❌ Easy to create                    | ✅ Zero-leak                            |
-| **Asset Creation**             | ❌ Required (one per event)          | ✅ None (code-only)                     |
-| **Inspector Wiring**           | ❌ Manual (hundreds of references)   | ✅ None required                        |
-| **Type Safety**                | ❌ Inspector wiring (runtime errors) | ✅ Compile-time                         |
-| **Performance**                | ⚠️ Allocations                       | ✅ Zero-allocation                      |
-| **Persistence Issues**         | ❌ Must clear manually               | ✅ None                                 |
-| **Debugging: Trace Listeners** | ❌ Impossible without custom tools   | ✅ "Find References" (instant)          |
-| **Debugging: Trace Senders**   | ❌ String search entire project      | ✅ "Find References" (instant)          |
-| **Debugging: Message Flow**    | ❌ Must build custom visualization   | ✅ Built-in Inspector shows all         |
-| **Debugging Time**             | ❌ 30+ minutes per bug               | ✅ 30 seconds per bug                   |
-| **Refactoring Support**        | ❌ Manual Inspector updates          | ✅ IDE rename (automatic)               |
-| **Scalability**                | ❌ Breaks at 100+ events             | ✅ Scales to thousands                  |
-| **New Developer Onboarding**   | ❌ Requires custom tools + docs      | ✅ "Find References" (self-documenting) |
-| **Designer-Friendly**          | ✅ Inspector wiring                  | ⚠️ Code-driven                          |
-| **Code Complexity**            | ⚠️ Higher (manual cleanup)           | ✅ Lower (automatic)                    |
-| **Learning Curve**             | ✅ Simple concept                    | ⚠️ Moderate (3 message types)           |
-| **External Dependencies**      | ✅ None                              | ⚠️ Package required                     |
-| **Targeted Messages**          | ❌ Not built-in                      | ✅ Three types                          |
-| **Unity Inspector Support**    | ✅ Full                              | ✅ Full                                 |
-
-**Verdict:** DxMessaging wins in 17 out of 21 categories, including all debugging, scaling, and
-refactoring categories. Use ScriptableObject events only for tiny prototypes (<10 events) or when
-non-programmers must wire events in Inspector without code access.
-
----
-
-<a id="side-by-side-examples"></a>
-
-## Side-by-Side Examples
-
-### Example 1: Player Death Event
-
-#### ScriptableObject Approach
+The pattern uses generic base classes with Inspector-driven listener components:
 
 ```csharp
-// Step 1: Create SO class
-[CreateAssetMenu(menuName = "Events/Player Death Event")]
-public class PlayerDeathEvent : ScriptableObject {
-    private event System.Action<GameObject> OnEventRaised;
+// 1. Define generic base class (write once, reuse forever)
+public abstract class ScriptableEvent<T> : ScriptableObject {
+    private event System.Action<T> OnEventRaised;
 
-    public void Raise(GameObject killer) {
-        OnEventRaised?.Invoke(killer);
+    public void Raise(T value) {
+        OnEventRaised?.Invoke(value);
     }
 
-    public void RegisterListener(System.Action<GameObject> listener) {
+    public void Register(System.Action<T> listener) {
         OnEventRaised += listener;
     }
 
-    public void UnregisterListener(System.Action<GameObject> listener) {
+    public void Unregister(System.Action<T> listener) {
         OnEventRaised -= listener;
     }
 
-    // Must clear runtime data!
     private void OnEnable() {
+        // Clear stale listeners from previous Play Mode session
         OnEventRaised = null;
     }
 }
 
-// Step 2: Create asset in Project window (right-click → Create → Events → Player Death Event)
+// 2. Create concrete event types (one line each)
+[CreateAssetMenu(menuName = "Events/Int Event")]
+public class IntEvent : ScriptableEvent<int> { }
 
-// Step 3: Raise event
+[CreateAssetMenu(menuName = "Events/Float Event")]
+public class FloatEvent : ScriptableEvent<float> { }
+
+[CreateAssetMenu(menuName = "Events/Void Event")]
+public class VoidEvent : ScriptableEvent<System.Object> { }
+
+// 3. Define listener component base class
+public abstract class ScriptableEventListener<T, E> : MonoBehaviour
+    where E : ScriptableEvent<T> {
+
+    [SerializeField] private E eventAsset;
+    [SerializeField] private UnityEvent<T> response;
+
+    private void OnEnable() {
+        eventAsset?.Register(OnEventRaised);
+    }
+
+    private void OnDisable() {
+        eventAsset?.Unregister(OnEventRaised);
+    }
+
+    private void OnEventRaised(T value) {
+        response?.Invoke(value);
+    }
+}
+
+// 4. Create concrete listener components
+public class IntEventListener : ScriptableEventListener<int, IntEvent> { }
+public class FloatEventListener : ScriptableEventListener<float, FloatEvent> { }
+```
+
+### Designer Workflow Example
+
+**Scenario:** Designer wants health changes to update UI and trigger low-health warning.
+
+**Steps (no code required):**
+1. Right-click Project → Create → Events → Int Event → name it "OnHealthChanged"
+2. Add `IntEventListener` component to HealthBar prefab
+3. Drag "OnHealthChanged" asset to listener's Event Asset field
+4. Wire UnityEvent to `HealthBar.UpdateDisplay()` method in Inspector
+5. Add another `IntEventListener` to WarningUI prefab
+6. Drag same "OnHealthChanged" asset
+7. Wire UnityEvent to `WarningUI.CheckLowHealth()` method
+
+**Result:** Designer created event chain with zero code changes, zero programmer involvement.
+
+### Raising Events from Code
+
+```csharp
 public class Player : MonoBehaviour {
-    [SerializeField] private PlayerDeathEvent onPlayerDeath;
+    [SerializeField] private IntEvent onHealthChanged;
+    [SerializeField] private VoidEvent onPlayerDied;
 
-    void Die(GameObject killer) {
-        onPlayerDeath.Raise(killer);
-    }
-}
+    private int health = 100;
 
-// Step 4: Listen for event (MUST REMEMBER TO UNREGISTER!)
-public class UIManager : MonoBehaviour {
-    [SerializeField] private PlayerDeathEvent onPlayerDeath;
+    public void TakeDamage(int amount) {
+        health -= amount;
+        onHealthChanged.Raise(health);
 
-    void OnEnable() {
-        onPlayerDeath.RegisterListener(HandleDeath);
-    }
-
-    void OnDisable() {
-        onPlayerDeath.UnregisterListener(HandleDeath);  // Forget this = memory leak!
-    }
-
-    void HandleDeath(GameObject killer) {
-        ShowGameOverScreen(killer);
-    }
-}
-
-public class AchievementManager : MonoBehaviour {
-    [SerializeField] private PlayerDeathEvent onPlayerDeath;
-
-    void OnEnable() {
-        onPlayerDeath.RegisterListener(HandleDeath);
-    }
-
-    void OnDisable() {
-        onPlayerDeath.UnregisterListener(HandleDeath);  // Forget this = memory leak!
-    }
-
-    void HandleDeath(GameObject killer) {
-        CheckDeathAchievements();
+        if (health <= 0) {
+            onPlayerDied.Raise(null);
+        }
     }
 }
 ```
 
-**Lines of Code:** ~50 lines + manual asset creation
+### Advantages
 
-**Pitfalls:**
+**Designer Empowerment:**
+- ✅ Non-programmers create game flow independently
+- ✅ Rapid iteration without code review cycle
+- ✅ Visual workflow (drag-drop assets, wire callbacks)
+- ✅ Animation events can trigger prefab logic without scripting
+- ✅ No code compilation required for event chain changes
 
-- Forgot to unregister in UIManager? Memory leak.
-- Wired wrong event asset in Inspector? Runtime error.
-- Forgot `OnEnable()` to clear listeners? Listeners accumulate between Play Mode sessions.
+**Collaboration Benefits:**
+- ✅ Reduces merge conflicts (designers modify assets, programmers modify scripts)
+- ✅ Clear separation: programmers build systems, designers orchestrate flow
+- ✅ Designers can test event chains without programmer availability
 
-#### DxMessaging Approach
+**Technical Benefits:**
+- ✅ No external dependencies
+- ✅ Simple conceptual model (assets are event channels)
+- ✅ Automatic cleanup with proper base class implementation
+- ✅ Built into Unity (ScriptableObjects are first-class citizens)
+
+### Disadvantages
+
+**Debugging Challenges:**
+- ❌ Cannot trace all listeners to an event without custom editor tools
+- ❌ Cannot find all raisers of an event through code search alone
+- ❌ Asset references don't appear in "Find References" (IDE limitation)
+- ❌ Must check Inspector on every component to verify wiring
+- ❌ Event flow invisible without visualizer tools
+
+**Scalability Concerns:**
+- ❌ 50+ events require folder organization and naming conventions
+- ❌ 100+ events typically need custom editor visualization tools
+- ❌ Asset count grows linearly with event types
+- ❌ Inspector references can break when moving/renaming assets
+
+**Manual Overhead:**
+- ❌ Must create asset for each event type (project overhead)
+- ❌ Must wire assets in Inspector for every component (manual labor)
+- ❌ Must manually update references when refactoring event names (if an in-place rename doesn't work)
+- ❌ No compile-time type safety on Inspector wiring (wrong/no asset = runtime bug)
+
+**Performance Considerations:**
+- ❌ UnityEvent allocates 136 bytes on first invocation (subsequent calls are zero-allocation)[^1]
+- ❌ UnityEvent is 6-40x slower than C# events depending on listener count and parameters[^1]
+- ❌ Passing complex data requires reference types (classes) which allocate
+- ❌ Not suitable for high-frequency events (>10000/second sustained)
+
+### Best Practices
+
+1. **Always use generic base classes** - Don't create separate event classes manually
+2. **Always implement OnEnable() clearing** - Prevents listener accumulation between Play Mode sessions
+3. **Use listener components, not code registration** - Embraces designer-driven workflow
+4. **Organize assets in folders** - Create Events/ folder with subfolders by category
+5. **Naming convention** - Prefix with "On" (OnHealthChanged, OnEnemySpawned)
+6. **Document event purpose** - Add [Tooltip] or comment in asset
+
+---
+
+<a id="event-busmessaging-code-driven"></a>
+## Event Bus/Messaging (Code-Driven)
+
+### Philosophy and Design
+
+Event buses provide centralized message routing with type-safe, code-driven subscription management. Messages are defined as types (structs/classes) rather than assets.
+
+**Design Goals:**
+- Compile-time type safety
+- Zero-allocation messaging (struct-based)
+- Automatic memory management
+- Full IDE support (Find References, Rename, etc.)
+- Scalable to thousands of message types
+
+### Comparisons of Modern Event Systems
+
+See a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging [here](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md).
+
+### Example: DxMessaging
+
+DxMessaging is a modern Unity messaging system with automatic lifecycle management. [GitHub](https://github.com/wallstop/DxMessaging)
 
 ```csharp
-// Step 1: Define message
+// 1. Define message (no asset needed!)
+[DxUntargetedMessage]  // Global broadcast
+[DxAutoConstructor]    // Generates constructor
+public readonly partial struct HealthChanged {
+    public readonly int currentHealth;
+    public readonly int maxHealth;
+}
+
+// 2. Emit message from anywhere
+public class Player : MessageAwareComponent {
+    private int health = 100;
+    private int maxHealth = 100;
+
+    public void TakeDamage(int amount) {
+        health -= amount;
+        var healthChanged = new HealthChanged(health, maxHealth)
+        healthChanged.EmitUntargeted();
+    }
+}
+
+// 3. Listen for message (automatic cleanup!)
+public class HealthBar : MessageAwareComponent {
+    [SerializeField] private Image fillImage;
+
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
+        // Token automatically unsubscribes when destroyed - zero leaks!
+    }
+
+    private void OnHealthChanged(ref HealthChanged msg) {
+        fillImage.fillAmount = (float)msg.currentHealth / msg.maxHealth;
+    }
+}
+
+public class WarningUI : MessageAwareComponent {
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
+    }
+
+    private void OnHealthChanged(ref HealthChanged msg) {
+        if (msg.currentHealth < msg.maxHealth * 0.3f) {
+            ShowLowHealthWarning();
+        }
+    }
+}
+```
+
+### Message Types
+
+Event buses typically support different routing patterns:
+
+**1. Global Broadcast (Untargeted)**
+```csharp
+[DxUntargetedMessage]
+public readonly partial struct GamePaused { }
+
+// Any component can listen
+Token.RegisterUntargeted<GamePaused>(OnGamePaused);
+```
+
+**2. Component-Targeted**
+```csharp
+[DxTargetedMessage]
+public readonly partial struct TakeDamage {
+    public readonly int amount;
+    public readonly DamageType type;
+}
+
+// Only specific component receives
+var takeDamage = new TakeDamage(50, DamageType.Fire);
+takeDamage.EmitComponentTargeted(enemyHealth);
+```
+
+**3. Observable Broadcast**
+```csharp
+[DxBroadcastMessage]
+public readonly partial struct PlayerMoved {
+    public readonly Vector3 position;
+}
+
+// Register for updates from specific broadcaster
+Token.RegisterBroadcast<PlayerMoved>(player, OnPlayerMoved);
+```
+
+### Advantages
+
+**Developer Productivity:**
+- ✅ Zero memory leaks (automatic cleanup via Token/IDisposable pattern)
+- ✅ IDE "Find References" works (find all listeners instantly)
+- ✅ IDE "Rename" works (refactor message types automatically)
+- ✅ Compile-time type safety (wrong message type = compiler error)
+- ✅ No asset creation overhead (pure code)
+- ✅ No Inspector wiring required
+
+**Performance:**
+- ✅ Zero-allocation design with readonly structs
+- ✅ Suitable for high-frequency events (damage ticks, input polling)
+- ✅ No UnityEvent overhead
+- ✅ Cache-friendly struct layouts
+
+**Debugging & Observability:**
+- ✅ Full stack traces on message emission
+- ✅ Can set breakpoints on message handler registration
+- ✅ Built-in Inspector shows all message flow (DxMessaging)
+- ✅ Can trace all listeners through "Find References"
+
+**Scalability:**
+- ✅ Scales to thousands of message types (no asset overhead)
+- ✅ Namespace organization for large projects
+- ✅ No Inspector reference breakage on refactors
+- ✅ New developers use "Find References" to understand flow
+
+### Disadvantages
+
+**Programmer-Required:**
+- ⚠️ Designers cannot create new messages without code
+- ⚠️ Designers cannot wire event chains through Inspector
+- ⚠️ Requires programming knowledge to modify flow
+- ⚠️ Less visual feedback (no asset graph, unless custom tools built)
+
+**External Dependency:**
+- ⚠️ Requires package installation (not built into Unity)
+- ⚠️ Team must learn specific library's patterns
+- ⚠️ Package maintenance risk (though many are well-maintained)
+
+**Learning Curve:**
+- ⚠️ More complex than ScriptableObject concept
+- ⚠️ Multiple message types (Untargeted, Targeted, Broadcast) to understand
+- ⚠️ Requires understanding of memory management patterns
+
+### Best Practices
+
+1. **Use readonly structs** - Prevents allocations and accidental mutations
+2. **Namespace organization** - Group related messages (Gameplay.Combat.*, UI.Dialogs.*)
+3. **Descriptive message names** - Past tense for events (PlayerDied), present for state (HealthChanged)
+4. **Minimal message data** - Only include essential information
+5. **Unregister in OnDisable** - Or use lifecycle-aware base classes
+6. **Document message contracts** - XML comments explaining when/why message fires
+
+---
+
+<a id="feature-comparison"></a>
+## Feature Comparison
+
+| Feature | ScriptableObject Events | Event Bus/Messaging |
+|---------|------------------------|---------------------|
+| **Workflow** |
+| Designer creates events | ✅ Yes (Inspector only) | ❌ No (code required) |
+| Programmer creates events | ⚠️ Verbose (asset + wiring) | ✅ Simple (message struct) |
+| Visual event wiring | ✅ Inspector drag-drop | ❌ Code-only |
+| Animation event integration | ✅ Excellent | ⚠️ Requires wrapper |
+| **Technical** |
+| Memory management | ⚠️ Manual (proper base class helps) | ✅ Automatic |
+| Memory leak risk | ⚠️ Moderate (if base classes not used) | ✅ Zero |
+| Compile-time type safety | ❌ Inspector wiring | ✅ Full |
+| Performance (allocations) | ❌ UnityEvent overhead | ✅ Zero-allocation |
+| High-frequency events | ⚠️ Risk of speed | ✅ Excellent |
+| **Debugging** |
+| Find all listeners | ❌ Custom tools needed | ✅ "Find References" |
+| Find all emitters | ⚠️ String search | ✅ "Find References" |
+| Stack traces | ✅ Yes | ✅ Yes |
+| Runtime inspection | ⚠️ UnityEvent list | ✅ Built-in (DxMessaging) |
+| **Refactoring** |
+| Rename event | ❌ Manual Inspector updates | ✅ IDE rename |
+| Find usages | ❌ Asset search | ✅ IDE search |
+| Break-on-change | ❌ Runtime errors | ✅ Compile errors |
+| **Scalability** |
+| 1-20 events | ✅ Simple | ✅ Simple |
+| 20-100 events | ⚠️ Needs organization | ✅ Simple |
+| 100+ events | ❌ Custom tools required | ✅ Scales naturally |
+| **Dependencies** |
+| External packages | ✅ None | ⚠️ Required |
+| Unity version | ✅ Any | ⚠️ Package dependent |
+| **Team Dynamics** |
+| Non-programmer autonomy | ✅ Full | ❌ None |
+| Merge conflicts | ✅ Reduced | ⚠️ Code conflicts |
+| Onboarding time | ✅ Low (visual) | ⚠️ Moderate (code concepts) |
+
+**Summary:** ScriptableObject events excel at designer empowerment and visual workflows. Event buses excel at programmer productivity, performance, and scalability.
+
+---
+
+<a id="side-by-side-examples"></a>
+## Side-by-Side Examples
+
+### Example 1: Player Death Event
+
+#### ScriptableObject Approach (Designer-Driven)
+
+```csharp
+// === Programmer creates base classes (once) ===
+public abstract class ScriptableEvent<T> : ScriptableObject {
+    private event System.Action<T> OnEventRaised;
+    public void Raise(T value) => OnEventRaised?.Invoke(value);
+    public void Register(System.Action<T> listener) => OnEventRaised += listener;
+    public void Unregister(System.Action<T> listener) => OnEventRaised -= listener;
+    private void OnEnable() => OnEventRaised = null;
+}
+
+[CreateAssetMenu(menuName = "Events/Void Event")]
+public class VoidEvent : ScriptableEvent<System.Object> { }
+
+public class VoidEventListener : ScriptableEventListener<System.Object, VoidEvent> { }
+
+// === Programmer creates raiser ===
+public class Player : MonoBehaviour {
+    [SerializeField] private VoidEvent onPlayerDied;
+
+    void Die() {
+        onPlayerDied.Raise(null);
+    }
+}
+
+// === Designer workflow (no code!) ===
+// 1. Right-click → Create → Events → Void Event → "OnPlayerDied"
+// 2. Add VoidEventListener to UIManager
+// 3. Drag OnPlayerDied asset to listener
+// 4. Wire UnityEvent to UIManager.ShowGameOver()
+// 5. Add VoidEventListener to AchievementManager
+// 6. Drag OnPlayerDied asset to listener
+// 7. Wire UnityEvent to AchievementManager.CheckDeathAchievements()
+```
+
+**Designer Outcome:** Two listeners wired with zero code changes, no programmer involvement needed.
+
+#### Event Bus Approach (Code-Driven)
+
+```csharp
+// === Programmer defines message ===
 [DxUntargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct PlayerDied {
-    public readonly GameObject killer;
-}
+public readonly partial struct PlayerDied { }
 
-// Step 2: Raise message
-public class Player : MessageAwareComponent {
-    void Die(GameObject killer) {
-        new PlayerDied(killer).EmitUntargeted();
+// === Programmer creates raiser ===
+public class Player : MonoBehaviour {
+    void Die() {
+        var playerDied = new PlayerDied();
+        playerDied.EmitUntargeted();
     }
 }
 
-// Step 3: Listen for message (automatic cleanup!)
+// === Programmer creates listeners ===
 public class UIManager : MessageAwareComponent {
     protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<PlayerDied>(HandleDeath);
+        _ = Token.RegisterUntargeted<PlayerDied>(OnPlayerDied);
     }
 
-    void HandleDeath(ref PlayerDied msg) {
-        ShowGameOverScreen(msg.killer);
+    void OnPlayerDied(ref PlayerDied msg) {
+        ShowGameOver();
     }
 }
 
 public class AchievementManager : MessageAwareComponent {
     protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<PlayerDied>(HandleDeath);
+        _ = Token.RegisterUntargeted<PlayerDied>(OnPlayerDied);
     }
 
-    void HandleDeath(ref PlayerDied msg) {
+    void OnPlayerDied(ref PlayerDied msg) {
         CheckDeathAchievements();
     }
 }
 ```
 
-**Lines of Code:** ~25 lines, no assets
-
-**Pitfalls:** None - automatic cleanup, compile-time type safety, no persistence issues.
+**Programmer Outcome:** Compile-time safety, automatic cleanup, "Find References" shows all listeners instantly.
 
 ---
 
@@ -423,33 +549,15 @@ public class AchievementManager : MessageAwareComponent {
 #### ScriptableObject Approach
 
 ```csharp
-// Generic typed event (requires more boilerplate)
+// === Programmer setup ===
 [CreateAssetMenu(menuName = "Events/Int Event")]
-public class IntEvent : ScriptableObject {
-    private event System.Action<int> OnEventRaised;
+public class IntEvent : ScriptableEvent<int> { }
 
-    public void Raise(int value) {
-        OnEventRaised?.Invoke(value);
-    }
-
-    public void RegisterListener(System.Action<int> listener) {
-        OnEventRaised += listener;
-    }
-
-    public void UnregisterListener(System.Action<int> listener) {
-        OnEventRaised -= listener;
-    }
-
-    private void OnEnable() {
-        OnEventRaised = null;
-    }
-}
-
-// Create two assets: "OnHealthChanged", "OnMaxHealthChanged"
+public class IntEventListener : ScriptableEventListener<int, IntEvent> { }
 
 public class Player : MonoBehaviour {
     [SerializeField] private IntEvent onHealthChanged;
-    [SerializeField] private int health = 100;
+    private int health = 100;
 
     public void TakeDamage(int damage) {
         health -= damage;
@@ -457,126 +565,99 @@ public class Player : MonoBehaviour {
     }
 }
 
-public class HealthBar : MonoBehaviour {
-    [SerializeField] private IntEvent onHealthChanged;
-    [SerializeField] private Image fillImage;
-
-    void OnEnable() {
-        onHealthChanged.RegisterListener(UpdateDisplay);
-    }
-
-    void OnDisable() {
-        onHealthChanged.UnregisterListener(UpdateDisplay);
-    }
-
-    void UpdateDisplay(int newHealth) {
-        fillImage.fillAmount = newHealth / 100f;
-    }
-}
+// === Designer workflow ===
+// 1. Create IntEvent asset "OnHealthChanged"
+// 2. Add IntEventListener to HealthBar
+// 3. Wire to HealthBar.UpdateDisplay(int)
+// 4. Add IntEventListener to WarningUI
+// 5. Wire to WarningUI.CheckLowHealth(int)
 ```
 
-#### DxMessaging Approach
+**Challenge:** Designer can wire callbacks, but callbacks must accept `int`. If HealthBar needs current + max health, requires more complex event type or multiple events.
+
+#### Event Bus Approach
 
 ```csharp
-// Define message
-[DxBroadcastMessage]
+// === Programmer implementation ===
+[DxUntargetedMessage]
 [DxAutoConstructor]
 public readonly partial struct HealthChanged {
     public readonly int current;
     public readonly int max;
 }
 
-// Broadcaster
 public class Player : MessageAwareComponent {
-    [SerializeField] private int maxHealth = 100;
-    private int currentHealth;
-
-    void Awake() {
-        currentHealth = maxHealth;
-    }
+    private int health = 100;
+    private int maxHealth = 100;
 
     public void TakeDamage(int damage) {
-        currentHealth -= damage;
-        new HealthChanged(currentHealth, maxHealth).EmitBroadcast(this);
+        health -= damage;
+        var healthChanged = new HealthChanged(health, maxHealth);
+        healthChanged.EmitUntargeted();
     }
 }
 
-// Observer (automatic cleanup!)
 public class HealthBar : MessageAwareComponent {
     [SerializeField] private Image fillImage;
 
     protected override void RegisterMessageHandlers() {
-        var player = FindObjectOfType<Player>();
-        _ = Token.RegisterBroadcast<HealthChanged>(player, UpdateDisplay);
+        _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
     }
 
-    void UpdateDisplay(ref HealthChanged msg) {
+    void OnHealthChanged(ref HealthChanged msg) {
         fillImage.fillAmount = (float)msg.current / msg.max;
+    }
+}
+
+public class WarningUI : MessageAwareComponent {
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
+    }
+
+    void OnHealthChanged(ref HealthChanged msg) {
+        if (msg.current < msg.max * 0.3f) {
+            ShowWarning();
+        }
     }
 }
 ```
 
-**Key Difference:** DxMessaging's broadcast pattern is purpose-built for observable state changes.
-ScriptableObject events require creating separate event assets for each value.
+**Benefit:** Message includes both current and max health. Type-safe access. No allocations.
 
 ---
 
-### Example 3: Complex Event with Multiple Parameters
+### Example 3: Complex Multi-Parameter Event
 
 #### ScriptableObject Approach
 
 ```csharp
-// Need to create wrapper class for multiple parameters
-[System.Serializable]
-public class DamageInfo {
-    public int amount;
-    public GameObject attacker;
-    public DamageType type;
-}
-
+// === Programmer creates event with tuple ===
 [CreateAssetMenu(menuName = "Events/Damage Event")]
-public class DamageEvent : ScriptableObject {
-    private event System.Action<DamageInfo> OnEventRaised;
+public class DamageEvent : ScriptableEvent<(int amount, GameObject attacker, DamageType type)> { }
 
-    public void Raise(DamageInfo info) {
-        OnEventRaised?.Invoke(info);
-    }
+public class DamageEventListener :
+    ScriptableEventListener<(int, GameObject, DamageType), DamageEvent> { }
 
-    public void RegisterListener(System.Action<DamageInfo> listener) {
-        OnEventRaised += listener;
-    }
-
-    public void UnregisterListener(System.Action<DamageInfo> listener) {
-        OnEventRaised -= listener;
-    }
-
-    private void OnEnable() {
-        OnEventRaised = null;
-    }
-}
-
-// Usage (creates garbage!)
+// === Usage ===
 public class Weapon : MonoBehaviour {
     [SerializeField] private DamageEvent onDamageDealt;
 
     void DealDamage(GameObject target, int amount, DamageType type) {
-        // Allocates new DamageInfo every time!
-        var info = new DamageInfo {
-            amount = amount,
-            attacker = gameObject,
-            type = type
-        };
-        onDamageDealt.Raise(info);
+        onDamageDealt.Raise((amount, this.gameObject, type));
     }
 }
+
+// === Designer workflow ===
+// Must wire UnityEvent<(int, GameObject, DamageType)> in Inspector
+// UnityEvent doesn't natively support tuples well - requires wrapper method
 ```
 
-**Problem:** Creating `DamageInfo` class allocates garbage every event!
+**Challenge:** Tuples work in code but awkward with UnityEvents. Designers may need programmer to create wrapper methods.
 
-#### DxMessaging Approach
+#### Event Bus Approach
 
 ```csharp
-// Zero-allocation struct
+// === Programmer implementation ===
 [DxTargetedMessage]
 [DxAutoConstructor]
 public readonly partial struct TakeDamage {
@@ -585,11 +666,11 @@ public readonly partial struct TakeDamage {
     public readonly DamageType type;
 }
 
-// Usage (zero allocations!)
 public class Weapon : MonoBehaviour {
     void DealDamage(GameObject target, int amount, DamageType type) {
         if (target.TryGetComponent<HealthComponent>(out var health)) {
-            new TakeDamage(amount, gameObject, type).EmitComponentTargeted(health);
+            var takeDamage = new TakeDamage(amount, gameObject, type);
+            takeDamage.EmitComponentTargeted(health);
         }
     }
 }
@@ -600,190 +681,140 @@ public class HealthComponent : MessageAwareComponent {
     }
 
     void OnTakeDamage(ref TakeDamage msg) {
-        // Handle damage
+        // Handle damage with full type-safe access
+        ApplyDamage(msg.amount, msg.type);
+        LogAttacker(msg.attacker);
     }
 }
 ```
 
-**Key Difference:** DxMessaging uses readonly structs for zero-allocation messaging.
-ScriptableObject events typically allocate parameter wrapper classes.
+**Benefit:** Clean struct with named fields. Zero allocations. Targeted delivery (only damaged component receives).
 
 ---
 
 <a id="when-to-use-each"></a>
-
 ## When to Use Each
 
 ### Use ScriptableObject Events When:
 
-| Scenario                                         | Why                                    |
-| ------------------------------------------------ | -------------------------------------- |
-| **Very simple prototype** (< 1 week development) | Familiarity, no external dependencies  |
-| **Non-programmers must wire events**             | Inspector-driven workflow              |
-| **Zero dependencies allowed**                    | Can't use external packages            |
-| **Learning Unity basics**                        | Simpler concept for absolute beginners |
+| Scenario | Why |
+|----------|-----|
+| **Non-programmers create game flow** | Designers/artists need autonomy without code review |
+| **Animation-driven events** | Animator needs to trigger prefab logic without code |
+| **Rapid prototyping by mixed teams** | Game jams, quick prototypes with non-technical staff |
+| **Low event count (< 100)** | Simple games where asset overhead is minimal |
+| **Inspector-centric workflow** | Team prefers visual wiring over code |
+| **Zero external dependencies** | Cannot use packages, Unity-only |
+| **Event frequency < 10000/second** | Performance overhead acceptable |
 
-### Use DxMessaging When:
+**Example Use Cases:**
+- Cutscene system where designers wire animation events to game responses
+- Educational project where students learn Unity through visual scripting
+- Mobile puzzle game with 10 simple events (LevelComplete, ScoreChanged, etc.)
+- Prefab-based game where designers assemble levels from pre-built pieces
 
-| Scenario                        | Why                                                 |
-| ------------------------------- | --------------------------------------------------- |
-| **Any serious project**         | Prevents memory leaks, better performance           |
-| **Performance matters**         | Zero-allocation design                              |
-| **Team development**            | Compile-time type safety catches errors early       |
-| **Complex event data**          | Type-safe structs with multiple parameters          |
-| **Targeted communication**      | Built-in support for component-targeted messages    |
-| **Observable state changes**    | Broadcast pattern purpose-built for this            |
-| **Long-term maintainability**   | Automatic cleanup prevents technical debt           |
-| **You've been bitten by leaks** | DxMessaging eliminates entire class of memory leaks |
+### Use Event Bus/Messaging When:
 
-### Migration Recommendation
+| Scenario | Why |
+|----------|-----|
+| **Programmer-centric team** | Developers prefer code over Inspector wiring |
+| **High event count (> 100)** | Scalability matters, asset overhead unacceptable |
+| **Performance critical** | Mobile/VR where GC spikes cause frame drops |
+| **High-frequency events** | Damage ticks, input polling, collision checks |
+| **Complex message data** | Multi-parameter messages with type safety |
+| **Long-term maintainability** | Need refactoring support, "Find References" |
+| **Large team** | Need traceability, code review, compile errors vs runtime errors |
 
-**If you're starting a new project:** Use DxMessaging from day one.
+**Example Use Cases:**
+- Multiplayer game with hundreds of network messages
+- Action RPG with damage system firing 60+ times/second
+- Large project with 20+ programmers needing clear code contracts
+- Systems programming (AI, physics, state machines) with complex data flow
 
-**If you have existing ScriptableObject events:** Migrate gradually, starting with high-frequency
-events (better performance) and complex events (better type safety).
+### Hybrid Approaches
 
----
+Many successful projects use **both patterns** for different purposes:
 
-## Migration Guide
-
-### ScriptableObject → DxMessaging
-
-### Step 1: Install DxMessaging
-
-```
-1. Open Unity Package Manager
-2. Click "+" → "Add package from git URL"
-3. Enter: https://github.com/wallstop/DxMessaging.git
-```
-
-### Step 2: Convert One Event at a Time
-
-#### Before (ScriptableObject)
+**Example Architecture:**
+- **ScriptableObject Events** for designer-facing game events (UI triggers, level progression, cutscenes)
+- **Event Bus** for system-level communication (combat, networking, state machines)
 
 ```csharp
-// Asset: OnScoreChanged.asset (IntEvent)
-public class ScoreManager : MonoBehaviour {
-    [SerializeField] private IntEvent onScoreChanged;
-    private int score;
+// Designer-driven: Level designer triggers victory sequence
+[CreateAssetMenu(menuName = "Events/Void Event")]
+public class VoidEvent : ScriptableEvent<System.Object> { }
 
-    public void AddScore(int points) {
-        score += points;
-        onScoreChanged.Raise(score);
-    }
-}
-
-public class ScoreUI : MonoBehaviour {
-    [SerializeField] private IntEvent onScoreChanged;
-
-    void OnEnable() => onScoreChanged.RegisterListener(UpdateDisplay);
-    void OnDisable() => onScoreChanged.UnregisterListener(UpdateDisplay);
-
-    void UpdateDisplay(int newScore) {
-        scoreText.text = newScore.ToString();
-    }
+// Code-driven: Combat system with high-frequency damage
+[DxTargetedMessage]
+public readonly partial struct TakeDamage {
+    public readonly int amount;
+    public readonly DamageType type;
 }
 ```
 
-#### After (DxMessaging)
+**Benefits of Hybrid:**
+- ✅ Designers work independently on game flow
+- ✅ Programmers maintain performance-critical systems
+- ✅ Clear separation: gameplay events vs system events
 
-```csharp
-// 1. Define message
-[DxUntargetedMessage]
-[DxAutoConstructor]
-public readonly partial struct ScoreChanged {
-    public readonly int newScore;
-}
-
-// 2. Change MonoBehaviour → MessageAwareComponent
-public class ScoreManager : MessageAwareComponent {
-    private int score;
-
-    public void AddScore(int points) {
-        score += points;
-        new ScoreChanged(score).EmitUntargeted();
-    }
-}
-
-// 3. Change MonoBehaviour → MessageAwareComponent
-public class ScoreUI : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<ScoreChanged>(UpdateDisplay);
-    }
-
-    void UpdateDisplay(ref ScoreChanged msg) {
-        scoreText.text = msg.newScore.ToString();
-    }
-}
-
-// 4. Delete the OnScoreChanged.asset file
-```
-
-### Step 3: Remove SerializeField References
-
-- Delete `[SerializeField] private IntEvent onScoreChanged;` lines
-- Remove asset references from Inspector
-- Delete event ScriptableObject assets from Project
-
-### Step 4: Test
-
-- Enter Play Mode
-- Verify events fire correctly
-- Check for null reference exceptions
-- Confirm no memory leaks (use Memory Profiler)
+**Challenges of Hybrid:**
+- ⚠️ Team must learn both patterns
+- ⚠️ Inconsistent architecture can confuse new developers
+- ⚠️ Must establish clear conventions for which pattern when
 
 ---
 
 <a id="common-pitfalls"></a>
-
 ## Common Pitfalls
 
-### Pitfall 1: Forgetting to Unregister (ScriptableObject Events)
+### Pitfall 1: ScriptableObject Memory Leaks (Code-Driven Pattern)
+
+**The Problem:** Many developers use ScriptableObjects with code-based registration (OnEnable/OnDisable), conflating code-driven and designer-driven patterns.
 
 ```csharp
-// ❌ WRONG - Memory leak!
-public class EventListener : MonoBehaviour {
-    [SerializeField] private GameEvent gameEvent;
-
-    void Start() {
-        gameEvent.OnEventRaised += HandleEvent;
-    }
-
-    // Forgot OnDisable! Reference persists after object destroyed
+// ❌ WRONG: Using ScriptableObjects in code-driven pattern
+[CreateAssetMenu]
+public class GameEvent : ScriptableObject {
+    private event System.Action OnEventRaised;
+    public void Raise() => OnEventRaised?.Invoke();
+    public void Register(System.Action listener) => OnEventRaised += listener;
+    public void Unregister(System.Action listener) => OnEventRaised -= listener;
 }
 
-// ✅ CORRECT - Proper cleanup
-public class EventListener : MonoBehaviour {
+public class Listener : MonoBehaviour {
     [SerializeField] private GameEvent gameEvent;
 
-    void OnEnable() => gameEvent.OnEventRaised += HandleEvent;
-    void OnDisable() => gameEvent.OnEventRaised -= HandleEvent;
-
-    void HandleEvent() { /* ... */ }
-}
-
-// ✅ EVEN BETTER - Use DxMessaging (automatic cleanup!)
-public class EventListener : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<GameEvent>(HandleEvent);
+    void OnEnable() {
+        gameEvent.Register(HandleEvent);  // Code registration
     }
 
-    void HandleEvent(ref GameEvent msg) { /* ... */ }
+    void OnDisable() {
+        gameEvent.Unregister(HandleEvent);  // Easy to forget!
+    }
 }
 ```
 
-### Pitfall 2: Not Clearing Listeners in OnEnable (ScriptableObject)
+**Why This Is Wrong:**
+- Combines worst of both worlds: asset creation overhead + manual code management
+- No designer autonomy (requires code changes)
+- Memory leak risk if OnDisable forgotten
+- Asset overhead with no designer benefit
+
+**Solution A:** Use proper designer-driven pattern with listener components
+**Solution B:** Switch to event bus for code-driven pattern
+
+### Pitfall 2: Not Clearing ScriptableObject Listeners in OnEnable
 
 ```csharp
-// ❌ PROBLEM - Listeners accumulate between Play Mode sessions
+// ❌ PROBLEM: Listeners accumulate between Play Mode sessions
 [CreateAssetMenu]
 public class GameEvent : ScriptableObject {
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
 
-    // Forgot to clear! Listeners from previous Play Mode persist
+    // Missing OnEnable() clear!
 }
 
-// ✅ SOLUTION
+// ✅ SOLUTION: Always clear in OnEnable
 [CreateAssetMenu]
 public class GameEvent : ScriptableObject {
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
@@ -792,285 +823,290 @@ public class GameEvent : ScriptableObject {
         listeners.Clear();  // Clear stale references
     }
 }
-
-// ✅ EVEN BETTER - DxMessaging has no persistence issues
 ```
 
-### Pitfall 3: Wrong Event Asset in Inspector (ScriptableObject)
+**References:**
+- Unity Issue Tracker: "Memory leak when subscribing to C# event in referenced serialized ScriptableObject" ([Stack Overflow](https://stackoverflow.com/questions/58334248/how-do-i-avoid-memory-leak-in-unity-when-subscribing-to-c-sharp-event-in-referen))
+- Unity Memory Profiler documentation on managed shell objects ([Unity Docs](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html))
+
+### Pitfall 3: Wrong Event Asset in Inspector (Runtime Bug)
 
 ```csharp
-// ❌ PROBLEM - No compile-time safety
+// ❌ PROBLEM: No compile-time safety
 public class ScoreUI : MonoBehaviour {
-    [SerializeField] private IntEvent onScoreChanged;
+    [SerializeField] private IntEvent onScoreChanged;  // IntEvent
 
     void OnEnable() {
-        onScoreChanged.RegisterListener(UpdateDisplay);
+        onScoreChanged.Register(UpdateDisplay);
     }
 
     void UpdateDisplay(int newScore) {
         scoreText.text = newScore.ToString();
     }
 }
-// If you accidentally wire "onHealthChanged" instead of "onScoreChanged" in Inspector,
+// If designer accidentally wires "onHealthChanged" asset instead of "onScoreChanged",
 // you get wrong events at runtime with no warning!
+```
 
-// ✅ SOLUTION - DxMessaging has compile-time type safety
+**Solution:** Use event bus with compile-time type safety:
+
+```csharp
+// ✅ SOLUTION: Compiler enforces correct type
 public class ScoreUI : MessageAwareComponent {
     protected override void RegisterMessageHandlers() {
         _ = Token.RegisterUntargeted<ScoreChanged>(UpdateDisplay);
-    }
-
-    void UpdateDisplay(ref ScoreChanged msg) {
-        scoreText.text = msg.newScore.ToString();
+        // Compiler error if ScoreChanged doesn't exist or is wrong type
     }
 }
-// Compiler enforces correct message type - can't wire wrong event!
 ```
 
-### Pitfall 4: Creating Garbage with Event Parameters (ScriptableObject)
+### Pitfall 4: Using ScriptableObjects for High-Frequency Events
 
 ```csharp
-// ❌ BAD - Allocates garbage every event
-[System.Serializable]
-public class DamageInfo {
-    public int amount;
-    public GameObject attacker;
-}
-
+// ❌ BAD: 60 damage events per second
 [CreateAssetMenu]
-public class DamageEvent : ScriptableObject {
-    private event System.Action<DamageInfo> OnEventRaised;
-
-    public void Raise(DamageInfo info) {
-        OnEventRaised?.Invoke(info);
+public class IntEvent : ScriptableObject {
+    private event System.Action<int> OnEventRaised;
+    public void Raise(int value) {
+        OnEventRaised?.Invoke(value);  // UnityEvent allocates garbage
     }
 }
 
-// Every damage event allocates new DamageInfo!
-damageEvent.Raise(new DamageInfo { amount = 10, attacker = this.gameObject });
+void Update() {
+    // Fire damage every frame
+    onDamageEvent.Raise(10);  // GC pressure!
+}
+```
 
-// ✅ GOOD - Zero allocations with DxMessaging
+**Performance Impact:** UnityEvent is 6-40x slower than C# events and allocates 136 bytes on first dispatch (zero thereafter).[^1] However, frequent AddListener/RemoveListener calls allocate new listener arrays each time, causing GC pressure with dynamic subscriptions.
+
+**Solution:** Use event bus with zero-allocation structs:
+
+```csharp
+// ✅ GOOD: Zero allocations
+[DxUntargetedMessage]
+public readonly partial struct DamageDealt {
+    public readonly int amount;
+}
+
+void Update() {
+    var damageDealt = new DamageDealt(10);
+    damageDealt.EmitUntargeted();  // No allocations!
+}
+```
+
+### Pitfall 5: Event Bus Without Proper Cleanup
+
+```csharp
+// ❌ WRONG: Manual registration without automatic cleanup
+public class Listener : MonoBehaviour {
+    void OnEnable() {
+        MessageBus.Subscribe<PlayerDied>(HandleEvent);
+    }
+
+    // Forgot OnDisable! Memory leak!
+}
+
+// ✅ CORRECT: Use lifecycle-aware base class
+public class Listener : MessageAwareComponent {
+    protected override void RegisterMessageHandlers() {
+        _ = Token.RegisterUntargeted<PlayerDied>(HandleEvent);
+        // Token automatically unsubscribes when destroyed
+    }
+}
+```
+
+### Pitfall 6: Overusing Global Events
+
+```csharp
+// ❌ BAD: Everything is global broadcast
+[DxUntargetedMessage]
+public readonly partial struct DamageDealt { }
+
+// 100 enemies, 100 damage events/second = 10,000 broadcast checks
+
+// ✅ GOOD: Use targeted messages
 [DxTargetedMessage]
-[DxAutoConstructor]
 public readonly partial struct TakeDamage {
     public readonly int amount;
-    public readonly GameObject attacker;
 }
 
-// Zero heap allocations!
-new TakeDamage(10, gameObject).EmitComponentTargeted(target);
+// Only the damaged component receives message
+var takeDamage = new TakeDamage(50);
+takeDamage.EmitComponentTargeted(targetHealth);
 ```
-
-### Pitfall 5: Using Start Instead of OnEnable (ScriptableObject)
-
-```csharp
-// ❌ WRONG - Subscriptions not restored after disable/enable
-public class EventListener : MonoBehaviour {
-    [SerializeField] private GameEvent gameEvent;
-
-    void Start() {
-        gameEvent.OnEventRaised += HandleEvent;
-    }
-
-    void OnDisable() {
-        gameEvent.OnEventRaised -= HandleEvent;
-    }
-    // If this GameObject is disabled and re-enabled, Start() won't run again!
-    // Subscription lost!
-}
-
-// ✅ CORRECT - Use OnEnable/OnDisable
-public class EventListener : MonoBehaviour {
-    [SerializeField] private GameEvent gameEvent;
-
-    void OnEnable() => gameEvent.OnEventRaised += HandleEvent;
-    void OnDisable() => gameEvent.OnEventRaised -= HandleEvent;
-
-    void HandleEvent() { /* ... */ }
-}
-
-// ✅ EVEN BETTER - DxMessaging handles this automatically
-public class EventListener : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<GameEvent>(HandleEvent);
-    }
-
-    void HandleEvent(ref GameEvent msg) { /* ... */ }
-}
-```
-
-### Pitfall 6: Forgetting MessageAwareComponent (DxMessaging)
-
-```csharp
-// ❌ WRONG - Token doesn't exist!
-public class EventListener : MonoBehaviour {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<GameStarted>(HandleEvent);  // Error!
-    }
-}
-
-// ✅ CORRECT - Inherit MessageAwareComponent
-public class EventListener : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
-        _ = Token.RegisterUntargeted<GameStarted>(HandleEvent);
-    }
-
-    void HandleEvent(ref GameStarted msg) { /* ... */ }
-}
-```
-
-### Pitfall 7: Using Wrong Message Type (DxMessaging)
-
-```csharp
-// ❌ WRONG - Message type doesn't match usage
-[DxTargetedMessage]  // Says it's targeted...
-[DxAutoConstructor]
-public readonly partial struct GamePaused { }
-
-// But emitted as untargeted!
-new GamePaused().EmitUntargeted();  // Runtime error!
-
-// ✅ CORRECT - Message type matches usage
-[DxUntargetedMessage]  // Untargeted message
-[DxAutoConstructor]
-public readonly partial struct GamePaused { }
-
-new GamePaused().EmitUntargeted();  // Works!
-```
-
-**Message Type Quick Reference:**
-
-- `[DxUntargetedMessage]` → `.EmitUntargeted()` - Global broadcasts
-- `[DxTargetedMessage]` → `.EmitComponentTargeted(component)` - Specific component
-- `[DxBroadcastMessage]` → `.EmitBroadcast(this)` - Observable state changes
-
----
-
-## Quick Reference
-
-### ScriptableObject Events Checklist
-
-When using ScriptableObject events, you **MUST**:
-
-- ✓ Create event ScriptableObject asset in Project
-- ✓ Wire asset to all raisers and listeners in Inspector
-- ✓ Subscribe in `OnEnable()` (not `Start()`)
-- ✓ Unsubscribe in `OnDisable()` (CRITICAL - memory leak if forgotten!)
-- ✓ Clear listeners in `OnEnable()` on the ScriptableObject itself
-- ✓ Use `OnEnable`/`OnDisable`, not `Start`/`OnDestroy`
-
-### DxMessaging Checklist
-
-When using DxMessaging, you **MUST**:
-
-- ✓ Define message struct with `[DxAutoConstructor]`
-- ✓ Choose correct message type attribute:
-  - `[DxUntargetedMessage]` for global broadcasts
-  - `[DxTargetedMessage]` for specific components
-  - `[DxBroadcastMessage]` for observable state changes
-- ✓ Inherit `MessageAwareComponent` (not `MonoBehaviour`)
-- ✓ Override `RegisterMessageHandlers()` to register
-- ✓ Use matching emit method (`.EmitUntargeted()`, `.EmitComponentTargeted()`, etc.)
-- ✓ That's it! Cleanup is automatic.
 
 ---
 
 ## Performance Comparison
 
-### Memory Allocations Test
+### Allocation Test: 10,000 Events with Multiple Parameters
 
+**Test Setup:**
 ```csharp
-// Test: Fire 10,000 events with 3 parameters
+// Fire 10,000 events with 3 parameters (int, Vector3, GameObject)
+```
 
-// ScriptableObject Events (with wrapper class)
+**ScriptableObject Events (UnityEvent):**
+```csharp
 [System.Serializable]
-public class EventData {
-    public int value1;
-    public Vector3 value2;
-    public GameObject value3;
+public class DamageData {
+    public int amount;
+    public Vector3 hitPoint;
+    public GameObject attacker;
 }
 
-// Result: 10,000 allocations = ~800KB garbage
+[CreateAssetMenu]
+public class DamageEvent : ScriptableObject {
+    private UnityEvent<DamageData> OnEventRaised;
+    public void Raise(DamageData data) {
+        OnEventRaised?.Invoke(data);
+    }
+}
+
+// Test
 for (int i = 0; i < 10000; i++) {
-    var data = new EventData { value1 = i, value2 = Vector3.zero, value3 = this.gameObject };
-    myEvent.Raise(data);
-}
-
-// DxMessaging (readonly struct)
-[DxUntargetedMessage]
-[DxAutoConstructor]
-public readonly partial struct EventData {
-    public readonly int value1;
-    public readonly Vector3 value2;
-    public readonly GameObject value3;
-}
-
-// Result: 0 allocations = 0KB garbage
-for (int i = 0; i < 10000; i++) {
-    new EventData(i, Vector3.zero, gameObject).EmitUntargeted();
+    var data = new DamageData {
+        amount = i,
+        hitPoint = Vector3.zero,
+        attacker = gameObject
+    };
+    damageEvent.Raise(data);
 }
 ```
 
-**Profiler Results:**
+**Result:**
+- **~400 KB allocations** (DamageData class instances: 10,000 × ~40 bytes)
+- **~50-100ms total execution time** (UnityEvent is 6-40x slower than C# events[^1])
+- **1-2 GC collections**
 
-| Metric                | ScriptableObject Events | DxMessaging |
-| --------------------- | ----------------------- | ----------- |
-| Allocations per event | 1 (wrapper class)       | 0           |
-| Total allocations     | 10,000                  | 0           |
-| GC pressure (10k)     | ~800KB                  | 0KB         |
-| GC collections caused | 1-2                     | 0           |
-| Frame time impact     | +2-5ms (GC spike)       | <0.1ms      |
+**Event Bus (DxMessaging with Readonly Struct):**
+```csharp
+[DxUntargetedMessage]
+[DxAutoConstructor]
+public readonly partial struct DamageDealt {
+    public readonly int amount;
+    public readonly Vector3 hitPoint;
+    public readonly GameObject attacker;
+}
 
-**Recommendation:** For high-frequency events (damage, collisions, input), DxMessaging's
-zero-allocation design prevents GC stutters.
+// Test
+for (int i = 0; i < 10000; i++) {
+    var damageDealt= new DamageDealt(i, Vector3.zero, gameObject);
+    damageDealt.EmitUntargeted();
+}
+```
+
+**Result:**
+- **0 allocations** (readonly struct, stack-only)
+- **0 GC collections**
+- **<0.1ms frame time**
+
+**Conclusion:** For high-frequency events (damage systems, input, physics), event bus with structs prevents allocations and provides 6-40x better performance. For low-frequency events (UI, progression), UnityEvent's overhead is acceptable.
+
+[^1]: Jackson Dunstan, ["Event Performance: C# vs. UnityEvent"](https://www.jacksondunstan.com/articles/3335) - Benchmarks show UnityEvent is 6-40x slower than C# events (tested on Unity 5.3.1f1, 10M iterations). UnityEvent allocates 136 bytes on first dispatch, zero on subsequent dispatches. Adding/removing listeners allocates new arrays each time.
+
+---
+
+## Quick Decision Guide
+
+```
+Do non-programmers need to create/modify event flow?
+│
+├─ YES → ScriptableObject Events
+│   │
+│   ├─ Will you have > 50 event types?
+│   │   ├─ YES → Consider event bus (scaling issues)
+│   │   └─ NO → ScriptableObject Events are good fit
+│   │
+│   └─ High-frequency events (>10000/second)?
+│       ├─ YES → Hybrid: event bus for these, ScriptableObjects for others
+│       └─ NO → ScriptableObject Events are good fit
+│
+└─ NO → Event Bus/Messaging
+    │
+    ├─ Team comfortable with external packages?
+    │   ├─ YES → Use DxMessaging or similar
+    │   └─ NO → Implement simple event bus or reconsider ScriptableObjects
+    │
+    └─ Need compile-time safety and refactoring support?
+        ├─ YES → Event Bus is best choice
+        └─ NO → Either pattern works
+```
 
 ---
 
 ## Summary
 
-### The Verdict
+### Key Insights
 
-**DxMessaging is objectively superior** for most Unity projects:
+1. **ScriptableObject Events and Event Buses serve different workflows**, not competing technical solutions
+2. **ScriptableObject Events** excel when **designers need autonomy** to create game flow without programmer bottlenecks
+3. **Event Buses** excel when **programmers prioritize type safety**, performance, and refactoring support
+4. **Hybrid approaches** are valid: designer-driven for gameplay, code-driven for systems
+5. **Neither pattern is universally superior** - choose based on team composition and project needs
 
-| Category          | Winner                                 |
-| ----------------- | -------------------------------------- |
-| Memory Management | ✅ DxMessaging (automatic cleanup)     |
-| Performance       | ✅ DxMessaging (zero allocations)      |
-| Type Safety       | ✅ DxMessaging (compile-time)          |
-| Code Simplicity   | ✅ DxMessaging (less boilerplate)      |
-| Observability     | ✅ DxMessaging (built-in Inspector)    |
-| Designer Workflow | ✅ ScriptableObject (Inspector-driven) |
-| No External Deps  | ✅ ScriptableObject                    |
-| Learning Curve    | ✅ ScriptableObject (simpler concept)  |
+### Recommendations by Project Type
 
-**Golden Rules:**
+**Small Prototype (< 1 month, < 20 events):**
+- ScriptableObject Events if mixed team
+- Event Bus if programmer-only
 
-1. **Use DxMessaging for serious projects** - Automatic cleanup prevents entire class of memory
-   leaks
-2. **Use ScriptableObjects for simple prototypes** - When you need quick Inspector wiring and no
-   external deps
-3. **Never mix both approaches** - Pick one event system and stick with it
-4. **If using ScriptableObjects, ALWAYS unregister in OnDisable** - Memory leak otherwise
-5. **If using DxMessaging, ALWAYS inherit MessageAwareComponent** - Token provides automatic cleanup
+**Medium Game (3-12 months, 20-100 events):**
+- Hybrid approach (both patterns for different purposes)
+- Pure event bus if programmer-centric team
 
-### Migration Path
+**Large Game (> 12 months, 100+ events):**
+- Event bus for system architecture
+- ScriptableObjects for designer-facing game events (if needed)
 
-1. **New projects:** Start with DxMessaging
-2. **Existing projects with <10 events:** Consider migrating for better maintainability
-3. **Existing projects with >50 events:** Migrate gradually, high-frequency events first
-4. **Simple prototypes:** ScriptableObjects are fine if project stays small
+**Live Service Game:**
+- Event bus (refactoring support critical for ongoing development)
+
+### Golden Rules
+
+**For ScriptableObject Events:**
+1. Use generic base classes, not hand-written event classes
+2. Always clear listeners in `OnEnable()` on ScriptableObject
+3. Use listener components for designer-driven workflow, not code registration
+4. Organize assets in folders with clear naming conventions
+5. Avoid for high-frequency events (>10000/second sustained)
+
+**For Event Bus:**
+1. Use readonly structs for zero allocations
+2. Use lifecycle-aware base classes (MessageAwareComponent) for automatic cleanup
+3. Choose appropriate message type (Untargeted, Targeted, Broadcast)
+4. Namespace organization for large projects
+5. Document message contracts with XML comments
+
+**Universal:**
+1. **Don't mix patterns haphazardly** - establish clear conventions
+2. **Measure before optimizing** - profile to confirm performance needs
+3. **Consider team composition** - designer empowerment vs programmer control
+4. **Plan for scale** - 100+ events require different strategy than 10
 
 ---
 
 ## Additional Resources
 
-- **[DxMessaging GitHub](https://github.com/wallstop/DxMessaging)** - Full documentation and
-  examples
-- **[DxMessaging Quick Start](../dxmessaging/README.md)** - Installation and usage guide
-- **[ScriptableObjects Best Practices](./08-scriptable-objects.md)** - General SO patterns
+### ScriptableObject Events
+- **[Ryan Hipple's Unite 2017 Talk](https://www.youtube.com/watch?v=raQ3iHhE_Kk)** - Original "Game Architecture with Scriptable Objects" presentation
+- **[Unite 2017 Sample Project](https://github.com/roboryantron/Unite2017)** - Official sample code from Ryan Hipple's talk
+- **[Unity Official Guide](https://unity.com/how-to/architect-game-code-scriptable-objects)** - Architect your code for efficient changes with ScriptableObjects
+
+### Event Bus/Messaging Systems
+- **[DxMessaging GitHub](https://github.com/wallstop/DxMessaging)** - Modern Unity messaging system with automatic lifecycle management
+- **[MessageBus Article](https://www.gamedeveloper.com/programming/fixing-unity-s-tendency-to-object-coupling-the-messagebus)** - Fixing Unity's tendency to object coupling
+- **[Unity Message Bus](https://www.zuluonezero.net/2022/02/15/unity-message-bus/)** - Custom implementation guide
+
+### Memory Management
+- **[Unity Memory Profiler](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/managed-shell-objects.html)** - Analyzing memory leaks
+- **[Stack Overflow: ScriptableObject Event Memory Leaks](https://stackoverflow.com/questions/58334248/how-do-i-avoid-memory-leak-in-unity-when-subscribing-to-c-sharp-event-in-referen)** - Common leak patterns
+
+### Architecture
+- **[ScriptableObjects Best Practices](./08-scriptable-objects.md)** - General ScriptableObject patterns
 - **[Performance & Memory](./07-performance-memory.md)** - GC optimization strategies
 
 ---
 
-**Ready to eliminate memory leaks?** Install DxMessaging and start with one simple event - you'll
-never go back to manual cleanup!
+**Choose thoughtfully, implement consistently, and measure results.** Both patterns are legitimate architectural choices when applied to their intended use cases.
