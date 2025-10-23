@@ -2,19 +2,19 @@
 
 ## What Problem Does This Solve?
 
-**The Problem:** Your game spawns 100 bullets per second. Each `Instantiate()` takes 0.5-2ms. That's
-50-200ms per second just spawning bullets—causing visible frame drops.
+**The Problem:** Your game spawns 100 bullets per second. Each `Instantiate()` allocates, taking real wallclock time. [Reference](https://discussions.unity.com/t/gameobject-pool-to-avoid-performance-issues-in-instantiating-many-objects/33256/5).
 
 **Why Instantiate is Slow:**
 
 - Allocates memory for new GameObject
 - Calls Awake() on all components
+- Calls OnEnable() on all components
 - Registers with Unity's scene hierarchy
 - Triggers garbage collection when destroyed
 
 **Performance Comparison:**
 
-- `Instantiate()`: 0.5-2ms per object + GC spikes every few seconds
+- `Instantiate()`: 0.1-0.5ms per object + GC spikes every few seconds
 - `Pool.Get()`: 0.001-0.01ms per object + zero GC
 - **Speed improvement: 50-2000x faster**
 
@@ -145,17 +145,10 @@ public void Release()
     pool.Release(this);
 }
 
-// BAD: Async release
-public async Task ReleaseAsync()
-{
-    await SomeCleanupOperation();
-    pool.Release(this);
-}
-
 // BAD: Coroutine release
-public IEnumerator ReleaseCoroutine()
+public void Release()
 {
-    yield return new WaitForSeconds(delay);
+    StartCoroutine(AsyncCleanupCoroutine());
     pool.Release(this);
 }
 ```
@@ -245,7 +238,7 @@ public void ResetState()
     isActive = false;
 
     // Unsubscribe from events
-    OnDeath = null;
+    Listener -= OnDeath;
 }
 ```
 

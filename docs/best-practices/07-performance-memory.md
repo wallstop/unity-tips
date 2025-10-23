@@ -122,10 +122,15 @@ private void Update()
 }
 
 // ✓ BEST - Cache formatted strings
+private readonly Dictionary<int, string> _healthText = new();
+
 private void OnHealthChanged(int newHealth)
 {
-    cachedHealthText = $"Health: {newHealth}/{maxHealth}";
-    uiText.text = cachedHealthText;
+    if (!_healthText.TryGetValue(newHealth, out string cachedString)) {
+        cachedString = $"Health: {newHealth}/{maxHealth}";
+        _healthText[newHealth] = cachedString;
+    }
+    uiText.text = cachedString;
 }
 ```
 
@@ -329,10 +334,6 @@ if (tagName == "Player") { }
 
 // ✓ FAST - No allocation, optimized
 if (CompareTag("Player")) { }
-
-// ✓ FASTEST - Compare tag hash (if doing many comparisons)
-private static readonly int PlayerTag = Animator.StringToHash("Player");
-if (gameObject.tag.GetHashCode() == PlayerTag) { }
 ```
 
 ## Unity-Specific Optimizations
@@ -363,7 +364,7 @@ private void Update()
 ### 2. Transform Access
 
 ```csharp
-// ⚠️ INEFFICIENT - Property call overhead
+// ⚠️ INEFFICIENT - Property call overhead (calls out to Unity C++ engine)
 private void Update()
 {
     transform.position = Vector3.zero;
@@ -442,7 +443,7 @@ private void CheckNearby()
 ### 5. SendMessage vs Direct Calls
 
 ```csharp
-// ❌ VERY SLOW - Reflection, boxing, allocations
+// ❌ VERY SLOW - Boxing, allocations
 gameObject.SendMessage("TakeDamage", 10);
 
 // ✓ FAST - Direct call

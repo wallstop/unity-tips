@@ -1,14 +1,6 @@
 # Unity ScriptableObjects Best Practices
 
-> **🛑 Looking for Event Systems?** Don't use ScriptableObjects for events!
->
-> ScriptableObject events require **manual asset creation, manual Inspector wiring, custom editor
-> tools to debug, and don't scale**. You can't trace who's listening or sending, "Find References"
-> doesn't work on assets, and complex projects become unmaintainable.
->
-> Use **[DxMessaging](./19-event-systems.md)** instead for automatic memory management, code-only
-> events (no assets!), full debugging support, and scales to thousands of events. See the
-> **[Event Systems Comparison](./19-event-systems.md)** for details.
+> **Looking for Event Systems?** See [Event Systems Comparison](./19-event-systems.md)** for details.
 
 ## What Problem Does This Solve?
 
@@ -79,10 +71,6 @@ ScriptableObjects as "scripts" or "recipes" (they hold information that actors c
 - [Common Pitfalls](#common-pitfalls)
 
 ## When to Use ScriptableObjects
-
-> **⚠️ Note:** This guide covers general ScriptableObject usage. For **event systems specifically**,
-> see **[Event Systems: ScriptableObject vs DxMessaging](./19-event-systems.md)** - DxMessaging is
-> the superior choice for events.
 
 ScriptableObjects are perfect for:
 

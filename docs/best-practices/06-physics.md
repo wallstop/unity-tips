@@ -30,10 +30,30 @@ synchronized with physics simulation.
 
 **The most common physics mistakes:**
 
-1. Modifying physics in `Update()` instead of `FixedUpdate()`
-2. Using `transform.position` instead of `Rigidbody.MovePosition()`
-3. Not understanding the difference between variable and fixed timestep methods
-4. Applying forces every frame without considering `Time.fixedDeltaTime`
+1. 🔴 **CRITICAL**: Modifying physics in `Update()` instead of `FixedUpdate()` - causes frame-rate dependent behavior
+2. 🟡 **QUALITY**: Using `transform.position` instead of `Rigidbody.MovePosition()` - causes jitter and collision issues
+3. 🟡 **UNDERSTANDING**: Not understanding the difference between variable and fixed timestep methods
+4. 🟢 **NOTE**: Impulse forces CAN be called from Update (Unity queues them for next physics step)
+
+### Will These Mistakes "Still Work"?
+
+**Short answer: Yes, but with significant quality issues.**
+
+These aren't compile errors or crashes - they're **quality and consistency problems** that separate amateur from professional Unity development:
+
+| Practice | Will It Move? | What Actually Happens |
+|----------|--------------|------------------------|
+| `transform.position` on Rigidbody | ✅ Yes | ❌ Jitters, breaks interpolation, ignores collisions, causes desync |
+| Continuous force in `Update()` | ✅ Yes | ❌ Frame-rate dependent (30fps ≠ 144fps), inconsistent, non-deterministic |
+| Impulse force in `Update()` | ✅ Yes | ✅ Actually fine - Unity queues it for next physics step |
+| Force in `FixedUpdate()` | ✅ Yes | ✅ Smooth, consistent, deterministic |
+| `MovePosition()` in `FixedUpdate()` | ✅ Yes | ✅ Smooth, collision-aware, professional |
+
+**Reality Check:**
+- Your game won't crash, but players will notice the jank
+- "Works on my machine" but behaves differently on faster/slower hardware
+- Single-player might seem fine, but multiplayer will be a nightmare
+- Professional studios follow these practices for good reason
 
 ## Table of Contents
 
