@@ -265,7 +265,8 @@ public class Player : MonoBehaviour {
 - ❌ Must define each event type as a concrete class (e.g., `IntEvent`, `FloatEvent`,
   `HealthChangedEvent`)
 - ❌ Must create a separate asset instance for each distinct use case (e.g., `PlayerHealth_SO`,
-  `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO` OR create one object with global context that is sent to every single listener and requires complex code checks "is this for me?")
+  `Enemy1Health_SO`, `Enemy2Health_SO`, `BossHealth_SO` OR create one object with global context
+  that is sent to every single listener and requires complex code checks "is this for me?")
 - ❌ Asset proliferation: A "health changed" event needs separate instances for player health, each
   enemy type's health, boss health, etc.
 - ❌ Both code churn (defining event types) and asset churn (creating instances for each usage
