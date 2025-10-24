@@ -92,76 +92,38 @@ Avoid object pools when:
 
 ## Critical Best Practices
 
-### 1. Objects Must Be Ready-to-Use When Retrieved
+### 1. Release Must Be Immediate and Synchronous
 
-**THE GOLDEN RULE**: When you return an object to the pool, it must be in a state where it can be
-immediately retrieved and used.
+**THE GOLDEN RULE**: Objects must be ready-to-use immediately when retrieved. Release operations
+must be **synchronous** - no coroutines, no async operations.
 
 ```csharp
 // GOOD: Immediate, synchronous cleanup
 public void ReturnToPool()
 {
-    // Reset state immediately
+    StopAllCoroutines();  // Stop any running coroutines
     velocity = Vector3.zero;
     health = maxHealth;
-    isActive = false;
-
-    // Disable immediately
     gameObject.SetActive(false);
-
-    // Return to pool
     pool.Release(this);
 }
 
-// BAD: Delayed cleanup via coroutine
+// BAD: Delayed/async cleanup
 public void ReturnToPool()
 {
-    StartCoroutine(FadeOutAndReturn()); // DANGER!
-}
-
-private IEnumerator FadeOutAndReturn()
-{
-    // If object is retrieved during this coroutine,
-    // it's in an invalid state!
-    yield return new WaitForSeconds(1.0f);
+    StartCoroutine(FadeOutAndReturn());
+    // DANGER! Object in invalid state if reused
     pool.Release(this);
 }
 ```
 
-**Why this matters**: If an object is retrieved from the pool while a coroutine is running, it could
-be:
+**Why this matters**: Retrieved objects could be partially reset, mid-animation, or have conflicting
+state from previous use.
 
-- Partially reset
-- In the middle of an animation
-- Have conflicting state from the previous use
+**If you need visual effects**: Handle separately, use a different pooled effect object, or complete
+the effect before returning to pool.
 
-### 2. Release Functions Should NEVER Be Async
-
-Release/return operations must be **immediate and synchronous**.
-
-```csharp
-// GOOD: Synchronous release
-public void Release()
-{
-    ResetState();
-    pool.Release(this);
-}
-
-// BAD: Coroutine release
-public void Release()
-{
-    StartCoroutine(AsyncCleanupCoroutine());
-    pool.Release(this);
-}
-```
-
-**If you need visual effects before returning to pool**:
-
-- Handle the effect separately from the pooled object
-- Use a different pooled object for the effect
-- Complete the effect before returning to pool
-
-### 3. Don't Cap Pools Unless Absolutely Necessary
+### 2. Don't Cap Pools Unless Absolutely Necessary
 
 ```csharp
 // GOOD: Unlimited pool (for most cases)
@@ -194,30 +156,18 @@ var pool = new ObjectPool<Bullet>(
 - Runaway spawning bugs need safeguards
 - Objects are very memory-heavy
 
-### 4. Stop All Coroutines on Release
+### 3. Always Reset State Completely
 
-Any coroutines running on a pooled object must be stopped before returning to pool.
+Stop all coroutines, clear references, reset physics, and unsubscribe from events.
 
 ```csharp
-// GOOD: Stop coroutines before release
 public void ReturnToPool()
 {
-    StopAllCoroutines();
+    StopAllCoroutines();  // Stop any running coroutines
     ResetState();
     pool.Release(this);
 }
 
-// BAD: Coroutines keep running
-public void ReturnToPool()
-{
-    // Coroutine from previous use still running!
-    pool.Release(this);
-}
-```
-
-### 5. Clear References and Reset State
-
-```csharp
 public void ResetState()
 {
     // Clear references to prevent memory leaks
@@ -237,33 +187,26 @@ public void ResetState()
 
     // Reset component state
     health = maxHealth;
-    isActive = false;
 
     // Unsubscribe from events
-    Listener -= OnDeath;
+    GameManager.OnGameOver -= HandleGameOver;
 }
 ```
 
-### 6. ALWAYS Clear or Dispose Pools in OnDestroy
+### 4. ALWAYS Clear or Dispose Pools in OnDestroy
 
-**CRITICAL**: If your MonoBehaviour owns an object pool, you **MUST** clean it up when the
-MonoBehaviour is destroyed.
+**CRITICAL**: If your MonoBehaviour owns an object pool, you **MUST** clean it up when destroyed.
 
 Unity's `ObjectPool` provides two cleanup methods:
 
-- **`Clear()`** - Destroys all objects currently in the pool (both active and inactive)
-- **`Dispose()`** - Calls `Clear()` and then marks the pool as disposed (prevents further use)
+- **`Clear()`** - Destroys all objects, pool remains usable
+- **`Dispose()`** - Calls `Clear()` + marks pool as disposed (prevents further use)
 
-**Why this matters**:
-
-- Pooled objects are real GameObjects in your scene
-- If you don't clean up the pool, those GameObjects will remain in the scene as "orphans"
-- This causes memory leaks and clutters your hierarchy
-- In Play Mode, you'll see objects persist between play sessions
-- In builds, memory usage will continuously grow
+**Why this matters**: Pooled GameObjects remain in your scene as "orphans" without cleanup, causing
+memory leaks and hierarchy clutter.
 
 ```csharp
-// GOOD: Use Dispose() for complete cleanup
+// GOOD: Cleanup with Dispose()
 public class BulletPool : MonoBehaviour
 {
     private ObjectPool<Bullet> pool;
@@ -274,180 +217,78 @@ public class BulletPool : MonoBehaviour
             createFunc: CreateBullet,
             actionOnGet: OnGetBullet,
             actionOnRelease: OnReleaseBullet,
-            actionOnDestroy: OnDestroyBullet
+            actionOnDestroy: OnDestroyBullet // Called by Clear()/Dispose()
         );
     }
 
     private void OnDestroy()
     {
-        // Dispose() is preferred - it calls Clear() and prevents further pool use
-        pool?.Dispose();
+        pool?.Dispose(); // CRITICAL: Always clean up
     }
 
     private void OnDestroyBullet(Bullet bullet)
     {
-        // This gets called for each pooled object when Dispose()/Clear() is called
-        if (bullet != null)
-        {
-            Destroy(bullet.gameObject);
-        }
+        if (bullet != null) Destroy(bullet.gameObject);
     }
 }
 
-// ALSO GOOD: Use Clear() if you need to reuse the pool
-public class ReusablePool : MonoBehaviour
-{
-    private ObjectPool<Effect> effectPool;
-
-    public void ClearPool()
-    {
-        // Clear() destroys all pooled objects but pool remains usable
-        effectPool?.Clear();
-        // Can still call effectPool.Get() after this
-    }
-
-    private void OnDestroy()
-    {
-        // Dispose() when the pool owner is being destroyed
-        effectPool?.Dispose();
-    }
-}
-
-// BAD: No cleanup - leaves orphaned objects!
-public class BulletPool : MonoBehaviour
+// BAD: No cleanup - memory leak!
+public class BadPool : MonoBehaviour
 {
     private ObjectPool<Bullet> pool;
-
-    private void Awake()
-    {
-        pool = new ObjectPool<Bullet>(/* ... */);
-    }
-
-    // Missing OnDestroy! Pooled bullets will never be cleaned up!
+    // Missing OnDestroy! Objects never cleaned up!
 }
 ```
 
-**Clear() vs Dispose() - When to use which**:
+**Clear() vs Dispose()**:
 
-| Method      | What it does                                     | When to use                                                 |
-| ----------- | ------------------------------------------------ | ----------------------------------------------------------- |
-| `Clear()`   | Destroys all pooled objects, pool remains usable | Resetting a level, clearing between waves, reusing the pool |
-| `Dispose()` | Calls `Clear()` + marks pool as disposed         | `OnDestroy()`, final cleanup, pool won't be used again      |
+| Method      | What it does                       | When to use                                      |
+| ----------- | ---------------------------------- | ------------------------------------------------ |
+| `Clear()`   | Destroys objects, pool still works | Level resets, wave clears, reusing pool          |
+| `Dispose()` | `Clear()` + marks disposed         | `OnDestroy()`, final cleanup, no more pool usage |
 
 ```csharp
-// Example: Using both Clear() and Dispose()
-public class WaveManager : MonoBehaviour
+// Common scenarios
+public class PoolManager : MonoBehaviour
 {
     private ObjectPool<Enemy> enemyPool;
+    private ObjectPool<Bullet> bulletPool;
 
+    // Multiple pools? Dispose all
+    private void OnDestroy()
+    {
+        enemyPool?.Dispose();
+        bulletPool?.Dispose();
+    }
+
+    // Reusing pool? Use Clear()
     public void OnWaveComplete()
     {
-        // Clear between waves - pool is reused for next wave
-        enemyPool?.Clear();
-    }
-
-    private void OnDestroy()
-    {
-        // Dispose when done forever - pool won't be used again
-        enemyPool?.Dispose();
-    }
-}
-```
-
-**What happens without cleanup**:
-
-1. **In Editor**: After exiting Play Mode, pooled objects remain in your hierarchy (look for
-   DontDestroyOnLoad or inactive objects)
-2. **In Builds**: Memory is never freed, leading to memory leaks
-3. **Scene Transitions**: Objects from previous scenes can leak into new scenes
-
-**Easy way to check if you have this problem**:
-
-- Enter Play Mode
-- Spawn some pooled objects
-- Exit Play Mode
-- Look in your hierarchy - if you see leftover objects, you forgot to clean up your pool!
-
-**Different cleanup scenarios**:
-
-```csharp
-// If your pool manager is a singleton/DontDestroyOnLoad
-public class GlobalPoolManager : MonoBehaviour
-{
-    private ObjectPool<Effect> effectPool;
-
-    private void OnDestroy()
-    {
-        // Use Dispose() for final cleanup
-        effectPool?.Dispose();
-    }
-
-    private void OnApplicationQuit()
-    {
-        // Extra safety: dispose on application quit
-        effectPool?.Dispose();
+        enemyPool?.Clear(); // Pool reused for next wave
     }
 }
 
-// If your pool is tied to a scene/level
-public class LevelEnemyPool : MonoBehaviour
-{
-    private ObjectPool<Enemy> enemyPool;
-
-    private void OnDestroy()
-    {
-        // Use Dispose() for scene transitions - pool won't be used again
-        enemyPool?.Dispose();
-    }
-
-    public void RestartLevel()
-    {
-        // Use Clear() when restarting - pool will be reused
-        enemyPool?.Clear();
-    }
-}
-
-// If you're using multiple pools
-public class MultiPoolManager : MonoBehaviour
-{
-    private ObjectPool<Bullet> bulletPool;
-    private ObjectPool<Enemy> enemyPool;
-    private ObjectPool<Particle> particlePool;
-
-    private void OnDestroy()
-    {
-        // Dispose ALL your pools
-        bulletPool?.Dispose();
-        enemyPool?.Dispose();
-        particlePool?.Dispose();
-    }
-}
-
-// If you're using a dictionary of pools
+// Dictionary of pools
 public class DynamicPoolManager : MonoBehaviour
 {
     private Dictionary<string, ObjectPool<GameObject>> pools = new();
 
     private void OnDestroy()
     {
-        // Dispose all pools in the dictionary
         foreach (var pool in pools.Values)
-        {
             pool?.Dispose();
-        }
         pools.Clear();
     }
 }
 ```
 
-**Pro tip**: If you forget this, you might not notice immediately because:
+**How to verify cleanup works**:
 
-- Your game seems to work fine
-- Performance might even be good at first
-- But over time (especially with scene transitions), memory usage grows
-- Eventually you'll run out of memory or have thousands of hidden objects
+- Enter Play Mode → Spawn pooled objects → Exit Play Mode
+- Check hierarchy for leftover objects
+- If you see them, you forgot cleanup!
 
-**Testing your cleanup**:
+**Debug tip**:
 
 ```csharp
 private void OnDestroy()
@@ -455,28 +296,17 @@ private void OnDestroy()
     #if UNITY_EDITOR
     Debug.Log($"Disposing {pool.CountAll} pooled objects");
     #endif
-
     pool?.Dispose();
 }
-```
-
-This helps you verify in the console that cleanup actually happened!
-
-**Quick reference**:
-
-```csharp
-// Use Clear() when you want to destroy all pooled objects but keep using the pool
-pool.Clear();  // Destroys all objects, pool still usable
-
-// Use Dispose() when you're completely done with the pool
-pool.Dispose(); // Destroys all objects AND marks pool as disposed (no further use)
 ```
 
 ## Common Pitfalls and How to Avoid Them
 
 ### Pitfall #1: Double-Release
 
-Returning the same object to the pool twice causes corruption.
+Returning the same object to the pool twice causes corruption. This is only needed if pool
+entrance/exit state is complex and under many call paths. This should be unnecessary for simple pool
+setup.
 
 ```csharp
 // BAD: Could release twice
@@ -529,151 +359,51 @@ public void OnRelease()
 }
 ```
 
-### Pitfall #3: Children with Active Coroutines
+### Pitfall #3: Not Stopping Child Coroutines
 
-```csharp
-// BAD: Child components running coroutines
-public class Bullet : MonoBehaviour
-{
-    private TrailRenderer trail;
-
-    public void ReturnToPool()
-    {
-        // TrailRenderer might have a fade coroutine running!
-        pool.Release(this);
-    }
-}
-
-// GOOD: Stop all coroutines on entire hierarchy
-public void ReturnToPool()
-{
-    // Stop coroutines on all children
-    foreach (var coroutineRunner in GetComponentsInChildren<MonoBehaviour>())
-    {
-        coroutineRunner.StopAllCoroutines();
-    }
-
-    pool.Release(this);
-}
-```
+Child components may have running coroutines. Stop them all or iterate through children:
+`GetComponentsInChildren<MonoBehaviour>().ForEach(c => c.StopAllCoroutines())`
 
 ### Pitfall #4: Destroying Instead of Releasing
 
-```csharp
-// BAD: Defeats the purpose of pooling
-public void Die()
-{
-    Destroy(gameObject); // Don't do this with pooled objects!
-}
+Never call `Destroy(gameObject)` on pooled objects - always call `ReturnToPool()` instead.
 
-// GOOD: Always return to pool
-public void Die()
-{
-    ReturnToPool();
-}
-```
+### Pitfall #5: Scene References
 
-### Pitfall #5: Pooling Objects with Scene References
-
-```csharp
-// PROBLEMATIC: References to scene objects
-public class Enemy : MonoBehaviour
-{
-    public Transform patrolRoute; // Scene reference!
-
-    // If scene unloads, this reference becomes invalid
-    // when object is retrieved from pool
-}
-
-// BETTER: Find references when retrieved
-public class Enemy : MonoBehaviour
-{
-    private Transform patrolRoute;
-
-    public void OnGet()
-    {
-        GameObject routeObj = GameObject.FindWithTag("PatrolRoute");
-        if (routeObj != null)
-            patrolRoute = routeObj.transform;
-    }
-
-    public void OnRelease()
-    {
-        patrolRoute = null;
-    }
-}
-```
+Scene references become invalid when scenes unload. Clear them in `OnRelease()` and re-find them in
+`OnGet()` using tags or managers.
 
 ### Pitfall #6: Forgetting to Clean Up the Pool Itself
 
-**THIS IS THE #1 MEMORY LEAK CAUSE WITH OBJECT POOLS!**
-
-```csharp
-// BAD: Pool owner has no cleanup
-public class WeaponSystem : MonoBehaviour
-{
-    private ObjectPool<Projectile> projectilePool;
-
-    private void Awake()
-    {
-        projectilePool = new ObjectPool<Projectile>(
-            createFunc: () => Instantiate(projectilePrefab),
-            actionOnGet: (p) => p.gameObject.SetActive(true),
-            actionOnRelease: (p) => p.gameObject.SetActive(false),
-            actionOnDestroy: (p) => Destroy(p.gameObject)
-        );
-    }
-
-    // NO OnDestroy! When this WeaponSystem is destroyed,
-    // all the pooled projectiles become orphans in the scene!
-}
-
-// GOOD: Always clean up your pools
-public class WeaponSystem : MonoBehaviour
-{
-    private ObjectPool<Projectile> projectilePool;
-
-    private void Awake()
-    {
-        projectilePool = new ObjectPool<Projectile>(
-            createFunc: () => Instantiate(projectilePrefab),
-            actionOnGet: (p) => p.gameObject.SetActive(true),
-            actionOnRelease: (p) => p.gameObject.SetActive(false),
-            actionOnDestroy: (p) => Destroy(p.gameObject) // This is called by Clear()
-        );
-    }
-
-    private void OnDestroy()
-    {
-        // ALWAYS call Dispose() to destroy all pooled objects and mark pool as done
-        projectilePool?.Dispose();
-    }
-}
-```
-
-**How to spot this bug**:
-
-1. Run your game in the Editor
-2. Spawn some pooled objects
-3. Stop Play Mode
-4. Check your Hierarchy - do you see inactive GameObjects that shouldn't be there?
-5. If yes, you forgot to clear your pool!
-
-**Memory leak symptoms**:
-
-- Scene transitions leave objects behind
-- Memory usage grows over time
-- Hierarchy fills with inactive objects
-- "DontDestroyOnLoad" objects accumulating
+**THE #1 MEMORY LEAK CAUSE!** See [Best Practice #4](#4-always-clear-or-dispose-pools-in-ondestroy)
+for detailed guidance. Always call `pool?.Dispose()` in `OnDestroy()`.
 
 ## Code Examples
 
-### Basic Pool Setup (Unity's ObjectPool)
+### Decoupling Pooled Objects from the Pool
+
+**Anti-Pattern Warning**: Having pooled objects directly reference the pool (e.g.,
+`pool.Release(this)`) creates tight coupling and makes objects less reusable. Objects become
+dependent on the pooling system, making them harder to test and reuse in non-pooled contexts.
+
+**Better Approach**: Use dependency injection (action delegates), centralized management, or events
+to decouple objects from the pool. This follows the Dependency Inversion Principle and makes your
+code more maintainable.
+
+### Pattern 1: Action Delegate / Interface
+
+This pattern uses an interface and action delegate to decouple pooled objects from the pool.
 
 ```csharp
-using UnityEngine;
-using UnityEngine.Pool;
+// Interface for poolable objects
+public interface IPoolable
+{
+    void Initialize(System.Action returnAction);
+    void OnGet();
+    void OnRelease();
+}
 
+// Pool manager
 public class BulletPool : MonoBehaviour
 {
     [SerializeField] private Bullet bulletPrefab;
@@ -686,7 +416,7 @@ public class BulletPool : MonoBehaviour
             actionOnGet: OnGetBullet,
             actionOnRelease: OnReleaseBullet,
             actionOnDestroy: OnDestroyBullet,
-            collectionCheck: true, // Detect double-release in debug
+            collectionCheck: true,
             defaultCapacity: 20
         );
     }
@@ -694,7 +424,8 @@ public class BulletPool : MonoBehaviour
     private Bullet CreateBullet()
     {
         Bullet bullet = Instantiate(bulletPrefab, transform);
-        bullet.SetPool(pool);
+        // Pass the return function as a delegate
+        bullet.Initialize(() => pool.Release(bullet));
         return bullet;
     }
 
@@ -710,107 +441,196 @@ public class BulletPool : MonoBehaviour
         bullet.gameObject.SetActive(false);
     }
 
-    private void OnDestroyBullet(Bullet bullet)
-    {
-        Destroy(bullet.gameObject);
-    }
+    private void OnDestroyBullet(Bullet bullet) => Destroy(bullet.gameObject);
 
-    public Bullet Get()
-    {
-        return pool.Get();
-    }
+    public Bullet Get() => pool.Get();
 
-    private void OnDestroy()
-    {
-        // CRITICAL: Clean up all pooled objects when this manager is destroyed
-        pool?.Dispose();
-    }
+    private void OnDestroy() => pool?.Dispose();
 }
-```
 
-### Pooled Object Implementation
-
-```csharp
-using UnityEngine;
-using UnityEngine.Pool;
-
-public class Bullet : MonoBehaviour
+// Pooled object - no knowledge of pool (kinda)
+public class Bullet : MonoBehaviour, IPoolable
 {
-    private IObjectPool<Bullet> pool;
+    private System.Action lifeEnded;
     private Rigidbody rb;
     private float lifetime;
     private const float MaxLifetime = 5f;
 
-    private void Awake()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
+    private void Awake() => rb = GetComponent<Rigidbody>();
 
-    public void SetPool(IObjectPool<Bullet> objectPool)
+    public void Initialize(System.Action lifeEndedAction)
     {
-        pool = objectPool;
+        lifeEnded = lifeEndedAction;
     }
 
     public void OnGet()
     {
         lifetime = 0f;
-        // Initialize any state needed for a fresh bullet
     }
 
     public void OnRelease()
     {
-        // Stop any running coroutines
         StopAllCoroutines();
-
-        // Reset physics
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-
-        // Reset state
         lifetime = 0f;
     }
 
     private void Update()
     {
         lifetime += Time.deltaTime;
-
         if (lifetime >= MaxLifetime)
-        {
-            ReturnToPool();
-        }
+            LifeEnded();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void LifeEnded()
     {
-        // Handle collision
-        ReturnToPool();
-    }
-
-    public void ReturnToPool()
-    {
-        pool.Release(this);
+        lifeEnded?.Invoke();
     }
 }
 ```
 
-### Prewarming a Pool
+### Pattern 2: Centralized Pool Manager (Simplest)
+
+The pool manager handles all lifecycle management - pooled objects remain completely ignorant of
+pooling.
 
 ```csharp
-public void PrewarmPool(int count)
+public class BulletPool : MonoBehaviour
 {
-    List<Bullet> bullets = new List<Bullet>(count);
+    [SerializeField] private Bullet bulletPrefab;
+    private ObjectPool<Bullet> pool;
 
-    // Get objects to create them
-    for (int i = 0; i < count; i++)
+    private void Awake()
     {
-        bullets.Add(pool.Get());
+        pool = new ObjectPool<Bullet>(
+            createFunc: () => Instantiate(bulletPrefab, transform),
+            actionOnGet: (b) => b.gameObject.SetActive(true),
+            actionOnRelease: (b) => { b.ResetState(); b.gameObject.SetActive(false); },
+            actionOnDestroy: (b) => Destroy(b.gameObject),
+            defaultCapacity: 20
+        );
     }
 
-    // Return them all
-    foreach (var bullet in bullets)
+    public Bullet Spawn(Vector3 position, Quaternion rotation)
     {
-        pool.Release(bullet);
+        Bullet bullet = pool.Get();
+        bullet.transform.SetPositionAndRotation(position, rotation);
+        StartCoroutine(ReturnAfterLifetime(bullet));
+        return bullet;
     }
+
+    private IEnumerator ReturnAfterLifetime(Bullet bullet)
+    {
+        yield return new WaitForSeconds(5f);
+        if (bullet.gameObject.activeInHierarchy)
+            pool.Release(bullet);
+    }
+
+    private void OnDestroy() => pool?.Dispose();
+}
+
+// Bullet knows nothing about pooling
+public class Bullet : MonoBehaviour
+{
+    private Rigidbody rb;
+
+    private void Awake() => rb = GetComponent<Rigidbody>();
+
+    public void ResetState()
+    {
+        StopAllCoroutines();
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+}
+```
+
+### Pattern 3: Event-Based (Unity-Friendly)
+
+Use Unity events for loose coupling.
+
+```csharp
+public class Bullet : MonoBehaviour
+{
+    public UnityEvent<Bullet> OnBulletExpired = new();
+    private Rigidbody rb;
+    private float lifetime;
+
+    private void Awake() => rb = GetComponent<Rigidbody>();
+
+    private void Update()
+    {
+        lifetime += Time.deltaTime;
+        if (lifetime >= 5f)
+            OnBulletExpired?.Invoke(this); // Notify listeners
+    }
+
+    public void ResetState()
+    {
+        StopAllCoroutines();
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        lifetime = 0f;
+    }
+}
+
+public class BulletPool : MonoBehaviour
+{
+    [SerializeField] private Bullet bulletPrefab;
+    private ObjectPool<Bullet> pool;
+
+    private void Awake()
+    {
+        pool = new ObjectPool<Bullet>(
+            createFunc: CreateBullet,
+            actionOnGet: (b) => b.gameObject.SetActive(true),
+            actionOnRelease: (b) => { b.ResetState(); b.gameObject.SetActive(false); },
+            actionOnDestroy: (b) => Destroy(b.gameObject),
+            defaultCapacity: 20
+        );
+    }
+
+    private Bullet CreateBullet()
+    {
+        Bullet bullet = Instantiate(bulletPrefab, transform);
+        bullet.OnBulletExpired.AddListener(HandleBulletExpired);
+        return bullet;
+    }
+
+    private void HandleBulletExpired(Bullet bullet) => pool.Release(bullet);
+
+    public Bullet Get() => pool.Get();
+
+    private void OnDestroy() => pool?.Dispose();
+}
+```
+
+**Pattern Comparison:**
+
+| Pattern             | Decoupling | Complexity | Best For                           |
+| ------------------- | ---------- | ---------- | ---------------------------------- |
+| Action Delegate     | ⭐⭐⭐     | Medium     | Reusable, testable systems         |
+| Centralized Manager | ⭐⭐⭐     | Low        | Simple, fixed-lifetime objects     |
+| Event-Based         | ⭐⭐       | Medium     | Unity-native, inspector-friendly   |
+| Direct Pool Ref     | ⭐         | Low        | Quick prototypes (not recommended) |
+
+### Prewarming a Pool
+
+Unity's ObjectPool supports prewarming via the `defaultCapacity` parameter, which creates objects at
+initialization:
+
+```csharp
+private void Awake()
+{
+    pool = new ObjectPool<Bullet>(
+        createFunc: CreateBullet,
+        actionOnGet: OnGetBullet,
+        actionOnRelease: OnReleaseBullet,
+        actionOnDestroy: OnDestroyBullet,
+        collectionCheck: true,
+        defaultCapacity: 50  // Pre-creates 50 bullets at initialization
+    );
 }
 ```
 
@@ -818,26 +638,16 @@ public void PrewarmPool(int count)
 
 When implementing object pooling, ensure:
 
-- [ ] **Pool cleanup implemented** - OnDestroy() calls pool.Clear()
-- [ ] **actionOnDestroy defined** - Specified when creating the pool
-- [ ] Release functions are synchronous (no async/coroutines)
-- [ ] Objects are fully reset when returned to pool
-- [ ] All coroutines are stopped before release
-- [ ] Event subscriptions are cleared on release
-- [ ] Guard against double-release
-- [ ] Don't cap pool size unless memory is a proven issue
-- [ ] SetActive(false) is called on release
-- [ ] References are cleared to prevent memory leaks
-- [ ] Children components are also properly reset
-- [ ] Scene references are handled appropriately
+- [ ] **Pool cleanup** - `OnDestroy()` calls `pool?.Dispose()` (THE #1 MISTAKE!)
+- [ ] **actionOnDestroy defined** - Specified when creating pool
+- [ ] **Synchronous release** - No async/coroutines in release functions
+- [ ] **Complete reset** - Stop coroutines, clear references, reset physics, unsubscribe events
+- [ ] **Double-release guard** - Use flag to prevent releasing twice
+- [ ] **Uncapped pools** - Don't cap unless memory is proven issue
+- [ ] **SetActive(false)** - Called on release
 
-**The #1 Mistake**: Forgetting to call `pool?.Dispose()` in `OnDestroy()`. This causes memory leaks
-and orphaned GameObjects. **Always clean up your pools!**
+**Key reminder**: `Dispose()` = final cleanup in `OnDestroy()`, `Clear()` = reset but keep pool
+usable.
 
-**Remember the difference**:
-
-- **`Dispose()`** = Final cleanup (use in `OnDestroy()`)
-- **`Clear()`** = Reset pool but keep using it (use for level resets, wave clears, etc.)
-
-**Remember**: Object pools are an optimization tool. Profile first, optimize second. When in doubt,
-keep it simple and follow these practices to avoid subtle bugs.
+**Remember**: Profile first, optimize second. Object pools are an optimization tool - use them when
+proven beneficial.

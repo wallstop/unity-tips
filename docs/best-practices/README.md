@@ -218,7 +218,7 @@ private ObjectPool<Bullet> pool;
 void OnDestroy() { pool?.Dispose(); }
 ```
 
-**📖 Read**: [Object Pooling](./09-object-pooling.md#6-always-clear-or-dispose-pools-in-ondestroy)
+**📖 Read**: [Object Pooling](./09-object-pooling.md#4-always-clear-or-dispose-pools-in-ondestroy)
 
 ## 📖 Document Summaries
 
