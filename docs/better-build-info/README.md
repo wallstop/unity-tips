@@ -177,6 +177,277 @@ Interactive GUI with:
 
 ---
 
+## 🤝 Comparison: Better Build Info PRO vs Free Alternatives
+
+### Better Build Info PRO
+
+✅ Comprehensive feature set ✅ Visual tree map (best in class) ✅ Asset usage tracking ✅ Sprite
+atlas analysis ✅ Build comparison ✅ 25+ asset properties ✅ Great support ⚠️ Costs $30-40
+
+---
+
+## Free Alternatives
+
+### 1. Build Report Inspector (Unity Technologies)
+
+**Cost:** Free & Open Source **Source:**
+[GitHub](https://github.com/Unity-Technologies/BuildReportInspector)
+
+**What it does:** Official Unity editor script that adds visual inspector UI for BuildReport data,
+showing build time profiling and size analysis
+
+**Installation:**
+
+```
+1. Clone or download from GitHub
+2. Unity Package Manager → Add package from disk
+3. Select package.json in com.unity.build-report-inspector folder
+```
+
+**Pros:**
+
+- ✅ Free and open source
+- ✅ Official Unity package
+- ✅ Works with Unity 6 and recent versions
+- ✅ Direct integration with Unity's BuildReport API
+- ✅ Cross-platform (works on Windows, Mac, Linux)
+- ✅ Visual charts for build time and size
+
+**Cons:**
+
+- ❌ Less feature-rich than Better Build Info
+- ❌ No asset usage tracing across scenes
+- ❌ No tree map visualization
+- ❌ Limited asset property analysis
+- ❌ No sprite atlas breakdown
+- ❌ No build comparison feature
+- ⚠️ No longer in Package Manager (install manually from GitHub)
+
+**Best for:** Developers wanting basic build analysis without cost, or teams with tight budgets
+
+---
+
+### 2. Unity Size Explorer
+
+⚠️ Unmaintained
+
+**Cost:** Free & Open Source **Source:**
+[GitHub](https://github.com/aschearer/unitysizeexplorer)
+
+**What it does:** Standalone Windows application that parses Unity's build log to show tree view
+and pie charts of asset sizes
+
+**How it works:**
+
+```
+1. Build your Unity project
+2. Copy Editor.log file (clear it before building for best results)
+3. Open Unity Size Explorer
+4. Load the log file
+5. See folder hierarchy tree view and pie chart
+```
+
+**Pros:**
+
+- ✅ Free and open source
+- ✅ Good folder hierarchy visualization
+- ✅ Interactive filtering for "what-if" analysis
+- ✅ No need to rebuild to test exclusions
+- ✅ Pie chart shows relative sizes visually
+- ✅ Click to expand/collapse folders
+
+**Cons:**
+
+- ❌ **Windows-only** (WPF/.NET 4.5.2)
+- ❌ Requires manual log file clearing before builds
+- ❌ Can be sluggish with many small files
+- ❌ No asset usage tracing
+- ❌ No sprite atlas analysis
+- ❌ Standalone app (not integrated in Unity Editor)
+- ❌ No build comparison
+
+**Best for:** Windows users wanting visual size analysis without installing editor plugins
+
+**Workaround for performance:** Use the filter to hide assets below a size threshold (e.g., hide
+files < 100KB)
+
+---
+
+### 3. Manual BuildReport API Approach
+
+**Cost:** Free (built into Unity)
+
+**What it does:** Write custom editor scripts using Unity's
+`UnityEditor.Build.Reporting.BuildReport` class
+
+**Example usage:**
+
+```csharp
+using UnityEditor;
+using UnityEditor.Build.Reporting;
+
+public class CustomBuildReport : IPostprocessBuildWithReport
+{
+    public int callbackOrder => 0;
+
+    public void OnPostprocessBuild(BuildReport report)
+    {
+        Debug.Log($"Build size: {report.summary.totalSize} bytes");
+        Debug.Log($"Build time: {report.summary.totalTime}");
+
+        foreach (var file in report.files)
+        {
+            Debug.Log($"{file.path}: {file.size} bytes");
+        }
+    }
+}
+```
+
+**Pros:**
+
+- ✅ Completely free (built into Unity)
+- ✅ Full control and customization
+- ✅ Can integrate with your specific workflow
+- ✅ Can automate in CI/CD pipelines
+- ✅ Export to any format you want
+
+**Cons:**
+
+- ❌ Requires programming knowledge (C#)
+- ❌ Time investment to build tooling
+- ❌ No pre-built visualizations
+- ❌ Must build everything yourself
+- ❌ Maintenance burden
+
+**Best for:** Programmers who want custom analysis or teams with specific automation needs
+
+---
+
+### 4. Unity Editor.log
+
+**Cost:** Free (built-in)
+
+**What it does:** Unity automatically logs build information to Editor.log file
+
+**Location:**
+
+- Windows: `%LOCALAPPDATA%\Unity\Editor\Editor.log`
+- Mac: `~/Library/Logs/Unity/Editor.log`
+- Linux: `~/.config/unity3d/Editor.log`
+
+**Pros:**
+
+- ✅ Free
+- ✅ Built-in (always available)
+- ✅ No setup required
+
+**Cons:**
+
+- ❌ Text-only (hard to parse)
+- ❌ No visualization
+- ❌ No search/filter
+- ❌ No comparison
+- ❌ Mixed with other log messages
+
+**Best for:** Quick checks or when no other tools are available
+
+---
+
+## Comparison Table
+
+| Feature                   | Better Build Info PRO | Build Report Inspector | Unity Size Explorer | Manual API | Editor.log |
+| ------------------------- | --------------------- | ---------------------- | ------------------- | ---------- | ---------- |
+| **Price**                 | $30-40                | Free                   | Free                | Free       | Free       |
+| Visual tree map           | ✅ Best in class      | ❌                     | ⚠️ Folder tree      | ❌         | ❌         |
+| Asset usage tracking      | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
+| Sprite atlas breakdown    | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
+| Build comparison          | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
+| Asset properties (25+)    | ✅                    | ⚠️ Limited             | ❌                  | ⚠️ DIY     | ❌         |
+| Search/filter             | ✅                    | ⚠️ Basic               | ⚠️ Size filter      | ⚠️ DIY     | ❌         |
+| Editor integration        | ✅                    | ✅                     | ❌ Standalone       | ✅         | ⚠️ File    |
+| Cross-platform            | ✅                    | ✅                     | ❌ Windows only     | ✅         | ✅         |
+| Ease of use               | ✅ Excellent          | ⚠️ Basic               | ⚠️ Moderate         | ❌ Hard    | ❌ Hard    |
+| Non-technical friendly    | ✅                    | ⚠️ Somewhat            | ⚠️ Somewhat         | ❌         | ❌         |
+| CI/CD automation          | ⚠️ Possible           | ⚠️ Possible            | ❌                  | ✅         | ✅         |
+| Time to get insights      | < 1 minute            | ~2 minutes             | ~5 minutes          | Hours      | 10+ min    |
+| Maintenance               | None (paid support)   | None (official)        | None (OSS)          | High       | None       |
+| **Recommendation**        | **Best overall**      | **Best free option**   | **Windows viz**     | **Custom** | **Backup** |
+
+---
+
+## Which Should You Choose?
+
+### Choose Better Build Info PRO if:
+
+- 💰 You have budget ($30-40)
+- ⏰ Time is valuable (saves hours per optimization task)
+- 📊 You need comprehensive analysis (usage tracking, sprite atlases, comparison)
+- 👥 Working with non-technical stakeholders (tree map is perfect)
+- 🎮 Shipping mobile/console games (size limits matter)
+
+**ROI:** Pays for itself in 1-2 hours of saved time
+
+---
+
+### Choose Build Report Inspector if:
+
+- 💵 Zero budget
+- ✅ Basic size analysis is sufficient
+- 🔧 Comfortable with manual GitHub installation
+- 🖥️ Need cross-platform support
+- 📈 Want official Unity tool
+
+**Best free alternative for most users**
+
+---
+
+### Choose Unity Size Explorer if:
+
+- 💵 Zero budget
+- 🪟 Windows-only is okay
+- 📊 Want visual tree/pie charts
+- 🔄 Don't need editor integration
+- 🎯 Focus is on folder-level analysis
+
+**Best for Windows users wanting free visualization**
+
+---
+
+### Choose Manual BuildReport API if:
+
+- 💻 Strong C# programming skills
+- 🤖 Need custom CI/CD integration
+- 🎨 Want specific analysis features
+- ⏱️ Have time to build tooling
+- 🔧 Need full control
+
+**Best for programmers with specific needs**
+
+---
+
+### Choose Editor.log if:
+
+- 🆘 No other options available
+- 🔍 Quick one-time check
+- 📝 Comfortable parsing text logs
+- ⚡ Need immediate answer (no install time)
+
+**Last resort option**
+
+---
+
+## Verdict
+
+**Better Build Info PRO** is the gold standard for Unity build analysis. However, **Build Report
+Inspector** is an excellent free alternative for basic needs, and **Unity Size Explorer** provides
+good visualization for Windows users.
+
+For most developers, start with **Build Report Inspector** (free). If you find yourself spending
+hours analyzing builds or need advanced features, upgrade to **Better Build Info PRO**—it will pay
+for itself quickly.
+
+---
+
 ## 🔥 How to Use It
 
 ### Basic Usage: View Your Build Report
@@ -656,31 +927,6 @@ Without Better Build Info: Would have guessed, possibly optimized wrong assets
 
 ---
 
-## 🤝 Comparison: Better Build Info PRO vs Alternatives
-
-### Better Build Info PRO
-
-✅ Comprehensive feature set ✅ Visual tree map (best in class) ✅ Asset usage tracking ✅ Sprite
-atlas analysis ✅ Build comparison ✅ Great support ⚠️ Costs $30-40
-
-### [Unity Build Report Inspector](https://docs.unity3d.com/Packages/com.unity.build-report-inspector@0.3/manual/index.html) (Official)
-
-✅ Free ✅ Maintained by Unity ❌ Very limited features ❌ No tree map ❌ No usage tracking ❌ No
-build comparison
-
-### Unity Editor.log
-
-✅ Free ✅ Built-in ❌ Text-only (hard to parse) ❌ No visualization ❌ No search/filter ❌ No
-comparison
-
-### [Unity Profiler](https://docs.unity3d.com/Manual/Profiler.html)
-
-✅ Free ✅ Built-in ❌ Runtime profiling, not build analysis ❌ Doesn't show build size breakdown
-
-**Verdict:** Better Build Info PRO is the gold standard for Unity build analysis.
-
----
-
 ## 📊 Project Statistics
 
 Projects using Better Build Info PRO typically see:
@@ -794,19 +1040,6 @@ SPRITE ATLAS ANALYSIS:
   3. See all sprites and sizes
   4. Identify over-sized sprites
 ```
-
----
-
-## 🏆 Success Stories
-
-> "We reduced our iOS IPA from 280MB to 140MB in two days using Better Build Info PRO. The tree map
-> made it obvious where the bloat was." — Senior developer at mobile studio
->
-> "Build comparison saved us before release. We caught a 50MB debug asset that accidentally made it
-> into the release build." — QA lead at mid-size studio
->
-> "Our publisher requires detailed build reports. Better Build Info's XML export makes this trivial.
-> We used to spend days manually compiling this data." — Producer at indie studio
 
 ---
 

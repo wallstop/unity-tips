@@ -6,12 +6,14 @@ name: Lint Docs
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   pre-commit:
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       contents: write
 
     steps:
@@ -86,6 +88,19 @@ jobs:
             echo "::error::Unable to push auto-fixes. Please run pre-commit locally."
             exit 1
           fi
+
+      - name: Trigger fresh validation after auto-fixes
+        if: steps.apply_fixes.outputs.changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'pre-commit.yml',
+              ref: branch,
+            })
 
       - name: Re-run pre-commit after fixes
         if:
