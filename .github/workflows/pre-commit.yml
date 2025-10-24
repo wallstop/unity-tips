@@ -11,12 +11,15 @@ name: Lint Docs
 
 jobs:
   pre-commit:
-    if: ${{ github.event_name != 'push' || github.ref == 'refs/heads/main' || github.actor == 'github-actions[bot]' }}
+    if:
+      ${{ github.event_name != 'push' || github.ref == 'refs/heads/main' || github.actor ==
+      'github-actions[bot]' }}
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: write
+      workflows: write
 
     steps:
       - name: Check out PR branch
