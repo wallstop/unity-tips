@@ -304,7 +304,9 @@ private void OnDestroy()
 
 ### Pitfall #1: Double-Release
 
-Returning the same object to the pool twice causes corruption. This is only needed if pool entrance/exit state is complex and under many call paths. This should be unnecessary for simple pool setup.
+Returning the same object to the pool twice causes corruption. This is only needed if pool
+entrance/exit state is complex and under many call paths. This should be unnecessary for simple pool
+setup.
 
 ```csharp
 // BAD: Could release twice
@@ -380,13 +382,13 @@ for detailed guidance. Always call `pool?.Dispose()` in `OnDestroy()`.
 
 ### Decoupling Pooled Objects from the Pool
 
-**Anti-Pattern Warning**: Having pooled objects directly reference the pool (e.g., `pool.Release(this)`)
-creates tight coupling and makes objects less reusable. Objects become dependent on the pooling
-system, making them harder to test and reuse in non-pooled contexts.
+**Anti-Pattern Warning**: Having pooled objects directly reference the pool (e.g.,
+`pool.Release(this)`) creates tight coupling and makes objects less reusable. Objects become
+dependent on the pooling system, making them harder to test and reuse in non-pooled contexts.
 
-**Better Approach**: Use dependency injection (action delegates), centralized management, or events to
-decouple objects from the pool. This follows the Dependency Inversion Principle and makes your code
-more maintainable.
+**Better Approach**: Use dependency injection (action delegates), centralized management, or events
+to decouple objects from the pool. This follows the Dependency Inversion Principle and makes your
+code more maintainable.
 
 ### Pattern 1: Action Delegate / Interface
 
@@ -490,7 +492,8 @@ public class Bullet : MonoBehaviour, IPoolable
 
 ### Pattern 2: Centralized Pool Manager (Simplest)
 
-The pool manager handles all lifecycle management - pooled objects remain completely ignorant of pooling.
+The pool manager handles all lifecycle management - pooled objects remain completely ignorant of
+pooling.
 
 ```csharp
 public class BulletPool : MonoBehaviour
@@ -605,17 +608,17 @@ public class BulletPool : MonoBehaviour
 
 **Pattern Comparison:**
 
-| Pattern              | Decoupling | Complexity | Best For                           |
-| -------------------- | ---------- | ---------- | ---------------------------------- |
-| Action Delegate      | ⭐⭐⭐       | Medium     | Reusable, testable systems         |
-| Centralized Manager  | ⭐⭐⭐       | Low        | Simple, fixed-lifetime objects     |
-| Event-Based          | ⭐⭐        | Medium     | Unity-native, inspector-friendly   |
-| Direct Pool Ref      | ⭐          | Low        | Quick prototypes (not recommended) |
+| Pattern             | Decoupling | Complexity | Best For                           |
+| ------------------- | ---------- | ---------- | ---------------------------------- |
+| Action Delegate     | ⭐⭐⭐     | Medium     | Reusable, testable systems         |
+| Centralized Manager | ⭐⭐⭐     | Low        | Simple, fixed-lifetime objects     |
+| Event-Based         | ⭐⭐       | Medium     | Unity-native, inspector-friendly   |
+| Direct Pool Ref     | ⭐         | Low        | Quick prototypes (not recommended) |
 
 ### Prewarming a Pool
 
-Unity's ObjectPool supports prewarming via the `defaultCapacity` parameter, which creates objects
-at initialization:
+Unity's ObjectPool supports prewarming via the `defaultCapacity` parameter, which creates objects at
+initialization:
 
 ```csharp
 private void Awake()

@@ -231,11 +231,10 @@ showing build time profiling and size analysis
 
 ⚠️ Unmaintained
 
-**Cost:** Free & Open Source **Source:**
-[GitHub](https://github.com/aschearer/unitysizeexplorer)
+**Cost:** Free & Open Source **Source:** [GitHub](https://github.com/aschearer/unitysizeexplorer)
 
-**What it does:** Standalone Windows application that parses Unity's build log to show tree view
-and pie charts of asset sizes
+**What it does:** Standalone Windows application that parses Unity's build log to show tree view and
+pie charts of asset sizes
 
 **How it works:**
 
@@ -355,23 +354,23 @@ public class CustomBuildReport : IPostprocessBuildWithReport
 
 ## Comparison Table
 
-| Feature                   | Better Build Info PRO | Build Report Inspector | Unity Size Explorer | Manual API | Editor.log |
-| ------------------------- | --------------------- | ---------------------- | ------------------- | ---------- | ---------- |
-| **Price**                 | $30-40                | Free                   | Free                | Free       | Free       |
-| Visual tree map           | ✅ Best in class      | ❌                     | ⚠️ Folder tree      | ❌         | ❌         |
-| Asset usage tracking      | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
-| Sprite atlas breakdown    | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
-| Build comparison          | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
-| Asset properties (25+)    | ✅                    | ⚠️ Limited             | ❌                  | ⚠️ DIY     | ❌         |
-| Search/filter             | ✅                    | ⚠️ Basic               | ⚠️ Size filter      | ⚠️ DIY     | ❌         |
-| Editor integration        | ✅                    | ✅                     | ❌ Standalone       | ✅         | ⚠️ File    |
-| Cross-platform            | ✅                    | ✅                     | ❌ Windows only     | ✅         | ✅         |
-| Ease of use               | ✅ Excellent          | ⚠️ Basic               | ⚠️ Moderate         | ❌ Hard    | ❌ Hard    |
-| Non-technical friendly    | ✅                    | ⚠️ Somewhat            | ⚠️ Somewhat         | ❌         | ❌         |
-| CI/CD automation          | ⚠️ Possible           | ⚠️ Possible            | ❌                  | ✅         | ✅         |
-| Time to get insights      | < 1 minute            | ~2 minutes             | ~5 minutes          | Hours      | 10+ min    |
-| Maintenance               | None (paid support)   | None (official)        | None (OSS)          | High       | None       |
-| **Recommendation**        | **Best overall**      | **Best free option**   | **Windows viz**     | **Custom** | **Backup** |
+| Feature                | Better Build Info PRO | Build Report Inspector | Unity Size Explorer | Manual API | Editor.log |
+| ---------------------- | --------------------- | ---------------------- | ------------------- | ---------- | ---------- |
+| **Price**              | $30-40                | Free                   | Free                | Free       | Free       |
+| Visual tree map        | ✅ Best in class      | ❌                     | ⚠️ Folder tree      | ❌         | ❌         |
+| Asset usage tracking   | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
+| Sprite atlas breakdown | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
+| Build comparison       | ✅                    | ❌                     | ❌                  | ⚠️ DIY     | ❌         |
+| Asset properties (25+) | ✅                    | ⚠️ Limited             | ❌                  | ⚠️ DIY     | ❌         |
+| Search/filter          | ✅                    | ⚠️ Basic               | ⚠️ Size filter      | ⚠️ DIY     | ❌         |
+| Editor integration     | ✅                    | ✅                     | ❌ Standalone       | ✅         | ⚠️ File    |
+| Cross-platform         | ✅                    | ✅                     | ❌ Windows only     | ✅         | ✅         |
+| Ease of use            | ✅ Excellent          | ⚠️ Basic               | ⚠️ Moderate         | ❌ Hard    | ❌ Hard    |
+| Non-technical friendly | ✅                    | ⚠️ Somewhat            | ⚠️ Somewhat         | ❌         | ❌         |
+| CI/CD automation       | ⚠️ Possible           | ⚠️ Possible            | ❌                  | ✅         | ✅         |
+| Time to get insights   | < 1 minute            | ~2 minutes             | ~5 minutes          | Hours      | 10+ min    |
+| Maintenance            | None (paid support)   | None (official)        | None (OSS)          | High       | None       |
+| **Recommendation**     | **Best overall**      | **Best free option**   | **Windows viz**     | **Custom** | **Backup** |
 
 ---
 
