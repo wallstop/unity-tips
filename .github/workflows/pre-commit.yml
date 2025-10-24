@@ -19,7 +19,6 @@ jobs:
     permissions:
       actions: write
       contents: write
-      workflow: write
 
     steps:
       - name: Check out PR branch
