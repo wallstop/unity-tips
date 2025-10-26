@@ -638,7 +638,7 @@ void Start()
     StartCoroutine(MyCoroutine()); // Start first
     // Disable later if needed
 }
-
+````
 **Important**: Coroutines on a GameObject only run while that GameObject is active. Disabling it stops all its coroutines.
 
 ### Pitfall 13: Reusing the Same WaitForSeconds Object Incorrectly
