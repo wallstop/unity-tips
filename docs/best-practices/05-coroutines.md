@@ -624,7 +624,7 @@ objects still exist before using them.
 
 ### Pitfall 12: Using StartCoroutine on a Disabled GameObject
 
-````csharp
+```csharp
 // BAD - Coroutine won't run!
 void Start()
 {
@@ -638,8 +638,10 @@ void Start()
     StartCoroutine(MyCoroutine()); // Start first
     // Disable later if needed
 }
-````
-**Important**: Coroutines on a GameObject only run while that GameObject is active. Disabling it stops all its coroutines.
+```
+
+**Important**: Coroutines on a GameObject only run while that GameObject is active. Disabling it
+stops all its coroutines.
 
 ### Pitfall 13: Reusing the Same WaitForSeconds Object Incorrectly
 
@@ -651,7 +653,7 @@ IEnumerator MyCoroutine()
 {
     yield return wait; // Reusing is OK but can be confusing
 }
-````
+```
 
 **For beginners**: Just create new `WaitForSeconds` each time. It's clearer and the performance
 difference is negligible until you profile:
