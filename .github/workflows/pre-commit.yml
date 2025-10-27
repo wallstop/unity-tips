@@ -95,7 +95,7 @@ jobs:
 
       - name: Trigger fresh validation after auto-fixes
         if: steps.apply_fixes.outputs.changes == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const branch = context.payload.pull_request.head.ref
