@@ -21,6 +21,14 @@ CONNECT_TIMEOUT = float(os.getenv("LINK_CHECK_CONNECT_TIMEOUT", "5"))
 READ_TIMEOUT = float(os.getenv("LINK_CHECK_READ_TIMEOUT", "20"))
 REQUEST_TIMEOUT = (CONNECT_TIMEOUT, READ_TIMEOUT)
 USER_AGENT = "unity-tips-link-checker/1.0"
+# Skip remote URL checking entirely (set to "1" or "true" to skip)
+SKIP_REMOTE = os.getenv("LINK_CHECK_SKIP_REMOTE", "").lower() in ("1", "true", "yes")
+# Treat network errors as warnings instead of failures
+WARN_ON_NETWORK_ERROR = os.getenv("LINK_CHECK_WARN_ON_NETWORK_ERROR", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
 
 
 @dataclass
@@ -64,6 +72,10 @@ class LinkChecker:
         return issues
 
     def _check_remote(self, url: str) -> Tuple[bool, str]:
+        # Skip remote checking if configured
+        if SKIP_REMOTE:
+            return (True, "")
+
         cached = self.remote_cache.get(url)
         if cached is not None:
             return cached
@@ -101,7 +113,12 @@ class LinkChecker:
             else:
                 result = (False, f"HTTP status {status}")
         except requests.RequestException as exc:  # pragma: no cover - defensive
-            result = (False, f"Request failed: {exc}")
+            if WARN_ON_NETWORK_ERROR:
+                message = f"Network error (warning only): {exc}"
+                print(f"warning: {url}: {message}", file=sys.stderr)
+                result = (True, message)
+            else:
+                result = (False, f"Request failed: {exc}")
         self.remote_cache[url] = result
         return result
 
