@@ -9,6 +9,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **GitHub Pages Documentation Site** - Beautiful, searchable documentation at
+  `https://wallstop.github.io/unity-tips` using MkDocs Material theme
 - **Spell Checking** - Added cspell with Unity/C# dictionaries to catch typos in documentation
 - **Stale Management** - Automated workflow to mark and close inactive issues/PRs after 60 days
 - **Security Scanning** - CodeQL analysis for Python scripts and dependency review on PRs
