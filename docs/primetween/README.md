@@ -35,7 +35,7 @@ That's it! PrimeTween is ready to use.
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — _15-minute read_
+**🌱 [Getting Started](01-getting-started.md)** — _15-minute read_
 
 - What is PrimeTween?
 - Your first animation
@@ -44,7 +44,7 @@ That's it! PrimeTween is ready to use.
 - Performance best practices
 - Quick reference card
 
-**💪 [Why PrimeTween?](02-WHY-PRIMETWEEN.md)** — _20-minute read_
+**💪 [Why PrimeTween?](02-why-primetween.md)** — _20-minute read_
 
 - Performance benchmarks (2.6x faster than DOTween!)
 - Zero allocation proof
@@ -54,7 +54,7 @@ That's it! PrimeTween is ready to use.
 - Mermaid diagrams showing architecture differences
 - FAQ
 
-**📖 [API Reference](03-API-REFERENCE.md)** — _Reference_
+**📖 [API Reference](03-api-reference.md)** — _Reference_
 
 - Complete method documentation
 - Transform animations (Position, Scale, Rotation)
@@ -66,7 +66,7 @@ That's it! PrimeTween is ready to use.
 - Callbacks & delays
 - Advanced techniques (async/await, coroutines)
 
-**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — _Cookbook_
+**🎯 [Common Patterns](04-common-patterns.md)** — _Cookbook_
 
 - Battle-tested recipes from IshoBoy production code
 - UI patterns (button hover, panel fade, staggered reveals)
@@ -76,7 +76,7 @@ That's it! PrimeTween is ready to use.
 - VFX patterns (particle bursts, dissolve effects)
 - Utility patterns (object pooling, conditional chains, event scheduling)
 
-**⚠️ [Anti-Patterns & Pitfalls](05-ANTI-PATTERNS.md)** — _What NOT to do_
+**⚠️ [Anti-Patterns & Pitfalls](05-anti-patterns.md)** — _What NOT to do_
 
 - Memory & performance mistakes
 - Tween management errors
@@ -118,7 +118,7 @@ Official benchmarks (100,000 iterations):
 | **Sequence Start**  | **8.83ms** | 49,963ms  | 45.59ms     |
 | **GC Allocation**   | **0 B**    | 292-877 B | 734-2,846 B |
 
-[View full benchmarks →](02-WHY-PRIMETWEEN.md#benchmark-data)
+[View full benchmarks →](02-why-primetween.md#benchmark-data)
 
 ### Inspector-Driven Workflow
 
@@ -230,7 +230,7 @@ void Awake()
 }
 ```
 
-[See all real-world patterns →](04-COMMON-PATTERNS.md)
+[See all real-world patterns →](04-common-patterns.md)
 
 ---
 
@@ -238,24 +238,24 @@ void Awake()
 
 ### Beginner (30 minutes)
 
-1. Read [Getting Started](01-GETTING-STARTED.md) — Learn the 8 core concepts
+1. Read [Getting Started](01-getting-started.md) — Learn the 8 core concepts
 2. Try the "Your First Animation" example
-3. Browse [Common Patterns](04-COMMON-PATTERNS.md) UI section
+3. Browse [Common Patterns](04-common-patterns.md) UI section
 4. Copy a pattern into your project
 
 ### Intermediate (1 hour)
 
-1. Read [Why PrimeTween?](02-WHY-PRIMETWEEN.md) — Understand performance benefits
-2. Learn [Sequences](03-API-REFERENCE.md#sequences) from API Reference
-3. Study [Gameplay Patterns](04-COMMON-PATTERNS.md#gameplay-patterns)
-4. Review [Anti-Patterns](05-ANTI-PATTERNS.md#tween-management)
+1. Read [Why PrimeTween?](02-why-primetween.md) — Understand performance benefits
+2. Learn [Sequences](03-api-reference.md#sequences) from API Reference
+3. Study [Gameplay Patterns](04-common-patterns.md#gameplay-patterns)
+4. Review [Anti-Patterns](05-anti-patterns.md#tween-management)
 
 ### Advanced (2+ hours)
 
-1. Deep dive into [Custom Tweens](03-API-REFERENCE.md#custom-tweens)
+1. Deep dive into [Custom Tweens](03-api-reference.md#custom-tweens)
 2. Study IshoBoy's `CarryComponent.cs` and `MainMenu.cs`
-3. Read all of [Anti-Patterns](05-ANTI-PATTERNS.md)
-4. Master [Performance Patterns](04-COMMON-PATTERNS.md#performance-patterns)
+3. Read all of [Anti-Patterns](05-anti-patterns.md)
+4. Master [Performance Patterns](04-common-patterns.md#performance-patterns)
 
 ---
 
@@ -314,7 +314,7 @@ tween.isPaused = true;
 - Forget to set tween capacity
 - Create tweens every frame without control
 
-[Full checklist →](05-ANTI-PATTERNS.md#summary-checklist)
+[Full checklist →](05-anti-patterns.md#summary-checklist)
 
 ---
 
@@ -377,16 +377,16 @@ bytes GC from animations
 
 ## 🎯 Next Steps
 
-**New to PrimeTween?** → Start with [Getting Started](01-GETTING-STARTED.md)
+**New to PrimeTween?** → Start with [Getting Started](01-getting-started.md)
 
 **Migrating from DOTween/LeanTween?** → Read
-[Why PrimeTween?](02-WHY-PRIMETWEEN.md#migration-difficulty)
+[Why PrimeTween?](02-why-primetween.md#migration-difficulty)
 
-**Need specific examples?** → Browse [Common Patterns](04-COMMON-PATTERNS.md)
+**Need specific examples?** → Browse [Common Patterns](04-common-patterns.md)
 
-**Want full API docs?** → See [API Reference](03-API-REFERENCE.md)
+**Want full API docs?** → See [API Reference](03-api-reference.md)
 
-**Avoiding mistakes?** → Study [Anti-Patterns](05-ANTI-PATTERNS.md)
+**Avoiding mistakes?** → Study [Anti-Patterns](05-anti-patterns.md)
 
 ---
 
@@ -395,11 +395,11 @@ bytes GC from animations
 Found an issue or want to add an example? These docs live in:
 
 - `docs/primetween/README.md` (this file)
-- `docs/primetween/01-GETTING-STARTED.md`
-- `docs/primetween/02-WHY-PRIMETWEEN.md`
-- `docs/primetween/03-API-REFERENCE.md`
-- `docs/primetween/04-COMMON-PATTERNS.md`
-- `docs/primetween/05-ANTI-PATTERNS.md`
+- `docs/primetween/01-getting-started.md`
+- `docs/primetween/02-why-primetween.md`
+- `docs/primetween/03-api-reference.md`
+- `docs/primetween/04-common-patterns.md`
+- `docs/primetween/05-anti-patterns.md`
 
 ---
 

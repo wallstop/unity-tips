@@ -1,0 +1,179 @@
+---
+name: PR Quality Checks
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  size-label:
+    name: Label PR by size
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Calculate PR size and add labels
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Get PR diff stats
+            const { data: pr } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            const additions = pr.additions;
+            const deletions = pr.deletions;
+            const totalChanges = additions + deletions;
+            const filesChanged = pr.changed_files;
+
+            console.log(`PR #${prNumber}: +${additions} -${deletions} (${filesChanged} files)`);
+
+            // Define size thresholds
+            const sizes = [
+              { label: 'size/XS', max: 10 },
+              { label: 'size/S', max: 50 },
+              { label: 'size/M', max: 200 },
+              { label: 'size/L', max: 500 },
+              { label: 'size/XL', max: Infinity },
+            ];
+
+            // Determine appropriate size label
+            let sizeLabel = 'size/XL';
+            for (const size of sizes) {
+              if (totalChanges <= size.max) {
+                sizeLabel = size.label;
+                break;
+              }
+            }
+
+            // Get current labels
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner,
+              repo,
+              issue_number: prNumber,
+            });
+
+            const currentLabelNames = currentLabels.map(l => l.name);
+            const sizeLabels = sizes.map(s => s.label);
+
+            // Remove old size labels
+            for (const label of currentLabelNames) {
+              if (sizeLabels.includes(label) && label !== sizeLabel) {
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  name: label,
+                });
+              }
+            }
+
+            // Add new size label if not already present
+            if (!currentLabelNames.includes(sizeLabel)) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: prNumber,
+                labels: [sizeLabel],
+              });
+            }
+
+            // Add warning comment for large PRs
+            if (totalChanges > 500) {
+              const warningComment = `## Large PR Warning
+
+            This PR has **${totalChanges} changes** across **${filesChanged} files**.
+
+            Large PRs are harder to review and more likely to introduce bugs.
+            Consider breaking this into smaller, focused PRs if possible.
+
+            **Tips for smaller PRs:**
+            - Split unrelated changes into separate PRs
+            - Submit refactoring separately from new features
+            - Break large features into incremental changes`;
+
+              // Check if warning already exists
+              const { data: comments } = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number: prNumber,
+              });
+
+              const hasWarning = comments.some(c =>
+                c.user.login === 'github-actions[bot]' &&
+                c.body.includes('Large PR Warning')
+              );
+
+              if (!hasWarning) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  body: warningComment,
+                });
+              }
+            }
+
+            console.log(`Applied label: ${sizeLabel}`);
+
+  doc-label:
+    name: Label documentation changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label documentation PRs
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Get changed files
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            const fileNames = files.map(f => f.filename);
+
+            // Categorize changes
+            const hasDocChanges = fileNames.some(f =>
+              f.endsWith('.md') || f.startsWith('docs/')
+            );
+            const hasScriptChanges = fileNames.some(f =>
+              f.startsWith('scripts/') || f.endsWith('.py')
+            );
+            const hasWorkflowChanges = fileNames.some(f =>
+              f.startsWith('.github/')
+            );
+            const hasConfigChanges = fileNames.some(f =>
+              f.startsWith('.') && !f.startsWith('.github/')
+            );
+
+            const labelsToAdd = [];
+            if (hasDocChanges) labelsToAdd.push('documentation');
+            if (hasScriptChanges) labelsToAdd.push('scripts');
+            if (hasWorkflowChanges) labelsToAdd.push('ci/cd');
+            if (hasConfigChanges) labelsToAdd.push('config');
+
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: prNumber,
+                labels: labelsToAdd,
+              });
+              console.log(`Added labels: ${labelsToAdd.join(', ')}`);
+            }

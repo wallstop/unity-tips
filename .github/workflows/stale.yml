@@ -1,0 +1,63 @@
+---
+name: Manage Stale Issues and PRs
+
+"on":
+  schedule:
+    # Run weekly on Sundays at midnight UTC
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark and close stale items
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stale issues and PRs
+        uses: actions/stale@v9
+        with:
+          # Issue configuration
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-label: "stale"
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed in 14 days if no further activity occurs.
+
+            If this issue is still relevant:
+            - Add a comment with an update
+            - Remove the `stale` label
+
+            Thank you for your contributions!
+          close-issue-message: |
+            This issue has been automatically closed due to inactivity.
+            Feel free to reopen if this is still relevant.
+
+          # PR configuration
+          stale-pr-label: "stale"
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had
+            recent activity. It will be closed in 14 days if no further activity occurs.
+
+            If this PR is still in progress:
+            - Add a comment with an update
+            - Push new commits
+            - Remove the `stale` label
+
+            Thank you for your contributions!
+          close-pr-message: |
+            This pull request has been automatically closed due to inactivity.
+            Feel free to reopen if you'd like to continue working on it.
+
+          # Labels that prevent staleness
+          exempt-issue-labels: "pinned,security,bug,enhancement"
+          exempt-pr-labels: "pinned,security,dependencies"
+
+          # Don't stale issues/PRs with these labels
+          exempt-all-milestones: true
+
+          # Operation limits
+          operations-per-run: 100

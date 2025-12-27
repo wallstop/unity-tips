@@ -100,7 +100,7 @@ void Update()
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — _10-minute read_
+**🌱 [Getting Started](01-getting-started.md)** — _10-minute read_
 
 - What is Hot Reload?
 - Installation (3 steps)
@@ -109,7 +109,7 @@ void Update()
 - Opening the Hot Reload window
 - Basic workflow
 
-**🎯 [Why Hot Reload?](02-WHY-HOT-RELOAD.md)** — _15-minute read_
+**🎯 [Why Hot Reload?](02-why-hot-reload.md)** — _15-minute read_
 
 - The compile-time problem
 - Time and cost savings ($300/month per developer)
@@ -118,7 +118,7 @@ void Update()
 - Supported vs unsupported changes
 - Alternative solutions (Fast Script Reload comparison)
 
-**🔧 [How to Use It](03-HOW-TO-USE.md)** — _15-minute read_
+**🔧 [How to Use It](03-how-to-use.md)** — _15-minute read_
 
 - Opening Hot Reload window (Alt+Shift+H)
 - Making hot reload changes
@@ -128,7 +128,7 @@ void Update()
 - Working in Edit Mode vs Play Mode
 - Integration with your workflow
 
-**⚠️ [Common Pitfalls & Troubleshooting](04-TROUBLESHOOTING.md)** — _Reference guide_
+**⚠️ [Common Pitfalls & Troubleshooting](04-troubleshooting.md)** — _Reference guide_
 
 - Changes not applying? Here's why
 - "Auto Refresh" conflicts
@@ -139,7 +139,7 @@ void Update()
 - Network/firewall issues
 - Step-by-step troubleshooting checklist
 
-**💡 [Best Practices & Examples](05-BEST-PRACTICES.md)** — _Cookbook_
+**💡 [Best Practices & Examples](05-best-practices.md)** — _Cookbook_
 
 - When to use Hot Reload vs full recompile
 - Workflow patterns for maximum productivity
@@ -545,20 +545,20 @@ public class AIController : MonoBehaviour
 
 ### Beginner (15 minutes)
 
-1. Read **[Getting Started](01-GETTING-STARTED.md)** — Install and make your first hot reload
+1. Read **[Getting Started](01-getting-started.md)** — Install and make your first hot reload
 2. Try **Example 1** above — Edit a Debug.Log statement while in Play Mode
 3. Open the Hot Reload window (Alt+Shift+H) and explore
 
 ### Intermediate (30 minutes)
 
-1. Read **[Why Hot Reload?](02-WHY-HOT-RELOAD.md)** — Understand what's possible
-2. Read **[How to Use It](03-HOW-TO-USE.md)** — Master the workflow
+1. Read **[Why Hot Reload?](02-why-hot-reload.md)** — Understand what's possible
+2. Read **[How to Use It](03-how-to-use.md)** — Master the workflow
 3. Try **Examples 2-3** above — Practice with your own project
 
 ### Advanced (1 hour)
 
-1. Read **[Troubleshooting](04-TROUBLESHOOTING.md)** — Prepare for edge cases
-2. Read **[Best Practices](05-BEST-PRACTICES.md)** — Optimize your workflow
+1. Read **[Troubleshooting](04-troubleshooting.md)** — Prepare for edge cases
+2. Read **[Best Practices](05-best-practices.md)** — Optimize your workflow
 3. Experiment with on-device hot reload
 
 ---
@@ -598,15 +598,15 @@ public class AIController : MonoBehaviour
 
 ## 🎯 Next Steps
 
-**New to Hot Reload?** → Start with **[Getting Started](01-GETTING-STARTED.md)**
+**New to Hot Reload?** → Start with **[Getting Started](01-getting-started.md)**
 
-**Want to understand the limits?** → Read **[Why Hot Reload?](02-WHY-HOT-RELOAD.md)**
+**Want to understand the limits?** → Read **[Why Hot Reload?](02-why-hot-reload.md)**
 
-**Ready to optimize your workflow?** → Check out **[How to Use It](03-HOW-TO-USE.md)**
+**Ready to optimize your workflow?** → Check out **[How to Use It](03-how-to-use.md)**
 
-**Running into issues?** → See **[Troubleshooting](04-TROUBLESHOOTING.md)**
+**Running into issues?** → See **[Troubleshooting](04-troubleshooting.md)**
 
-**Want proven patterns?** → Browse **[Best Practices](05-BEST-PRACTICES.md)**
+**Want proven patterns?** → Browse **[Best Practices](05-best-practices.md)**
 
 ---
 
@@ -615,11 +615,11 @@ public class AIController : MonoBehaviour
 Found an issue or want to add an example? These docs live in:
 
 - `docs/hot-reload/README.md` (this file)
-- `docs/hot-reload/01-GETTING-STARTED.md`
-- `docs/hot-reload/02-WHY-HOT-RELOAD.md`
-- `docs/hot-reload/03-HOW-TO-USE.md`
-- `docs/hot-reload/04-TROUBLESHOOTING.md`
-- `docs/hot-reload/05-BEST-PRACTICES.md`
+- `docs/hot-reload/01-getting-started.md`
+- `docs/hot-reload/02-why-hot-reload.md`
+- `docs/hot-reload/03-how-to-use.md`
+- `docs/hot-reload/04-troubleshooting.md`
+- `docs/hot-reload/05-best-practices.md`
 
 ---
 

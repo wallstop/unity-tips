@@ -82,7 +82,7 @@ public class SimplePlayer : MonoBehaviour
 
 This guide is organized into comprehensive sections to take you from beginner to expert:
 
-### 1. 🟢 [Getting Started](./01-GETTING-STARTED.md)
+### 1. 🟢 [Getting Started](./01-getting-started.md)
 
 **Perfect for:** First-time users and those evaluating the Input System
 
@@ -95,11 +95,11 @@ This guide is organized into comprehensive sections to take you from beginner to
 - When to use the Input System vs alternatives
 
 **⏱️ Time to read:** 15-20 minutes | **📄 Skip to:**
-[Installation Guide](./01-GETTING-STARTED.md#installation)
+[Installation Guide](./01-getting-started.md#installation)
 
 ---
 
-### 2. 🔵 [Core Concepts](./02-CORE-CONCEPTS.md)
+### 2. 🔵 [Core Concepts](./02-core-concepts.md)
 
 **Perfect for:** Understanding how the Input System works
 
@@ -117,7 +117,7 @@ This guide is organized into comprehensive sections to take you from beginner to
 
 ---
 
-### 3. 🟣 [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)
+### 3. 🟣 [Advanced Techniques](./03-advanced-techniques.md)
 
 **Perfect for:** Building production-quality input systems
 
@@ -137,7 +137,7 @@ This guide is organized into comprehensive sections to take you from beginner to
 
 ---
 
-### 4. 🟡 [Common Patterns](./04-COMMON-PATTERNS.md)
+### 4. 🟡 [Common Patterns](./04-common-patterns.md)
 
 **Perfect for:** Solving specific input challenges
 
@@ -157,7 +157,7 @@ This guide is organized into comprehensive sections to take you from beginner to
 
 ---
 
-### 5. 🔴 [Troubleshooting & Best Practices](./05-TROUBLESHOOTING.md)
+### 5. 🔴 [Troubleshooting & Best Practices](./05-troubleshooting.md)
 
 **Perfect for:** Fixing common issues and optimizing
 
@@ -174,7 +174,7 @@ This guide is organized into comprehensive sections to take you from beginner to
 - Migration from legacy Input Manager
 
 **⏱️ Time to read:** 20-25 minutes | **📄 Jump to:**
-[Common Issues](./05-TROUBLESHOOTING.md#common-issues)
+[Common Issues](./05-troubleshooting.md#common-issues)
 
 ---
 
@@ -205,25 +205,25 @@ graph LR
 
 ### For Beginners
 
-1. Start with **[Getting Started](./01-GETTING-STARTED.md)** to install and create your first Input
+1. Start with **[Getting Started](./01-getting-started.md)** to install and create your first Input
    Actions
-2. Read **[Core Concepts](./02-CORE-CONCEPTS.md)** to understand the architecture
-3. Follow **[Common Patterns](./04-COMMON-PATTERNS.md)** for your specific use case
-4. Reference **[Troubleshooting](./05-TROUBLESHOOTING.md)** when you hit issues
+2. Read **[Core Concepts](./02-core-concepts.md)** to understand the architecture
+3. Follow **[Common Patterns](./04-common-patterns.md)** for your specific use case
+4. Reference **[Troubleshooting](./05-troubleshooting.md)** when you hit issues
 
 ### For Experienced Developers
 
-1. Skim **[Getting Started](./01-GETTING-STARTED.md)** for setup overview
-2. Jump to **[Common Patterns](./04-COMMON-PATTERNS.md)** for implementation examples
-3. Explore **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** for complex features
-4. Check **[Troubleshooting](./05-TROUBLESHOOTING.md)** for optimization tips
+1. Skim **[Getting Started](./01-getting-started.md)** for setup overview
+2. Jump to **[Common Patterns](./04-common-patterns.md)** for implementation examples
+3. Explore **[Advanced Techniques](./03-advanced-techniques.md)** for complex features
+4. Check **[Troubleshooting](./05-troubleshooting.md)** for optimization tips
 
 ### For Migrating from Input Manager
 
-1. Read **"Why Migrate?"** in **[Getting Started](./01-GETTING-STARTED.md)**
-2. Follow **[Migration Guide](./05-TROUBLESHOOTING.md#migration-guide)** in Troubleshooting
-3. Study **[Core Concepts](./02-CORE-CONCEPTS.md)** to learn the new paradigm
-4. Rebuild features using **[Common Patterns](./04-COMMON-PATTERNS.md)**
+1. Read **"Why Migrate?"** in **[Getting Started](./01-getting-started.md)**
+2. Follow **[Migration Guide](./05-troubleshooting.md#migration-guide)** in Troubleshooting
+3. Study **[Core Concepts](./02-core-concepts.md)** to learn the new paradigm
+4. Rebuild features using **[Common Patterns](./04-common-patterns.md)**
 
 ---
 
@@ -399,16 +399,16 @@ public class PlayerController : MonoBehaviour
 
 | Use Case                        | Recommended Approach                          | Guide Section                                                        |
 | ------------------------------- | --------------------------------------------- | -------------------------------------------------------------------- |
-| **2D/3D character movement**    | Composite Binding (WASD/Arrow Keys → Vector2) | [Common Patterns](./04-COMMON-PATTERNS.md#character-movement)        |
-| **Jump/shoot/interact buttons** | Button action with `.performed` event         | [Core Concepts](./02-CORE-CONCEPTS.md#action-types)                  |
-| **Camera/aim controls**         | Value action (Vector2) with Delta processor   | [Common Patterns](./04-COMMON-PATTERNS.md#camera-controls)           |
-| **Menu navigation**             | UI Action Map with Submit/Cancel actions      | [Common Patterns](./04-COMMON-PATTERNS.md#menu-navigation)           |
-| **Gamepad support**             | Control Schemes with automatic switching      | [Core Concepts](./02-CORE-CONCEPTS.md#control-schemes)               |
-| **Runtime control rebinding**   | Rebinding Operations API                      | [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#runtime-rebinding) |
-| **Local multiplayer**           | Multiple PlayerInput components               | [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#multiplayer)       |
-| **Mobile touch controls**       | Touch Action + On-Screen Controls             | [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#mobile-input)      |
-| **Charging attacks**            | Hold Interaction with duration                | [Common Patterns](./04-COMMON-PATTERNS.md#charging-attacks)          |
-| **Context-sensitive actions**   | Action Map switching                          | [Common Patterns](./04-COMMON-PATTERNS.md#context-actions)           |
+| **2D/3D character movement**    | Composite Binding (WASD/Arrow Keys → Vector2) | [Common Patterns](./04-common-patterns.md#character-movement)        |
+| **Jump/shoot/interact buttons** | Button action with `.performed` event         | [Core Concepts](./02-core-concepts.md#action-types)                  |
+| **Camera/aim controls**         | Value action (Vector2) with Delta processor   | [Common Patterns](./04-common-patterns.md#camera-controls)           |
+| **Menu navigation**             | UI Action Map with Submit/Cancel actions      | [Common Patterns](./04-common-patterns.md#menu-navigation)           |
+| **Gamepad support**             | Control Schemes with automatic switching      | [Core Concepts](./02-core-concepts.md#control-schemes)               |
+| **Runtime control rebinding**   | Rebinding Operations API                      | [Advanced Techniques](./03-advanced-techniques.md#runtime-rebinding) |
+| **Local multiplayer**           | Multiple PlayerInput components               | [Advanced Techniques](./03-advanced-techniques.md#multiplayer)       |
+| **Mobile touch controls**       | Touch Action + On-Screen Controls             | [Advanced Techniques](./03-advanced-techniques.md#mobile-input)      |
+| **Charging attacks**            | Hold Interaction with duration                | [Common Patterns](./04-common-patterns.md#charging-attacks)          |
+| **Context-sensitive actions**   | Action Map switching                          | [Common Patterns](./04-common-patterns.md#context-actions)           |
 
 ---
 
@@ -424,7 +424,7 @@ public class PlayerController : MonoBehaviour
 | Polling triggered in Update() | Performance waste                     | Use events (.performed) instead                |
 | Not testing on all platforms  | Controls don't work on mobile/console | Test with actual devices early                 |
 
-See **[Troubleshooting](./05-TROUBLESHOOTING.md)** for detailed solutions.
+See **[Troubleshooting](./05-troubleshooting.md)** for detailed solutions.
 
 ---
 
@@ -471,17 +471,17 @@ Input integration examples ✅ Official documentation references
 
 ### I want to...
 
-- **Learn what the Input System is** → [Getting Started](./01-GETTING-STARTED.md)
-- **Install and set it up** → [Installation Guide](./01-GETTING-STARTED.md#installation)
-- **Understand how it works** → [Core Concepts](./02-CORE-CONCEPTS.md)
+- **Learn what the Input System is** → [Getting Started](./01-getting-started.md)
+- **Install and set it up** → [Installation Guide](./01-getting-started.md#installation)
+- **Understand how it works** → [Core Concepts](./02-core-concepts.md)
 - **Make a character move** →
-  [Common Patterns: Movement](./04-COMMON-PATTERNS.md#character-movement)
-- **Support gamepads** → [Core Concepts: Control Schemes](./02-CORE-CONCEPTS.md#control-schemes)
-- **Add runtime rebinding** → [Advanced: Rebinding](./03-ADVANCED-TECHNIQUES.md#runtime-rebinding)
-- **Fix an issue** → [Troubleshooting](./05-TROUBLESHOOTING.md)
-- **Migrate from old Input Manager** → [Migration Guide](./05-TROUBLESHOOTING.md#migration-guide)
-- **Implement local multiplayer** → [Advanced: Multiplayer](./03-ADVANCED-TECHNIQUES.md#multiplayer)
-- **Optimize performance** → [Troubleshooting: Performance](./05-TROUBLESHOOTING.md#performance)
+  [Common Patterns: Movement](./04-common-patterns.md#character-movement)
+- **Support gamepads** → [Core Concepts: Control Schemes](./02-core-concepts.md#control-schemes)
+- **Add runtime rebinding** → [Advanced: Rebinding](./03-advanced-techniques.md#runtime-rebinding)
+- **Fix an issue** → [Troubleshooting](./05-troubleshooting.md)
+- **Migrate from old Input Manager** → [Migration Guide](./05-troubleshooting.md#migration-guide)
+- **Implement local multiplayer** → [Advanced: Multiplayer](./03-advanced-techniques.md#multiplayer)
+- **Optimize performance** → [Troubleshooting: Performance](./05-troubleshooting.md#performance)
 
 ---
 
@@ -510,26 +510,26 @@ See `IshoBoy/Assets/Scripts/Gameplay/Input/KInputService.cs` for production impl
 
 ### New to the Input System?
 
-**Start here:** [Getting Started Guide](./01-GETTING-STARTED.md)
+**Start here:** [Getting Started Guide](./01-getting-started.md)
 
 Install the package, create your first Input Actions, and build an interactive character in under 15
 minutes.
 
 ### Already familiar with basics?
 
-**Jump to:** [Common Patterns](./04-COMMON-PATTERNS.md)
+**Jump to:** [Common Patterns](./04-common-patterns.md)
 
 Browse 10+ ready-to-use implementation patterns for movement, shooting, menus, and more.
 
 ### Need advanced features?
 
-**Check out:** [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)
+**Check out:** [Advanced Techniques](./03-advanced-techniques.md)
 
 Runtime rebinding, multiplayer, custom processors, Steam Input, and more.
 
 ### Troubleshooting an issue?
 
-**Go to:** [Troubleshooting Guide](./05-TROUBLESHOOTING.md)
+**Go to:** [Troubleshooting Guide](./05-troubleshooting.md)
 
 Solutions to common problems, performance tips, and migration help.
 

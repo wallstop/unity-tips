@@ -1,0 +1,184 @@
+site_name: Unity Tips & Tools
+site_description: Battle-tested practices and tools to build better Unity games faster
+site_url: https://wallstop.github.io/unity-tips
+repo_url: https://github.com/wallstop/unity-tips
+repo_name: wallstop/unity-tips
+edit_uri: edit/main/docs/
+docs_dir: site-docs
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - tags
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: wallstop
+      repo: unity-tips
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/wallstop/unity-tips
+  generator: false
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview: README.md
+      - Contributing: CONTRIBUTING.md
+  - Best Practices:
+      - Overview: best-practices/README.md
+      - Lifecycle Methods: best-practices/01-lifecycle-methods.md
+      - Null Checks: best-practices/02-null-checks.md
+      - Component Access: best-practices/03-component-access.md
+      - Serialization: best-practices/04-serialization.md
+      - Coroutines: best-practices/05-coroutines.md
+      - Physics: best-practices/06-physics.md
+      - Performance & Memory: best-practices/07-performance-memory.md
+      - ScriptableObjects: best-practices/08-scriptable-objects.md
+      - Object Pooling: best-practices/09-object-pooling.md
+      - Event Systems: best-practices/10-event-systems.md
+      - Addressables: best-practices/11-addressables.md
+      - Scene Loading: best-practices/12-scene-loading.md
+      - Jobs & Burst: best-practices/13-jobs-burst.md
+      - Async/Await: best-practices/14-async-await.md
+      - Profiling: best-practices/15-profiling.md
+      - Testing & CI: best-practices/16-automated-testing-ci.md
+      - Input Architecture: best-practices/17-input-architecture.md
+      - Save/Load: best-practices/18-save-load.md
+  - Tools:
+      - Animation & Polish:
+          - Animancer:
+              - Overview: animancer/README.md
+              - Getting Started: animancer/01-getting-started.md
+              - Core Concepts: animancer/02-core-concepts.md
+              - Advanced Techniques: animancer/03-advanced-techniques.md
+              - Best Practices: animancer/04-best-practices.md
+              - Code Examples: animancer/05-code-examples.md
+          - PrimeTween:
+              - Overview: primetween/README.md
+              - Getting Started: primetween/01-getting-started.md
+              - Why PrimeTween: primetween/02-why-primetween.md
+              - API Reference: primetween/03-api-reference.md
+              - Common Patterns: primetween/04-common-patterns.md
+              - Anti-Patterns: primetween/05-anti-patterns.md
+          - Feel:
+              - Overview: feel/README.md
+              - Getting Started: feel/01-getting-started.md
+              - Why Feel: feel/02-why-feel.md
+              - Feedback Catalog: feel/03-feedback-catalog.md
+              - Advanced Techniques: feel/04-advanced-techniques.md
+              - Troubleshooting: feel/05-troubleshooting.md
+      - Editor & Workflow:
+          - Hot Reload:
+              - Overview: hot-reload/README.md
+              - Getting Started: hot-reload/01-getting-started.md
+              - Why Hot Reload: hot-reload/02-why-hot-reload.md
+              - How to Use: hot-reload/03-how-to-use.md
+              - Troubleshooting: hot-reload/04-troubleshooting.md
+              - Best Practices: hot-reload/05-best-practices.md
+          - Odin Inspector:
+              - Overview: odin/README.md
+              - Getting Started: odin/01-getting-started.md
+              - Core Features: odin/02-core-features.md
+              - Advanced Techniques: odin/03-advanced-techniques.md
+              - Common Patterns: odin/04-common-patterns.md
+              - Best Practices: odin/05-best-practices.md
+      - Architecture:
+          - Assembly Definitions:
+              - Overview: assembly-definitions/README.md
+              - Getting Started: assembly-definitions/01-getting-started.md
+              - Core Concepts: assembly-definitions/02-core-concepts.md
+              - Advanced Techniques: assembly-definitions/03-advanced-techniques.md
+              - Common Patterns: assembly-definitions/04-common-patterns.md
+              - Best Practices: assembly-definitions/05-best-practices.md
+          - Input System:
+              - Overview: input-system/README.md
+              - Getting Started: input-system/01-getting-started.md
+              - Core Concepts: input-system/02-core-concepts.md
+              - Advanced Techniques: input-system/03-advanced-techniques.md
+              - Common Patterns: input-system/04-common-patterns.md
+              - Troubleshooting: input-system/05-troubleshooting.md
+          - DxMessaging: dxmessaging/README.md
+      - Debugging & Performance:
+          - Graphy: graphy/README.md
+          - Better Build Info: better-build-info/README.md
+          - Asset Usage Finder: asset-usage-finder/README.md
+      - Development Tooling:
+          - Overview: tooling/README.md
+          - CSharpier: tooling/01-csharpier.md
+          - EditorConfig: tooling/02-editorconfig.md
+          - NuGet for Unity: tooling/03-nuget-for-unity.md
+          - Heap Allocation Viewer: tooling/04-heap-allocation-viewer.md
+      - Utilities:
+          - Unity Helpers: unity-helpers/README.md
+  - Changelog: CHANGELOG.md

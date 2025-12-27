@@ -156,7 +156,7 @@ That's the power of Odin. **Serialize anything. Do anything.**
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — _10-minute read_
+**🌱 [Getting Started](01-getting-started.md)** — _10-minute read_
 
 - What problems does Odin solve?
 - Installation and setup
@@ -165,7 +165,7 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - Attribute quick reference
 - Migration from vanilla Unity
 
-**💪 [Core Features](02-CORE-FEATURES.md)** — _25-minute read_
+**💪 [Core Features](02-core-features.md)** — _25-minute read_
 
 - Odin Serializer (dictionaries, properties, interfaces, polymorphism)
 - Odin Inspector (buttons, validation, custom drawers, conditional visibility)
@@ -173,7 +173,7 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - Attribute combinations and patterns
 - Performance considerations
 
-**📖 [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — _30-minute read_
+**📖 [Advanced Techniques](03-advanced-techniques.md)** — _30-minute read_
 
 - Custom attribute processors
 - Editor-only fields and workflows
@@ -182,7 +182,7 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - Integration with external systems
 - Build pipeline considerations
 
-**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — _Cookbook_
+**🎯 [Common Patterns](04-common-patterns.md)** — _Cookbook_
 
 - Dictionary patterns (item databases, state tracking, config management)
 - Button patterns (dev tools, testing utilities, asset generation)
@@ -191,7 +191,7 @@ That's the power of Odin. **Serialize anything. Do anything.**
 - UI/UX patterns (tabs, foldouts, groups)
 - Architecture patterns (data-driven design, designer-friendly systems)
 
-**⚠️ [Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — _What to do and what NOT to do_
+**⚠️ [Best Practices & Pitfalls](05-best-practices.md)** — _What to do and what NOT to do_
 
 - Serialization best practices
 - Performance optimization
@@ -512,24 +512,24 @@ graph TD
 
 ### Beginner (20 minutes)
 
-1. Read [Getting Started](01-GETTING-STARTED.md) — Learn what Odin solves
+1. Read [Getting Started](01-getting-started.md) — Learn what Odin solves
 2. Try serializing a dictionary
 3. Add your first `[Button]` method
-4. Browse [Common Patterns](04-COMMON-PATTERNS.md) for inspiration
+4. Browse [Common Patterns](04-common-patterns.md) for inspiration
 
 ### Intermediate (1 hour)
 
-1. Read [Core Features](02-CORE-FEATURES.md) — Master attributes
-2. Study [Common Patterns](04-COMMON-PATTERNS.md) — Learn proven recipes
-3. Review [Best Practices](05-BEST-PRACTICES.md) — Avoid pitfalls
+1. Read [Core Features](02-core-features.md) — Master attributes
+2. Study [Common Patterns](04-common-patterns.md) — Learn proven recipes
+3. Review [Best Practices](05-best-practices.md) — Avoid pitfalls
 4. Implement a complete item database with validation
 
 ### Advanced (2+ hours)
 
-1. Deep dive into [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
+1. Deep dive into [Advanced Techniques](03-advanced-techniques.md)
 2. Create custom attribute processors
 3. Build designer-friendly tools with buttons
-4. Read all of [Best Practices](05-BEST-PRACTICES.md)
+4. Read all of [Best Practices](05-best-practices.md)
 
 ---
 
@@ -613,7 +613,7 @@ private void DoSomethingElse() { }
 - Use `[Button]` methods that modify scene objects in edit mode without undo support
 - Forget to use `[HideInInspector]` or `[NonSerialized]` for internal fields
 
-[Full checklist →](05-BEST-PRACTICES.md)
+[Full checklist →](05-best-practices.md)
 
 ---
 
@@ -664,19 +664,19 @@ Odin typically provides:
 
 ## 🎯 Next Steps
 
-**New to Odin?** → Start with [Getting Started](01-GETTING-STARTED.md)
+**New to Odin?** → Start with [Getting Started](01-getting-started.md)
 
 **Need to serialize dictionaries or complex types?** → Read
-[Core Features: Odin Serializer](02-CORE-FEATURES.md#odin-serializer)
+[Core Features: Odin Serializer](02-core-features.md#odin-serializer)
 
 **Want Inspector buttons and validation?** → Read
-[Core Features: Odin Inspector](02-CORE-FEATURES.md#odin-inspector)
+[Core Features: Odin Inspector](02-core-features.md#odin-inspector)
 
-**Need specific examples?** → Browse [Common Patterns](04-COMMON-PATTERNS.md)
+**Need specific examples?** → Browse [Common Patterns](04-common-patterns.md)
 
-**Want full advanced techniques?** → See [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
+**Want full advanced techniques?** → See [Advanced Techniques](03-advanced-techniques.md)
 
-**Avoiding mistakes?** → Study [Best Practices & Pitfalls](05-BEST-PRACTICES.md)
+**Avoiding mistakes?** → Study [Best Practices & Pitfalls](05-best-practices.md)
 
 ---
 
@@ -685,11 +685,11 @@ Odin typically provides:
 Found an issue or want to add an example? These docs live in:
 
 - `docs/odin/README.md` (this file)
-- `docs/odin/01-GETTING-STARTED.md`
-- `docs/odin/02-CORE-FEATURES.md`
-- `docs/odin/03-ADVANCED-TECHNIQUES.md`
-- `docs/odin/04-COMMON-PATTERNS.md`
-- `docs/odin/05-BEST-PRACTICES.md`
+- `docs/odin/01-getting-started.md`
+- `docs/odin/02-core-features.md`
+- `docs/odin/03-advanced-techniques.md`
+- `docs/odin/04-common-patterns.md`
+- `docs/odin/05-best-practices.md`
 
 ---
 

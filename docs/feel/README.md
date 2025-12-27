@@ -96,7 +96,7 @@ complex code needed.
 
 **Start here if you've never used Feel before:**
 
-1. **[Getting Started](01-GETTING-STARTED.md)** ⭐ **Start Here**
+1. **[Getting Started](01-getting-started.md)** ⭐ **Start Here**
 
    - What is Feel and what problems does it solve?
    - Installation guide (Asset Store or free MMFeedbacks)
@@ -105,7 +105,7 @@ complex code needed.
    - Common use cases with step-by-step examples
    - Quick reference card
 
-2. **[Why Feel?](02-WHY-FEEL.md)**
+2. **[Why Feel?](02-why-feel.md)**
    - What is "game feel" and why does it matter?
    - Feel vs manual code (100+ lines → 1 line)
    - Feel vs alternatives (DOTween, Animator, Timeline)
@@ -117,7 +117,7 @@ complex code needed.
 
 **Once you understand the basics:**
 
-1. **[Feedback Catalog](03-FEEDBACK-CATALOG.md)** 📚 **Reference**
+1. **[Feedback Catalog](03-feedback-catalog.md)** 📚 **Reference**
    - Complete list of all 150+ feedbacks organized by category
    - What each feedback does
    - Common use cases
@@ -129,7 +129,7 @@ complex code needed.
 
 **Master advanced techniques:**
 
-1. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** 🚀 **Advanced**
+1. **[Advanced Techniques](04-advanced-techniques.md)** 🚀 **Advanced**
    - Scripting with MMFeedbacks (dynamic intensity, events, control)
    - Advanced timing and sequencing patterns
    - Creating custom feedbacks (extend Feel!)
@@ -141,7 +141,7 @@ complex code needed.
 
 **When things go wrong:**
 
-1. **[Troubleshooting](05-TROUBLESHOOTING.md)** 🔧 **Debug**
+1. **[Troubleshooting](05-troubleshooting.md)** 🔧 **Debug**
    - Quick diagnostic flowchart
    - Common issues and solutions
    - Platform-specific problems
@@ -258,7 +258,7 @@ Created in 5 minutes via Inspector!
 
 ### Phase 1: Foundations (30 minutes)
 
-1. Read [Getting Started](01-GETTING-STARTED.md)
+1. Read [Getting Started](01-getting-started.md)
 2. Build the "Bouncy Button" tutorial
 3. Play Feel's demo scenes (`Assets/Feel/Demos/Snake`)
 4. Create one feedback of your own (screen shake on collision)
@@ -267,8 +267,8 @@ Created in 5 minutes via Inspector!
 
 ### Phase 2: Application (2-4 hours)
 
-1. Read [Why Feel?](02-WHY-FEEL.md)
-2. Skim [Feedback Catalog](03-FEEDBACK-CATALOG.md) (don't memorize, just browse)
+1. Read [Why Feel?](02-why-feel.md)
+2. Skim [Feedback Catalog](03-feedback-catalog.md) (don't memorize, just browse)
 3. Add 5-10 feedbacks to your game (jump, hit, UI clicks, etc.)
 4. Experiment with combining multiple feedbacks
 
@@ -276,7 +276,7 @@ Created in 5 minutes via Inspector!
 
 ### Phase 3: Mastery (ongoing)
 
-1. Read [Advanced Techniques](04-ADVANCED-TECHNIQUES.md)
+1. Read [Advanced Techniques](04-advanced-techniques.md)
 2. Try scripting with MMFeedbacks (dynamic intensity, events)
 3. Create a custom feedback for your game's unique needs
 4. Optimize feedback performance
@@ -285,7 +285,7 @@ Created in 5 minutes via Inspector!
 
 ### Phase 4: Troubleshooting (as needed)
 
-1. Keep [Troubleshooting](05-TROUBLESHOOTING.md) bookmarked
+1. Keep [Troubleshooting](05-troubleshooting.md) bookmarked
 2. Reference when issues arise
 3. Use diagnostic flowcharts to quickly identify problems
 
@@ -427,7 +427,7 @@ When asking for help, include:
 ## FAQ
 
 **Q: Is Feel worth €46?** A: If it saves you 2 days of work, yes. Most developers report 1-2 weeks
-saved on feedback systems. See [Why Feel?](02-WHY-FEEL.md) for cost-benefit analysis.
+saved on feedback systems. See [Why Feel?](02-why-feel.md) for cost-benefit analysis.
 
 **Q: Can I use the free MMFeedbacks version?** A: Yes! It includes ~80 core feedbacks. Upgrade to
 Feel when you need post-processing, haptics, or advanced features.
@@ -439,10 +439,10 @@ code-driven animations, Feel for game feel. Many projects use both.
 URP/HDRP with Volume components.
 
 **Q: Can I extend Feel with custom feedbacks?** A: Absolutely! See
-[Advanced Techniques](04-ADVANCED-TECHNIQUES.md) → Creating Custom Feedbacks.
+[Advanced Techniques](04-advanced-techniques.md) → Creating Custom Feedbacks.
 
 **Q: Does Feel impact performance?** A: Minimal impact. Zero allocations after warmup, object
-pooling included. See [Advanced Techniques](04-ADVANCED-TECHNIQUES.md) → Performance Optimization.
+pooling included. See [Advanced Techniques](04-advanced-techniques.md) → Performance Optimization.
 
 **Q: Does Feel work on mobile?** A: Yes! Includes mobile haptics for iOS (Taptic Engine) and
 Android. Automatically handles platform differences.
@@ -503,14 +503,14 @@ Pipelines**: Built-in, URP, HDRP **Platforms**: PC, Mac, Linux, iOS, Android, Co
 
 **Ready to make your game feel amazing?**
 
-👉 **[Start with Getting Started](01-GETTING-STARTED.md)**
+👉 **[Start with Getting Started](01-getting-started.md)**
 
 Or jump to:
 
-- [Why Feel?](02-WHY-FEEL.md) — Convince yourself (or your team)
-- [Feedback Catalog](03-FEEDBACK-CATALOG.md) — Browse all 150+ feedbacks
-- [Advanced Techniques](04-ADVANCED-TECHNIQUES.md) — Power-user features
-- [Troubleshooting](05-TROUBLESHOOTING.md) — Fix issues quickly
+- [Why Feel?](02-why-feel.md) — Convince yourself (or your team)
+- [Feedback Catalog](03-feedback-catalog.md) — Browse all 150+ feedbacks
+- [Advanced Techniques](04-advanced-techniques.md) — Power-user features
+- [Troubleshooting](05-troubleshooting.md) — Fix issues quickly
 
 ---
 

@@ -81,7 +81,7 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 
 ### For Unity Developers of All Skill Levels
 
-**🌱 [Getting Started](01-GETTING-STARTED.md)** — _15-minute read_
+**🌱 [Getting Started](01-getting-started.md)** — _15-minute read_
 
 - What problem do Assembly Definitions solve?
 - How Unity's compilation works (with and without asmdef)
@@ -90,7 +90,7 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Visual diagrams of compile-time improvements
 - Quick win: Reducing iteration time by 90%
 
-**💪 [Core Concepts](02-CORE-CONCEPTS.md)** — _25-minute read_
+**💪 [Core Concepts](02-core-concepts.md)** — _25-minute read_
 
 - Assembly Definition files (.asmdef)
 - Assembly Definition References (.asmref)
@@ -101,7 +101,7 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Assembly reload optimization
 - Precompiled assemblies and plugins
 
-**📖 [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — _30-minute read_
+**📖 [Advanced Techniques](03-advanced-techniques.md)** — _30-minute read_
 
 - Complex dependency hierarchies
 - Version defines and conditional compilation
@@ -112,7 +112,7 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Package Manager integration
 - CI/CD considerations
 
-**🎯 [Common Patterns](04-COMMON-PATTERNS.md)** — _Cookbook_
+**🎯 [Common Patterns](04-common-patterns.md)** — _Cookbook_
 
 - Standard project structure patterns
 - Core/Gameplay/UI separation strategy
@@ -122,7 +122,7 @@ Change one script → Unity recompiles ONE assembly → Wait 2 seconds → Test
 - Package development patterns
 - Multi-platform projects
 
-**⚠️ [Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — _What to do and what NOT to do_
+**⚠️ [Best Practices & Pitfalls](05-best-practices.md)** — _What to do and what NOT to do_
 
 - When to use (and not use) Assembly Definitions
 - Granularity: Too many vs too few assemblies
@@ -496,24 +496,24 @@ graph TD
 
 ### Beginner (30 minutes)
 
-1. Read [Getting Started](01-GETTING-STARTED.md) — Understand the problem and solution
+1. Read [Getting Started](01-getting-started.md) — Understand the problem and solution
 2. Create your first assembly definition
 3. Measure compile time improvement
 4. Learn basic dependency management
 
 ### Intermediate (1-2 hours)
 
-1. Read [Core Concepts](02-CORE-CONCEPTS.md) — Master asmdef features
-2. Study [Common Patterns](04-COMMON-PATTERNS.md) — Learn proven structures
+1. Read [Core Concepts](02-core-concepts.md) — Master asmdef features
+2. Study [Common Patterns](04-common-patterns.md) — Learn proven structures
 3. Set up a 3-4 assembly project (Core/Gameplay/UI/Editor)
-4. Review [Best Practices](05-BEST-PRACTICES.md) — Avoid common mistakes
+4. Review [Best Practices](05-best-practices.md) — Avoid common mistakes
 
 ### Advanced (2+ hours)
 
-1. Deep dive into [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
+1. Deep dive into [Advanced Techniques](03-advanced-techniques.md)
 2. Master version defines and conditional compilation
 3. Study complex dependency hierarchies
-4. Read all of [Best Practices](05-BEST-PRACTICES.md)
+4. Read all of [Best Practices](05-best-practices.md)
 5. Migrate a real project to assembly definitions
 
 ---
@@ -581,15 +581,15 @@ from production experience.
 
 ## 🎯 Next Steps
 
-**New to Assembly Definitions?** → Start with [Getting Started](01-GETTING-STARTED.md)
+**New to Assembly Definitions?** → Start with [Getting Started](01-getting-started.md)
 
-**Want to understand how they work?** → Read [Core Concepts](02-CORE-CONCEPTS.md)
+**Want to understand how they work?** → Read [Core Concepts](02-core-concepts.md)
 
-**Need to structure a real project?** → Browse [Common Patterns](04-COMMON-PATTERNS.md)
+**Need to structure a real project?** → Browse [Common Patterns](04-common-patterns.md)
 
-**Looking for advanced techniques?** → See [Advanced Techniques](03-ADVANCED-TECHNIQUES.md)
+**Looking for advanced techniques?** → See [Advanced Techniques](03-advanced-techniques.md)
 
-**Avoiding mistakes?** → Study [Best Practices & Pitfalls](05-BEST-PRACTICES.md)
+**Avoiding mistakes?** → Study [Best Practices & Pitfalls](05-best-practices.md)
 
 ---
 
@@ -622,11 +622,11 @@ Assembly Definitions typically provide:
 Found an issue or want to add an example? These docs live in:
 
 - `docs/assembly-definitions/README.md` (this file)
-- `docs/assembly-definitions/01-GETTING-STARTED.md`
-- `docs/assembly-definitions/02-CORE-CONCEPTS.md`
-- `docs/assembly-definitions/03-ADVANCED-TECHNIQUES.md`
-- `docs/assembly-definitions/04-COMMON-PATTERNS.md`
-- `docs/assembly-definitions/05-BEST-PRACTICES.md`
+- `docs/assembly-definitions/01-getting-started.md`
+- `docs/assembly-definitions/02-core-concepts.md`
+- `docs/assembly-definitions/03-advanced-techniques.md`
+- `docs/assembly-definitions/04-common-patterns.md`
+- `docs/assembly-definitions/05-best-practices.md`
 
 ---
 
