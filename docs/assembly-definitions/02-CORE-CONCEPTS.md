@@ -686,8 +686,8 @@ namespace MyGame.Tests
 ```
 
 > **Tip:** Always use a `TestBase` class that tracks instantiated objects and cleans them up in
-> `[TearDown]`. This prevents leaks when assertions fail and eliminates try/finally boilerplate.
-> See [Automated Testing](../best-practices/16-automated-testing-ci.md) for the full `TestBase`
+> `[TearDown]`. This prevents leaks when assertions fail and eliminates try/finally boilerplate. See
+> [Automated Testing](../best-practices/16-automated-testing-ci.md) for the full `TestBase`
 > implementation.
 
 ## Assembly Reload Optimization

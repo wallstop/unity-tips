@@ -7,16 +7,16 @@
 
 ## Installation
 
-Hot Reload is a commercial product available from [hotreload.net](https://hotreload.net/) or the
+Hot Reload is a commercial product available from [Hotreload](https://hotreload.net/) or the
 Unity Asset Store.
 
 1. Purchase and download Hot Reload from the [Unity Asset Store](https://assetstore.unity.com/) or
-   [hotreload.net](https://hotreload.net/).
+   [Hotreload](https://hotreload.net/).
 2. Import the package into your Unity project.
 3. Once imported, Unity adds the _Hot Reload_ menu and editor window.
 
-> **Note:** Hot Reload is a paid tool. For open-source alternatives, see Unity's built-in
-> "Edit and Continue" feature in Unity 2022.2+ or the experimental .NET Hot Reload support.
+> **Note:** Hot Reload is a paid tool. For open-source alternatives, see Unity's built-in "Edit and
+> Continue" feature in Unity 2022.2+ or the experimental .NET Hot Reload support.
 
 ---
 

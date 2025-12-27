@@ -518,7 +518,9 @@ _animancer.Play(clip, fadeDuration: 0.3f, FadeMode.FixedSpeed);
 _animancer.Play(clip, fadeDuration: 0.3f, FadeMode.NormalizedSpeed);
 ```
 
-> **Note:** See the [official Animancer Fade Modes documentation](https://kybernetik.com.au/animancer/docs/manual/blending/fading/modes/) for the complete list of available fade modes.
+> **Note:** See the
+> [official Animancer Fade Modes documentation](https://kybernetik.com.au/animancer/docs/manual/blending/fading/modes/)
+> for the complete list of available fade modes.
 
 ### How Blending Works
 
