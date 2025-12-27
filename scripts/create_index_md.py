@@ -72,9 +72,7 @@ for Unity best practices, recommended tools, and architectural patterns.
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate index.md for MkDocs site"
-    )
+    parser = argparse.ArgumentParser(description="Generate index.md for MkDocs site")
     parser.add_argument(
         "-o",
         "--output",
