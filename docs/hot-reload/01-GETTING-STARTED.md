@@ -7,8 +7,8 @@
 
 ## Installation
 
-Hot Reload is a commercial product available from [Hotreload](https://hotreload.net/) or the
-Unity Asset Store.
+Hot Reload is a commercial product available from [Hotreload](https://hotreload.net/) or the Unity
+Asset Store.
 
 1. Purchase and download Hot Reload from the [Unity Asset Store](https://assetstore.unity.com/) or
    [Hotreload](https://hotreload.net/).
