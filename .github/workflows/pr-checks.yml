@@ -205,7 +205,9 @@ jobs:
           LINK_CHECK_WARN_ON_NETWORK_ERROR: "true"
         run: |
           # Run existing link checker for all markdown files
-          python scripts/check_links.py README.md CONTRIBUTING.md CHANGELOG.md $(find docs -name "*.md")
+          # Use globstar to avoid shellcheck SC2046 word splitting warning
+          shopt -s globstar
+          python scripts/check_links.py README.md CONTRIBUTING.md CHANGELOG.md docs/**/*.md
 
   docs-build-check:
     name: Validate documentation builds
