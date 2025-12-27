@@ -11,9 +11,9 @@
 2. [Multiplayer](#multiplayer)
 3. [Mobile Input](#mobile-input)
 4. [Steam Input Integration](#steam-input)
-5. [Custom Processors & Interactions](#custom-processors-interactions)
-6. [Input Buffering & Combos](#input-buffering-combos)
-7. [Debugging & Profiling](#debugging-profiling)
+5. [Custom Processors & Interactions](#custom-processors--interactions)
+6. [Input Buffering & Combos](#input-buffering--combos)
+7. [Debugging & Profiling](#debugging--profiling)
 
 ---
 

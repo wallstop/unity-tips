@@ -4,11 +4,11 @@
 
 ## Table of Contents
 
-- [Memory & Performance](#memory-performance)
+- [Memory & Performance](#memory--performance)
 - [Tween Management](#tween-management)
 - [Sequences](#sequences)
 - [Callbacks](#callbacks)
-- [Inspector & Serialization](#inspector-serialization)
+- [Inspector & Serialization](#inspector--serialization)
 - [Common Bugs](#common-bugs)
 
 ---

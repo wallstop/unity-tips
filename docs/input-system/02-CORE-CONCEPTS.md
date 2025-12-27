@@ -9,11 +9,11 @@
 
 1. [Action Maps](#action-maps)
 2. [Action Types](#action-types)
-3. [Bindings & Composite Bindings](#bindings-composite-bindings)
+3. [Bindings & Composite Bindings](#bindings--composite-bindings)
 4. [Control Schemes](#control-schemes)
 5. [Working with PlayerInput](#working-with-playerinput)
 6. [Events vs. Polling](#events-vs-polling)
-7. [Devices & Auto-Switching](#devices-auto-switching)
+7. [Devices & Auto-Switching](#devices--auto-switching)
 
 ---
 

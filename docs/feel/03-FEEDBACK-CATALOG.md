@@ -15,7 +15,7 @@ Each feedback listing includes:
 **Navigation**: Jump to any category:
 
 - [Audio](#audio) | [Camera](#camera) | [Events](#events) | [GameObject](#gameobject)
-- [Haptics](#haptics-nice-vibrations) | [Light](#light) | [Materials](#materials-renderer) |
+- [Haptics](#haptics-nice-vibrations) | [Light](#light) | [Materials](#materials--renderer) |
   [Particles](#particles)
 - [Physics](#physics) | [Post Processing](#post-processing) | [Text](#text) | [Time](#time)
 - [Transform](#transform) | [UI](#ui) | [Debug](#debug)
