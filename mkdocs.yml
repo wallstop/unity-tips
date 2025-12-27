@@ -10,8 +10,7 @@ theme:
   name: material
   palette:
     # Dark mode (Unity-like, default)
-    - media: "(prefers-color-scheme)"
-      scheme: slate
+    - scheme: slate
       primary: teal
       accent: amber
       toggle:

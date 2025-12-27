@@ -11,7 +11,7 @@
   --unity-bg-light: #414141;
   --unity-bg-lighter: #4a4a4a;
   --unity-text: #e4e4e4;
-  --unity-text-muted: #9a9a9a;
+  --unity-text-muted: #b0b0b0;
   --unity-accent-blue: #3a79bb;
   --unity-accent-teal: #009688;
   --unity-accent-orange: #ff9500;
@@ -194,6 +194,13 @@
 }
 
 /* Scrollbar styling for Unity feel */
+/* Firefox scrollbar support */
+[data-md-color-scheme="slate"] * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--unity-bg-lighter) var(--unity-bg-dark);
+}
+
+/* Webkit (Chrome, Safari, Edge) scrollbar support */
 [data-md-color-scheme="slate"] ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
