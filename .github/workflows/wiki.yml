@@ -43,7 +43,7 @@ jobs:
             echo "Wiki cloned successfully"
           else
             echo "Wiki doesn't exist yet. Creating initial wiki..."
-            mkdir wiki
+            mkdir -p wiki
             cd wiki
             git init
             git remote add origin "$WIKI_URL"
@@ -54,22 +54,25 @@ jobs:
             git commit -m "Initialize wiki"
             # GitHub wikis use 'master' as default branch
             git branch -M master
-            git push -u origin master
-            cd ..
-            rm -rf wiki
-            git clone "$WIKI_URL" wiki
+            if ! git push -u origin master; then
+              echo "::error::Failed to push initial wiki. Please ensure wiki is enabled in repository settings."
+              exit 1
+            fi
+            echo "Wiki initialized successfully"
           fi
 
           # Determine the default branch name
           cd wiki
           WIKI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           echo "WIKI_BRANCH=$WIKI_BRANCH" >> "$GITHUB_ENV"
-          cd ..
+          echo "Using wiki branch: $WIKI_BRANCH"
 
       - name: Sync documentation to wiki
         run: python scripts/sync-wiki.py
 
       - name: Push changes to wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd wiki
           git add -A
@@ -77,12 +80,17 @@ jobs:
           # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to sync"
-          else
-            git commit -m "$(cat <<EOF
-          Sync documentation from main repository
-
-          Source commit: ${{ github.sha }}
-          EOF
-          )"
-            git push origin "$WIKI_BRANCH"
+            exit 0
           fi
+
+          git commit -m "Sync documentation from main repository
+
+          Source commit: ${{ github.sha }}"
+
+          echo "Pushing changes to wiki..."
+          if ! git push origin "$WIKI_BRANCH"; then
+            echo "::error::Failed to push wiki changes. Please check permissions and try again."
+            exit 1
+          fi
+
+          echo "Wiki sync completed successfully"

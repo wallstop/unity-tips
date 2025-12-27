@@ -18,7 +18,6 @@ from pathlib import Path, PurePosixPath
 
 DOCS_DIR = Path("docs")
 WIKI_DIR = Path("wiki")
-ROOT_FILES = ["README.md", "CONTRIBUTING.md", "CHANGELOG.md"]
 
 # Mapping of source paths to wiki page names (always use forward slashes)
 WIKI_STRUCTURE = {
@@ -105,30 +104,53 @@ WIKI_STRUCTURE = {
     "unity-helpers/README.md": "Unity-Helpers",
 }
 
+# Root files that get special handling
+ROOT_WIKI_NAMES = {
+    "README": "Home",
+    "CONTRIBUTING": "Contributing",
+    "CHANGELOG": "Changelog",
+}
+
+# Track warnings for unmapped links
+_unmapped_links: list[tuple[str, str, str]] = []
+
 
 def normalize_path(path: str) -> str:
     """Normalize a path to use forward slashes (POSIX style) for consistent matching."""
     return str(PurePosixPath(Path(path)))
 
 
-def resolve_relative_path(source_file: str, link: str) -> str:
-    """Resolve a relative link path from a source file location."""
+def resolve_relative_path(source_file: str, link: str) -> str | None:
+    """
+    Resolve a relative link path from a source file location.
+
+    Returns None if the path escapes the documentation root (too many ..).
+    """
     source_dir = PurePosixPath(source_file).parent
     if str(source_dir) == ".":
         resolved = PurePosixPath(link)
     else:
-        # Join and normalize the path
         resolved = source_dir / link
-        # Normalize to handle .. and .
-        parts = []
-        for part in resolved.parts:
-            if part == "..":
-                if parts:
-                    parts.pop()
-            elif part != ".":
-                parts.append(part)
-        resolved = PurePosixPath(*parts) if parts else PurePosixPath(".")
-    return str(resolved)
+
+    # Normalize to handle .. and .
+    parts: list[str] = []
+    escape_count = 0
+
+    for part in resolved.parts:
+        if part == "..":
+            if parts:
+                parts.pop()
+            else:
+                # Trying to escape root
+                escape_count += 1
+        elif part != ".":
+            parts.append(part)
+
+    # If we escaped the root, return None to indicate invalid path
+    if escape_count > 0 and not parts:
+        return None
+
+    return str(PurePosixPath(*parts)) if parts else "."
 
 
 def convert_links(content: str, source_file: str) -> str:
@@ -156,6 +178,11 @@ def convert_links(content: str, source_file: str) -> str:
         # Resolve relative path using POSIX-style paths
         resolved = resolve_relative_path(normalize_path(source_file), link_path)
 
+        # Handle invalid paths (escaping root)
+        if resolved is None:
+            _unmapped_links.append((source_file, link, "path escapes documentation root"))
+            return match.group(0)
+
         # Remove .md extension for matching
         resolved_without_ext = resolved.replace(".md", "")
 
@@ -167,13 +194,12 @@ def convert_links(content: str, source_file: str) -> str:
                 return f"[[{wiki_name}{anchor}|{text}]]"
 
         # Handle root files
-        root_wiki_names = {
-            "README": "Home",
-            "CONTRIBUTING": "Contributing",
-            "CHANGELOG": "Changelog",
-        }
-        if resolved_without_ext in root_wiki_names:
-            return f"[[{root_wiki_names[resolved_without_ext]}{anchor}|{text}]]"
+        if resolved_without_ext in ROOT_WIKI_NAMES:
+            return f"[[{ROOT_WIKI_NAMES[resolved_without_ext]}{anchor}|{text}]]"
+
+        # Track unmapped internal links for warning
+        if not link.startswith(("http://", "https://", "mailto:")):
+            _unmapped_links.append((source_file, link, "no mapping found"))
 
         # Fallback: keep original link
         return match.group(0)
@@ -326,6 +352,9 @@ def main() -> int:
     print("Syncing documentation to GitHub Wiki...")
     errors = 0
 
+    # Clear unmapped links tracking
+    _unmapped_links.clear()
+
     # Ensure wiki directory exists
     WIKI_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -373,6 +402,13 @@ def main() -> int:
     sidebar_content = generate_sidebar()
     if not write_file_safe(WIKI_DIR / "_Sidebar.md", sidebar_content):
         errors += 1
+
+    # Report unmapped links
+    if _unmapped_links:
+        print(f"\nWarning: {len(_unmapped_links)} unmapped link(s) found:")
+        for source, link, reason in _unmapped_links:
+            print(f"  {source}: [{link}] - {reason}")
+        print("  These links will not work in the wiki and may need to be added to WIKI_STRUCTURE.")
 
     if errors > 0:
         print(f"\nWiki sync completed with {errors} error(s)!")
