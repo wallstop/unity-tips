@@ -112,9 +112,7 @@ def extract_nav_files(nav: List[Any], files: Optional[Set[str]] = None) -> Set[s
     return files
 
 
-def validate_nav_files(
-    config: MkDocsConfig, base_dir: Path
-) -> List[ValidationIssue]:
+def validate_nav_files(config: MkDocsConfig, base_dir: Path) -> List[ValidationIssue]:
     """Validate that all files referenced in nav exist.
 
     Handles the case where docs_dir is dynamically created (like site-docs)
@@ -130,7 +128,13 @@ def validate_nav_files(
 
     # Root-level files that are typically at repo root
     # overview.md is generated from README.md during build
-    root_files = {"README.md", "CONTRIBUTING.md", "CHANGELOG.md", "index.md", "overview.md"}
+    root_files = {
+        "README.md",
+        "CONTRIBUTING.md",
+        "CHANGELOG.md",
+        "index.md",
+        "overview.md",
+    }
 
     for file_ref in nav_files:
         found = False

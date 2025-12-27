@@ -23,7 +23,7 @@ def transform_links(content: str) -> str:
     """Transform docs/ prefixed links to work on GitHub Pages."""
     # Pattern to match markdown links with docs/ prefix
     # Matches: [text](./docs/path) or [text](docs/path)
-    pattern = r'(\[[^\]]*\]\()(\./)?docs/([^)]+\))'
+    pattern = r"(\[[^\]]*\]\()(\./)?docs/([^)]+\))"
 
     def replacer(match: re.Match[str]) -> str:
         prefix = match.group(1)  # [text](

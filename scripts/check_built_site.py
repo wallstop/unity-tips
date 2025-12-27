@@ -133,7 +133,7 @@ def check_internal_link(
 
     # Handle site_url prefix in links (e.g., /unity-tips/path -> /path)
     if site_url_path and href.startswith(site_url_path):
-        href = href[len(site_url_path):]
+        href = href[len(site_url_path) :]
         if not href:
             href = "/"
         elif not href.startswith("/"):
@@ -299,9 +299,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.ignore_pattern:
         patterns = [re.compile(p) for p in args.ignore_pattern]
         issues = [
-            issue
-            for issue in issues
-            if not any(p.search(issue.href) for p in patterns)
+            issue for issue in issues if not any(p.search(issue.href) for p in patterns)
         ]
 
     if issues:
