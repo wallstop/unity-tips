@@ -5,9 +5,12 @@
 - Source material lives under `docs/`, grouped by topic (e.g.,
   `docs/best-practices/05-coroutines.md`). Each directory holds a `README.md` that introduces the
   section and numbered guides for deep dives.
-- Automation lives in `scripts/`, including `fix_markdown_ordered_lists.py` (keeps ordered lists
-  sequential), `fix_link_text.py` (rewrites bare URLs into descriptive links), and `check_links.py`
-  (validates local paths and external URLs).
+- Automation lives in `scripts/`:
+  - `fix_markdown_ordered_lists.py` – keeps ordered lists sequential
+  - `fix_link_text.py` – rewrites bare URLs into descriptive links
+  - `check_links.py` – validates local paths, external URLs, and anchor links
+  - `check_orphaned_docs.py` – finds documents not linked from anywhere
+  - `check_csharp_syntax.py` – validates C# code blocks (balanced braces, common typos)
 - Repo metadata sits at the root (`CONTRIBUTING.md`, `.pre-commit-config.yaml`,
   `.markdownlint-cli2.yaml`); update these when adding new automation or lint rules.
 
@@ -29,8 +32,12 @@
 
 ## Testing Guidelines
 
-- Pre-commit hooks run Prettier, markdownlint-cli2, yamllint, the local list fixer, link text fixer,
-  and link validator—treat a clean run as the acceptance test.
+- Pre-commit hooks run:
+  - Prettier (formatting), markdownlint-cli2 (markdown lint), yamllint (YAML lint)
+  - actionlint (GitHub Actions validation)
+  - Local scripts: list fixer, link text fixer, link validator, orphaned doc checker, C# syntax
+    checker
+  - Treat a clean `pre-commit run --all-files` as the acceptance test.
 - GitHub Actions (`Lint Docs`) mirrors the local hooks and will auto-commit fixes on in-repo
   branches; forked PRs must push their own corrections.
 - When adding snippets, execute them in Unity or C# beforehand when feasible, and note the Unity
