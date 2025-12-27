@@ -87,7 +87,7 @@ public class Enemy : MonoBehaviour
 {
     public float maxHealth = 100;
     public float moveSpeed = 5f;
-    public int damag = 10;
+    public int damage = 10;
     // If you want to change these, edit EVERY prefab!
 }
 
@@ -673,16 +673,16 @@ public class CollectibleSet : RuntimeSet<Collectible> { }
 
 ```csharp
 // ✅ RECOMMENDED - Regular C# collection with single source of truth. Static classes are not recommended for production code, this is just here as an example.
-public class EnemyManager : MonoBehavior
+public class EnemyManager : MonoBehaviour
 {
     // Note: There are better, safer singleton implementations
-    public static EnemyManagerInstance
+    public static EnemyManager Instance
     {
         get
         {
             if (instance == null)
             {
-                GameObject singleton = new("EnemeyManager-Singleton", typeof(EnemyManager));
+                GameObject singleton = new("EnemyManager-Singleton", typeof(EnemyManager));
                 // instance should be auto-populated
             }
             return instance;

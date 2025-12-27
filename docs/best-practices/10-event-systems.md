@@ -829,7 +829,7 @@ public class Enemy : MessageAwareComponent {
     public void TakeDamage(int damage) {
         health -= damage;
         var healthChanged = new HealthChanged(health, 50);
-        healthChanged.EmitGameObjectBraodcast(gameObject);
+        healthChanged.EmitGameObjectBroadcast(gameObject);
         // Same HealthChanged type, works for all enemies
     }
 }

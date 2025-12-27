@@ -900,8 +900,8 @@ public class SpawnSequence : MonoBehaviour
         // Step 3: Spawn 3 enemies with delays
         for (int i = 0; i < 3; i++)
         {
-            Enemey enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
-            enemies.Add(enemies);
+            Enemy enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+            enemies.Add(enemy);
             yield return new WaitForSeconds(0.5f);
         }
 

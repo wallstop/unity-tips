@@ -184,9 +184,9 @@ public class MovementMixer : MonoBehaviour
         _movementMixer = new LinearMixerState();
 
         // Add animations at different threshold values
-        _movementMixer.Add(_idle, threshold: 0f);    // 0 = idle
-        _movementMixer.Add(_walk, threshold: 5f);    // 5 = walk
-        _movementMixer.Add(_run,  threshold: 10f);   // 10 = run
+        _movementMixer.Add(_idle, 0f);    // 0 = idle
+        _movementMixer.Add(_walk, 5f);    // 5 = walk
+        _movementMixer.Add(_run,  10f);   // 10 = run
 
         // Play the mixer
         _animancer.Play(_movementMixer);
@@ -481,36 +481,27 @@ public class ComboSystem : MonoBehaviour
     [SerializeField] private AnimationClip _heavyAttack;
     [SerializeField] private AnimationClip _finisher;
 
-    void Start()
-    {
-        // Register transitions in the library
-        // If current state is lightAttack, and we request heavyAttack, use special transition
-        _comboLibrary.RegisterTransition(_lightAttack, _heavyAttack,
-            fadeTime: 0.1f,
-            allowInterrupt: true);
-
-        // Heavy attack can combo into finisher
-        _comboLibrary.RegisterTransition(_heavyAttack, _finisher,
-            fadeTime: 0.05f,
-            allowInterrupt: true);
-    }
-
     public void LightAttack()
     {
-        // Transition library automatically picks the right transition
-        _comboLibrary.Play(_animancer, _lightAttack);
+        // Transition library automatically picks the right transition based on current state
+        // Configure transitions in the Inspector via the TransitionLibrary asset
+        _animancer.Play(_comboLibrary.GetTransition(_lightAttack));
     }
 
     public void HeavyAttack()
     {
-        _comboLibrary.Play(_animancer, _heavyAttack);
+        _animancer.Play(_comboLibrary.GetTransition(_heavyAttack));
     }
 
     public void Finisher()
     {
-        _comboLibrary.Play(_animancer, _finisher);
+        _animancer.Play(_comboLibrary.GetTransition(_finisher));
     }
 }
+
+// Note: TransitionLibrary transitions are configured in the Inspector, not in code.
+// Create a TransitionLibrary asset (Create → Animancer → Transition Library)
+// and define which transitions can follow each other.
 ```
 
 ### Benefits

@@ -505,18 +505,20 @@ _animancer.Play(deathClip, fadeDuration: 2.0f);
 
 ### Fade Modes
 
-Animancer v8 introduced fade modes for more control:
+Animancer provides fade modes for more control over how animations blend:
 
 ```csharp
-// Fade from the start of the new animation (default)
+// Fade from the start of the new animation (default behavior)
 _animancer.Play(clip, fadeDuration: 0.3f, FadeMode.FromStart);
 
-// Fade starting from the current state
-_animancer.Play(clip, fadeDuration: 0.3f, FadeMode.FromEnd);
+// Fixed speed fade (useful for consistent blend feel)
+_animancer.Play(clip, fadeDuration: 0.3f, FadeMode.FixedSpeed);
 
-// Custom easing curve
-_animancer.Play(clip, fadeDuration: 0.3f, FadeMode.Custom);
+// Normalized speed fade (adjusts based on animation length)
+_animancer.Play(clip, fadeDuration: 0.3f, FadeMode.NormalizedSpeed);
 ```
+
+> **Note:** See the [official Animancer Fade Modes documentation](https://kybernetik.com.au/animancer/docs/manual/blending/fading/modes/) for the complete list of available fade modes.
 
 ### How Blending Works
 

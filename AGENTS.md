@@ -3,10 +3,11 @@
 ## Project Structure & Module Organization
 
 - Source material lives under `docs/`, grouped by topic (e.g.,
-  `docs/best-practices/01-coroutines.md`). Each directory holds a `README.md` that introduces the
+  `docs/best-practices/05-coroutines.md`). Each directory holds a `README.md` that introduces the
   section and numbered guides for deep dives.
-- Automation lives in `scripts/`, currently `fix_markdown_ordered_lists.py`, which keeps ordered
-  lists sequential.
+- Automation lives in `scripts/`, including `fix_markdown_ordered_lists.py` (keeps ordered lists
+  sequential), `fix_link_text.py` (rewrites bare URLs into descriptive links), and `check_links.py`
+  (validates local paths and external URLs).
 - Repo metadata sits at the root (`CONTRIBUTING.md`, `.pre-commit-config.yaml`,
   `.markdownlint-cli2.yaml`); update these when adding new automation or lint rules.
 
@@ -16,7 +17,7 @@
 - Enable hooks after cloning: `pre-commit install` (runs formatters on staged files).
 - Validate everything before opening a PR: `pre-commit run --all-files`.
 - For spot fixes to numbering, run
-  `python scripts/fix_markdown_ordered_lists.py docs/best-practices/01-coroutines.md`.
+  `python scripts/fix_markdown_ordered_lists.py docs/best-practices/05-coroutines.md`.
 
 ## Coding Style & Naming Conventions
 
@@ -28,8 +29,8 @@
 
 ## Testing Guidelines
 
-- Pre-commit hooks run Prettier, markdownlint-cli2, yamllint, and the local list fixer—treat a clean
-  run as the acceptance test.
+- Pre-commit hooks run Prettier, markdownlint-cli2, yamllint, the local list fixer, link text fixer,
+  and link validator—treat a clean run as the acceptance test.
 - GitHub Actions (`Lint Docs`) mirrors the local hooks and will auto-commit fixes on in-repo
   branches; forked PRs must push their own corrections.
 - When adding snippets, execute them in Unity or C# beforehand when feasible, and note the Unity

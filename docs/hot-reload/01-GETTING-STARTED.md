@@ -7,18 +7,22 @@
 
 ## Installation
 
-1. Open **Window → Package Manager**.
-2. Click the **+** button → **Add package from git URL**.
-3. Paste `https://github.com/dotnet/hotreload-unity.git` (or your private fork) and click **Add**.
-4. Once imported, Unity adds the _Hot Reload_ menu and editor window.
+Hot Reload is a commercial product available from [hotreload.net](https://hotreload.net/) or the
+Unity Asset Store.
 
-> Already using a local clone? Use "Add package from disk" and select the package's `package.json`.
+1. Purchase and download Hot Reload from the [Unity Asset Store](https://assetstore.unity.com/) or
+   [hotreload.net](https://hotreload.net/).
+2. Import the package into your Unity project.
+3. Once imported, Unity adds the _Hot Reload_ menu and editor window.
+
+> **Note:** Hot Reload is a paid tool. For open-source alternatives, see Unity's built-in
+> "Edit and Continue" feature in Unity 2022.2+ or the experimental .NET Hot Reload support.
 
 ---
 
 ## Project Setup
 
-- Enable **Auto Refresh** in Unity preferences so file saves trigger hot reload automatically.
+- Hot Reload manages Unity's Auto Refresh setting automatically—**do not manually enable it**.
 - Open **Window → Hot Reload** and keep the window docked; it shows pending patches and log output.
 - Decide if you want **Apply Changes Automatically** (recommended) or manual confirmation.
 
