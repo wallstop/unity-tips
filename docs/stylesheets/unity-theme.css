@@ -35,7 +35,7 @@
   --md-default-fg-color--lighter: rgba(228, 228, 228, 0.62);
   --md-default-fg-color--lightest: rgba(228, 228, 228, 0.32);
 
-  /* Primary and accent - using teal and amber from config */
+  /* Primary and accent - teal primary, orange accent (overrides config amber for Unity styling) */
   --md-primary-fg-color: var(--unity-accent-teal);
   --md-primary-bg-color: var(--unity-text);
   --md-accent-fg-color: var(--unity-accent-orange);
@@ -154,7 +154,7 @@
 [data-md-color-scheme="slate"] .md-typeset .md-button {
   background-color: var(--unity-accent-teal);
   border: none;
-  color: white;
+  color: var(--unity-text);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .md-button:hover {
