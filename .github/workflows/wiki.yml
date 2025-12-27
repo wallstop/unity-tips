@@ -23,9 +23,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check-wiki:
+    name: Check if wiki exists
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      wiki_exists: ${{ steps.check.outputs.wiki-exists }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check wiki availability
+        id: check
+        uses: ./.github/actions/check-wiki
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   sync-wiki:
     name: Sync docs to GitHub Wiki
     runs-on: ubuntu-latest
+    needs: check-wiki
+    if: needs.check-wiki.outputs.wiki_exists == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -44,32 +63,27 @@ jobs:
 
           WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
 
-          # Clone the wiki repo (create if it doesn't exist)
-          if git clone "$WIKI_URL" wiki 2>/dev/null; then
-            echo "Wiki cloned successfully"
-            cd wiki
-          else
-            echo "Wiki doesn't exist yet. Creating initial wiki..."
-            mkdir -p wiki
-            cd wiki
-            git init
-            git remote add origin "$WIKI_URL"
-            echo "# Unity Tips & Tools" > Home.md
-            echo "" >> Home.md
-            echo "Welcome to the Unity Tips & Tools wiki!" >> Home.md
-            git add .
-            git commit -m "Initialize wiki"
-            # GitHub wikis use 'master' as default branch
-            git branch -M master
-            if ! git push -u origin master; then
-              echo "::error::Failed to push initial wiki. Please ensure wiki is enabled in repository settings."
-              exit 1
-            fi
-            echo "Wiki initialized successfully"
+          # Clone the wiki repo
+          if ! git clone "$WIKI_URL" wiki; then
+            echo "::error::Failed to clone wiki repository."
+            echo "::error::This is unexpected since the check-wiki job succeeded."
+            exit 1
           fi
 
-          # Now we're in the wiki directory in both branches
-          WIKI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "Wiki cloned successfully"
+          cd wiki
+
+          # Get the current branch name with error handling
+          if ! WIKI_BRANCH=$(git rev-parse --abbrev-ref HEAD); then
+            echo "::error::Failed to determine wiki branch name."
+            exit 1
+          fi
+
+          if [ -z "$WIKI_BRANCH" ]; then
+            echo "::error::Wiki branch name is empty."
+            exit 1
+          fi
+
           echo "WIKI_BRANCH=$WIKI_BRANCH" >> "$GITHUB_ENV"
           echo "Using wiki branch: $WIKI_BRANCH"
 
