@@ -18,20 +18,44 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
+from link_utils import extract_links
+
 
 def transform_links(content: str) -> str:
-    """Transform docs/ prefixed links to work on GitHub Pages."""
-    # Pattern to match markdown links with docs/ prefix
-    # Matches: [text](./docs/path) or [text](docs/path)
-    pattern = r"(\[[^\]]*\]\()(\./)?docs/([^)]+\))"
+    """Transform docs/ prefixed links to work on GitHub Pages.
 
-    def replacer(match: re.Match[str]) -> str:
-        prefix = match.group(1)  # [text](
-        dot_slash = match.group(2) or ""  # ./ or empty
-        path = match.group(3)  # path)
-        return f"{prefix}{dot_slash}{path}"
+    Uses link_utils.extract_links for robust link extraction that properly
+    handles escaped brackets, nested brackets, and other edge cases.
+    """
+    # Pattern to detect docs/ prefix in hrefs
+    docs_prefix_pattern = re.compile(r"^(\./)?docs/(.+)$")
 
-    return re.sub(pattern, replacer, content)
+    # Extract all links using the robust link_utils parser
+    links = extract_links(content)
+
+    # Process links in reverse order to preserve string positions
+    result = content
+    for link in reversed(links):
+        if link.kind != "inline":
+            continue
+
+        match = docs_prefix_pattern.match(link.href)
+        if not match:
+            continue
+
+        # Transform the href by removing the docs/ prefix
+        dot_slash = match.group(1) or ""
+        path = match.group(2)
+        new_href = f"{dot_slash}{path}"
+
+        # Reconstruct the link with the new href
+        # Original segment format: [text](href) or [text]( href "title" )
+        old_segment = link.segment
+        new_segment = old_segment.replace(link.href, new_href, 1)
+
+        result = result[: link.start] + new_segment + result[link.end :]
+
+    return result
 
 
 def process_file(input_path: Path, output_path: Optional[Path] = None) -> bool:

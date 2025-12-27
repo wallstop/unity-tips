@@ -82,7 +82,14 @@ def build_site_index(site_dir: Path) -> Set[str]:
 
 
 def normalize_path(href: str, source_path: str) -> str:
-    """Normalize a relative path to an absolute site path."""
+    """Normalize a relative path to an absolute site path.
+
+    Note on path traversal: If a path contains excessive '..' segments that
+    would escape the root (e.g., '../../../../etc/passwd'), this function
+    safely resolves to the root '/' by simply ignoring pops on an empty path.
+    This is safe because the result is only used for lookup in site_index,
+    which contains only valid site paths.
+    """
     # Remove anchor
     href = href.split("#")[0]
     if not href:
@@ -100,11 +107,13 @@ def normalize_path(href: str, source_path: str) -> str:
         combined = href
 
     # Normalize path (handle ../ and ./)
+    # Excessive '..' segments are safely ignored (can't go above root)
     parts: List[str] = []
     for part in combined.split("/"):
         if part == "..":
             if parts:
                 parts.pop()
+            # If parts is empty, we're at root - ignore the '..'
         elif part and part != ".":
             parts.append(part)
 

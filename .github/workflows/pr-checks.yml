@@ -241,19 +241,8 @@ jobs:
           cp CONTRIBUTING.md site-docs/
           cp -r docs/* site-docs/
 
-          # Create index.md
-          cat > site-docs/index.md << 'EOF'
-          ---
-          title: Unity Tips & Tools
-          description: Battle-tested practices and tools to build better Unity games faster
-          ---
-
-          # Unity Tips & Tools
-
-          > Battle-tested practices and tools to build better Unity games faster. From beginner to expert.
-
-          Welcome to the Unity Tips & Tools documentation!
-          EOF
+          # Create index.md landing page
+          python scripts/create_index_md.py -o site-docs/index.md -q
 
       - name: Build documentation
         run: mkdocs build --config-file mkdocs.yml --site-dir _site --strict
