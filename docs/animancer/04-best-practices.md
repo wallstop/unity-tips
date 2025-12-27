@@ -712,9 +712,9 @@ low** (1-2 is usually enough) ✅ **Use named methods** for event callbacks (eas
 
 ## Next Steps
 
-- **[Code Examples & Recipes](./05-CODE-EXAMPLES.md)** - Ready-to-use implementations
-- **[Getting Started](./01-GETTING-STARTED.md)** - Back to basics
-- **[Core Concepts](./02-CORE-CONCEPTS.md)** - Deep dive into fundamentals
+- **[Code Examples & Recipes](./05-code-examples.md)** - Ready-to-use implementations
+- **[Getting Started](./01-getting-started.md)** - Back to basics
+- **[Core Concepts](./02-core-concepts.md)** - Deep dive into fundamentals
 
 ---
 

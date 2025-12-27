@@ -821,7 +821,7 @@ Packages/com.mycompany.gamecore/
 
 ### Next Steps
 
-- **[Best Practices & Pitfalls](05-BEST-PRACTICES.md)** — Avoid common mistakes and optimize
+- **[Best Practices & Pitfalls](05-best-practices.md)** — Avoid common mistakes and optimize
   workflow
 
 ---

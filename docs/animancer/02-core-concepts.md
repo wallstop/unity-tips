@@ -680,10 +680,10 @@ makes timing clip-independent ✅ **Transitions** blend smoothly with configurab
 
 Now that you understand the fundamentals, you're ready for:
 
-- **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** - Layers, mixers, state machines,
+- **[Advanced Techniques](./03-advanced-techniques.md)** - Layers, mixers, state machines,
   transitions
-- **[Best Practices & Pitfalls](./04-BEST-PRACTICES.md)** - Common mistakes and how to avoid them
-- **[Code Examples & Recipes](./05-CODE-EXAMPLES.md)** - Ready-to-use patterns for every scenario
+- **[Best Practices & Pitfalls](./04-best-practices.md)** - Common mistakes and how to avoid them
+- **[Code Examples & Recipes](./05-code-examples.md)** - Ready-to-use patterns for every scenario
 
 ---
 

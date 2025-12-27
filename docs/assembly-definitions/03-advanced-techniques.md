@@ -857,8 +857,8 @@ PlayerSettings.SetScriptingDefineSymbolsForGroup(
 
 ### Next Steps
 
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world project structures and recipes
-- **[Best Practices](05-BEST-PRACTICES.md)** — Avoid pitfalls and optimize workflow
+- **[Common Patterns](04-common-patterns.md)** — Real-world project structures and recipes
+- **[Best Practices](05-best-practices.md)** — Avoid pitfalls and optimize workflow
 
 ---
 

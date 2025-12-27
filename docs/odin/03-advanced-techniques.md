@@ -716,8 +716,8 @@ public class GenericExample : SerializedMonoBehaviour
 
 ## Next Steps
 
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world recipes and cookbook
-- **[Best Practices](05-BEST-PRACTICES.md)** — Optimization, team workflows, pitfalls
+- **[Common Patterns](04-common-patterns.md)** — Real-world recipes and cookbook
+- **[Best Practices](05-best-practices.md)** — Optimization, team workflows, pitfalls
 
 ---
 

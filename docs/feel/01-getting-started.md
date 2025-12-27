@@ -457,10 +457,10 @@ feedbacks don't work | Ensure you have URP/HDRP Volume components in scene |
 
 Now that you understand the basics:
 
-1. **[Why Feel?](02-WHY-FEEL.md)** — What makes Feel different from other solutions
-2. **[Feedback Catalog](03-FEEDBACK-CATALOG.md)** — Complete reference of all 150+ feedbacks
-3. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** — Sequences, scripting, custom feedbacks
-4. **[Troubleshooting](05-TROUBLESHOOTING.md)** — Solutions to common problems
+1. **[Why Feel?](02-why-feel.md)** — What makes Feel different from other solutions
+2. **[Feedback Catalog](03-feedback-catalog.md)** — Complete reference of all 150+ feedbacks
+3. **[Advanced Techniques](04-advanced-techniques.md)** — Sequences, scripting, custom feedbacks
+4. **[Troubleshooting](05-troubleshooting.md)** — Solutions to common problems
 
 ## Quick Reference Card
 

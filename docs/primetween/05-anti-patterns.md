@@ -793,9 +793,9 @@ returning to pool ✅ No tweens started every frame without control
 
 ## Next Steps
 
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — See the RIGHT way to do things
-- **[API Reference](03-API-REFERENCE.md)** — Complete method documentation
-- **[Getting Started](01-GETTING-STARTED.md)** — Refresh the basics
+- **[Common Patterns](04-common-patterns.md)** — See the RIGHT way to do things
+- **[API Reference](03-api-reference.md)** — Complete method documentation
+- **[Getting Started](01-getting-started.md)** — Refresh the basics
 
 ---
 

@@ -234,10 +234,10 @@ public class InteractionPrompt : MonoBehaviour
 
 ## Accessibility Features
 
-- Offer remapping ([Runtime Rebinding](./03-ADVANCED-TECHNIQUES.md#runtime-rebinding)).
+- Offer remapping ([Runtime Rebinding](./03-advanced-techniques.md#runtime-rebinding)).
 - Provide input assist options (toggle hold vs. tap, auto-sprint).
 - Support co-pilot by enabling multiple devices on the same player.
 
 ---
 
-**Need fixes?** Continue to [Troubleshooting](./05-TROUBLESHOOTING.md).
+**Need fixes?** Continue to [Troubleshooting](./05-troubleshooting.md).

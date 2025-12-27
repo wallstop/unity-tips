@@ -69,7 +69,7 @@ Pick Hot Reload when you want a supported, team-ready solution without writing t
 ## Rollout Strategy
 
 1. Test in a feature branch with a few developers.
-2. Document workflow differences (see [How to Use It](03-HOW-TO-USE.md)).
+2. Document workflow differences (see [How to Use It](03-how-to-use.md)).
 3. Add Hot Reload configuration to version control if using a custom server.
 4. Track compile time saved to justify license cost.
 
@@ -86,4 +86,4 @@ runtime.
 
 ---
 
-Ready to apply it daily? Continue to [How to Use It](03-HOW-TO-USE.md).
+Ready to apply it daily? Continue to [How to Use It](03-how-to-use.md).

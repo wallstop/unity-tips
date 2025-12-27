@@ -77,5 +77,5 @@ Use the window to apply queued patches manually or to trigger a full recompile w
 
 ## Next Steps
 
-Move on to [Why Hot Reload?](02-WHY-HOT-RELOAD.md) to understand the productivity gains and
+Move on to [Why Hot Reload?](02-why-hot-reload.md) to understand the productivity gains and
 limitations before rolling it out to the whole team.

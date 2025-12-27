@@ -433,7 +433,7 @@ assembly.
 
 - Move the script into the assembly folder
 - Create a separate `.asmdef` for that folder
-- Use an Assembly Definition Reference (see [Core Concepts](02-CORE-CONCEPTS.md))
+- Use an Assembly Definition Reference (see [Core Concepts](02-core-concepts.md))
 
 ## Measuring Improvement
 
@@ -472,9 +472,9 @@ Watch for:
 
 Now that you understand the basics:
 
-1. **[Core Concepts](02-CORE-CONCEPTS.md)** — Deep dive into `.asmdef` files and all their options
-2. **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world project structures that scale
-3. **[Best Practices](05-BEST-PRACTICES.md)** — Avoid common mistakes and optimize your setup
+1. **[Core Concepts](02-core-concepts.md)** — Deep dive into `.asmdef` files and all their options
+2. **[Common Patterns](04-common-patterns.md)** — Real-world project structures that scale
+3. **[Best Practices](05-best-practices.md)** — Avoid common mistakes and optimize your setup
 
 ## Quick Reference
 
@@ -512,4 +512,4 @@ Assets/Scripts/
 **Pro Tip:** Start small! Create one assembly for your most-edited code first. Measure the
 improvement. Then gradually add more assemblies as needed.
 
-**Next:** Learn about all the `.asmdef` file options in [Core Concepts](02-CORE-CONCEPTS.md) →
+**Next:** Learn about all the `.asmdef` file options in [Core Concepts](02-core-concepts.md) →

@@ -686,30 +686,30 @@ then switch to "Input System Package (New)" when done.
 ### Q: Will the Input System work on mobile?
 
 **A:** Yes! The Input System supports touch input, accelerometer, gyroscope, and on-screen controls.
-See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#mobile-input) for details.
+See [Advanced Techniques](./03-advanced-techniques.md#mobile-input) for details.
 
 ### Q: Can I rebind controls at runtime?
 
 **A:** Yes! The Input System has a full rebinding API. Players can remap any action to any
-button/key. See [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#runtime-rebinding) for a complete
+button/key. See [Advanced Techniques](./03-advanced-techniques.md#runtime-rebinding) for a complete
 guide.
 
 ### Q: Does it work with Unity UI?
 
 **A:** Yes! The Input System integrates seamlessly with both legacy Unity UI and UI Toolkit. See
-[Common Patterns](./04-COMMON-PATTERNS.md#menu-navigation) for setup.
+[Common Patterns](./04-common-patterns.md#menu-navigation) for setup.
 
 ### Q: How do I handle multiple players?
 
 **A:** Use the **PlayerInputManager** component to spawn players dynamically, or manually create
 multiple **PlayerInput** components. See
-[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#multiplayer) for details.
+[Advanced Techniques](./03-advanced-techniques.md#multiplayer) for details.
 
 ### Q: What about Steam Input API?
 
 **A:** The Input System can integrate with Steam Input for advanced controller glyphs and Steam Deck
 support. The IshoBoy project demonstrates this — see `KInputService.cs` for an example. More details
-in [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#steam-input).
+in [Advanced Techniques](./03-advanced-techniques.md#steam-input).
 
 ### Q: Is it slower than Input.GetKey()?
 
@@ -727,13 +727,13 @@ to the server, then replay on clients.
 
 Now that you've created your first Input Actions and built a basic player controller:
 
-1. **[Core Concepts](./02-CORE-CONCEPTS.md)** — Deep dive into Action Types, Control Schemes,
+1. **[Core Concepts](./02-core-concepts.md)** — Deep dive into Action Types, Control Schemes,
    Processors, and Interactions
-2. **[Common Patterns](./04-COMMON-PATTERNS.md)** — Ready-to-use patterns for movement, aiming,
+2. **[Common Patterns](./04-common-patterns.md)** — Ready-to-use patterns for movement, aiming,
    menus, and more
-3. **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** — Runtime rebinding, multiplayer, mobile,
+3. **[Advanced Techniques](./03-advanced-techniques.md)** — Runtime rebinding, multiplayer, mobile,
    and Steam Input
-4. **[Troubleshooting](./05-TROUBLESHOOTING.md)** — Solutions to common problems and optimization
+4. **[Troubleshooting](./05-troubleshooting.md)** — Solutions to common problems and optimization
    tips
 
 ## Quick Reference Card
@@ -774,5 +774,5 @@ void OnDestroy()
 
 ---
 
-**Ready to dive deeper?** Continue to [Core Concepts](./02-CORE-CONCEPTS.md) to understand how the
+**Ready to dive deeper?** Continue to [Core Concepts](./02-core-concepts.md) to understand how the
 Input System really works!

@@ -945,8 +945,8 @@ MMFeedbacks (SpellCast):
 
 Now that you know what feedbacks exist:
 
-1. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** — Scripting, sequences, custom feedbacks
-2. **[Troubleshooting](05-TROUBLESHOOTING.md)** — When feedbacks don't work as expected
+1. **[Advanced Techniques](04-advanced-techniques.md)** — Scripting, sequences, custom feedbacks
+2. **[Troubleshooting](05-troubleshooting.md)** — When feedbacks don't work as expected
 
 **Pro Tip**: Don't try to memorize all feedbacks — use the Inspector's search bar! Type "shake" to
 find all shake-related feedbacks instantly.

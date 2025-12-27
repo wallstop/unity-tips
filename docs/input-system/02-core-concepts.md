@@ -65,7 +65,7 @@ public void OnJump(InputValue value)
 ```
 
 > Need a refresher later? Jump back from any guide via
-> [Action Types](./02-CORE-CONCEPTS.md#action-types).
+> [Action Types](./02-core-concepts.md#action-types).
 
 ---
 
@@ -224,5 +224,5 @@ The Input System can listen to many devices at once. A few tips:
 
 ---
 
-**Next:** Continue to [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md) for rebinding, multiplayer,
+**Next:** Continue to [Advanced Techniques](./03-advanced-techniques.md) for rebinding, multiplayer,
 mobile, and more.

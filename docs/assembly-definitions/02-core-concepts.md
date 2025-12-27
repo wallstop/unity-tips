@@ -927,9 +927,9 @@ Assets/
 
 ### Next Steps
 
-- **[Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — Version defines, complex hierarchies, CI/CD
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — Proven project structures for different use cases
-- **[Best Practices](05-BEST-PRACTICES.md)** — Avoid pitfalls and optimize your workflow
+- **[Advanced Techniques](03-advanced-techniques.md)** — Version defines, complex hierarchies, CI/CD
+- **[Common Patterns](04-common-patterns.md)** — Proven project structures for different use cases
+- **[Best Practices](05-best-practices.md)** — Avoid pitfalls and optimize your workflow
 
 ---
 

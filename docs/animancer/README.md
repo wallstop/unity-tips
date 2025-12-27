@@ -119,7 +119,7 @@ public class SimpleCharacter : MonoBehaviour
 
 This guide is organized into five comprehensive sections:
 
-### 1. 🟢 [Getting Started](./01-GETTING-STARTED.md)
+### 1. 🟢 [Getting Started](./01-getting-started.md)
 
 **Perfect for:** First-time users and those evaluating Animancer
 
@@ -132,11 +132,11 @@ This guide is organized into five comprehensive sections:
 - When to use Animancer vs alternatives
 
 **⏱️ Time to read:** 10-15 minutes | **📄 Skip to:**
-[Quick Start Example](./01-GETTING-STARTED.md#your-first-complete-example)
+[Quick Start Example](./01-getting-started.md#your-first-complete-example)
 
 ---
 
-### 2. 🔵 [Core Concepts](./02-CORE-CONCEPTS.md)
+### 2. 🔵 [Core Concepts](./02-core-concepts.md)
 
 **Perfect for:** Understanding how Animancer works under the hood
 
@@ -154,7 +154,7 @@ This guide is organized into five comprehensive sections:
 
 ---
 
-### 3. 🟣 [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)
+### 3. 🟣 [Advanced Techniques](./03-advanced-techniques.md)
 
 **Perfect for:** Taking your animations to the next level
 
@@ -174,7 +174,7 @@ This guide is organized into five comprehensive sections:
 
 ---
 
-### 4. 🟡 [Best Practices & Pitfalls](./04-BEST-PRACTICES.md)
+### 4. 🟡 [Best Practices & Pitfalls](./04-best-practices.md)
 
 **Perfect for:** Avoiding common mistakes and writing production-quality code
 
@@ -189,11 +189,11 @@ This guide is organized into five comprehensive sections:
 - Architecture patterns
 
 **⏱️ Time to read:** 25-30 minutes | **📄 TL;DR available** | **Jump to:**
-[Common Pitfalls](./04-BEST-PRACTICES.md#common-pitfalls)
+[Common Pitfalls](./04-best-practices.md#common-pitfalls)
 
 ---
 
-### 5. 🟠 [Code Examples & Recipes](./05-CODE-EXAMPLES.md)
+### 5. 🟠 [Code Examples & Recipes](./05-code-examples.md)
 
 **Perfect for:** Copy-paste solutions to common scenarios
 
@@ -242,24 +242,24 @@ graph LR
 
 ### For Beginners
 
-1. Start with **[Getting Started](./01-GETTING-STARTED.md)** to understand what Animancer is
-2. Read **[Core Concepts](./02-CORE-CONCEPTS.md)** to learn the fundamentals
-3. Browse **[Code Examples](./05-CODE-EXAMPLES.md)** to see patterns in action
-4. Reference **[Best Practices](./04-BEST-PRACTICES.md)** as you build
+1. Start with **[Getting Started](./01-getting-started.md)** to understand what Animancer is
+2. Read **[Core Concepts](./02-core-concepts.md)** to learn the fundamentals
+3. Browse **[Code Examples](./05-code-examples.md)** to see patterns in action
+4. Reference **[Best Practices](./04-best-practices.md)** as you build
 
 ### For Experienced Developers
 
-1. Skim **[Getting Started](./01-GETTING-STARTED.md)** for the quick comparison
-2. Jump to **[Code Examples](./05-CODE-EXAMPLES.md)** for implementation patterns
-3. Check **[Best Practices](./04-BEST-PRACTICES.md)** for optimization tips
-4. Reference **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** as needed
+1. Skim **[Getting Started](./01-getting-started.md)** for the quick comparison
+2. Jump to **[Code Examples](./05-code-examples.md)** for implementation patterns
+3. Check **[Best Practices](./04-best-practices.md)** for optimization tips
+4. Reference **[Advanced Techniques](./03-advanced-techniques.md)** as needed
 
 ### For Migrating from Animator Controllers
 
-1. Read **"Why Choose Animancer?"** in **[Getting Started](./01-GETTING-STARTED.md)**
-2. Study **[Core Concepts](./02-CORE-CONCEPTS.md)** to learn the new paradigm
-3. Follow **[Code Examples](./05-CODE-EXAMPLES.md)** to rebuild your features
-4. Apply lessons from **[Best Practices](./04-BEST-PRACTICES.md)**
+1. Read **"Why Choose Animancer?"** in **[Getting Started](./01-getting-started.md)**
+2. Study **[Core Concepts](./02-core-concepts.md)** to learn the new paradigm
+3. Follow **[Code Examples](./05-code-examples.md)** to rebuild your features
+4. Apply lessons from **[Best Practices](./04-best-practices.md)**
 
 ---
 
@@ -375,15 +375,15 @@ arm.NormalizedTime = time;
 
 | Use Case                                 | Recommended Approach        | Guide Section                                                                          |
 | ---------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
-| **Directional animations** (same length) | **Preserve NormalizedTime** | **[Code Examples](./05-CODE-EXAMPLES.md#directional-animation-switching-seamless)** ⭐ |
-| Simple character (3-5 animations)        | Direct Play() calls         | [Code Examples](./05-CODE-EXAMPLES.md#basic-character-controller)                      |
-| Complex character (6+ states)            | Animancer FSM               | [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#state-machines)                      |
-| Smooth movement blending                 | Linear Mixer                | [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#mixers-and-blending)                 |
-| Attack combos                            | Event chaining              | [Code Examples](./05-CODE-EXAMPLES.md#combat-system)                                   |
-| Upper body actions (wave, aim)           | Animation Layers            | [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md#animation-layers)                    |
-| Multi-sprite character                   | Normalized time sync        | [Code Examples](./05-CODE-EXAMPLES.md#multi-sprite-character)                          |
-| Footsteps/sound effects                  | SharedEvents                | [Code Examples](./05-CODE-EXAMPLES.md#footstep-system)                                 |
-| Object pooling                           | ActionOnDisable             | [Code Examples](./05-CODE-EXAMPLES.md#object-pooling-with-animancer)                   |
+| **Directional animations** (same length) | **Preserve NormalizedTime** | **[Code Examples](./05-code-examples.md#directional-animation-switching-seamless)** ⭐ |
+| Simple character (3-5 animations)        | Direct Play() calls         | [Code Examples](./05-code-examples.md#basic-character-controller)                      |
+| Complex character (6+ states)            | Animancer FSM               | [Advanced Techniques](./03-advanced-techniques.md#state-machines)                      |
+| Smooth movement blending                 | Linear Mixer                | [Advanced Techniques](./03-advanced-techniques.md#mixers-and-blending)                 |
+| Attack combos                            | Event chaining              | [Code Examples](./05-code-examples.md#combat-system)                                   |
+| Upper body actions (wave, aim)           | Animation Layers            | [Advanced Techniques](./03-advanced-techniques.md#animation-layers)                    |
+| Multi-sprite character                   | Normalized time sync        | [Code Examples](./05-code-examples.md#multi-sprite-character)                          |
+| Footsteps/sound effects                  | SharedEvents                | [Code Examples](./05-code-examples.md#footstep-system)                                 |
+| Object pooling                           | ActionOnDisable             | [Code Examples](./05-code-examples.md#object-pooling-with-animancer)                   |
 
 ---
 
@@ -399,7 +399,7 @@ arm.NormalizedTime = time;
 | Loading clips at runtime    | Slow performance                          | Cache references in SerializeField |
 | Forgetting ActionOnDisable  | Pooled objects have stale animations      | Set to Reset for pooled objects    |
 
-See **[Best Practices](./04-BEST-PRACTICES.md)** for detailed solutions.
+See **[Best Practices](./04-best-practices.md)** for detailed solutions.
 
 ---
 
@@ -442,18 +442,18 @@ solutions ✅ Project-specific patterns (based on IshoBoy) ✅ Official document
 
 ### I want to...
 
-- **Learn what Animancer is** → [Getting Started](./01-GETTING-STARTED.md)
-- **Understand the fundamentals** → [Core Concepts](./02-CORE-CONCEPTS.md)
-- **Use layers or mixers** → [Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)
-- **Avoid common mistakes** → [Best Practices](./04-BEST-PRACTICES.md)
-- **Copy working code** → [Code Examples](./05-CODE-EXAMPLES.md)
+- **Learn what Animancer is** → [Getting Started](./01-getting-started.md)
+- **Understand the fundamentals** → [Core Concepts](./02-core-concepts.md)
+- **Use layers or mixers** → [Advanced Techniques](./03-advanced-techniques.md)
+- **Avoid common mistakes** → [Best Practices](./04-best-practices.md)
+- **Copy working code** → [Code Examples](./05-code-examples.md)
 - **Build a character controller** →
-  [Code Examples: Basic Character](./05-CODE-EXAMPLES.md#basic-character-controller)
-- **Implement combat** → [Code Examples: Combat System](./05-CODE-EXAMPLES.md#combat-system)
+  [Code Examples: Basic Character](./05-code-examples.md#basic-character-controller)
+- **Implement combat** → [Code Examples: Combat System](./05-code-examples.md#combat-system)
 - **Sync multiple sprites** →
-  [Code Examples: Multi-Sprite](./05-CODE-EXAMPLES.md#multi-sprite-character)
+  [Code Examples: Multi-Sprite](./05-code-examples.md#multi-sprite-character)
 - **Optimize performance** →
-  [Best Practices: Performance](./04-BEST-PRACTICES.md#performance-best-practices)
+  [Best Practices: Performance](./04-best-practices.md#performance-best-practices)
 
 ---
 
@@ -473,19 +473,19 @@ Found an error? Have a suggestion? Please let us know!
 
 ### New to Animancer?
 
-**Start here:** [Getting Started Guide](./01-GETTING-STARTED.md)
+**Start here:** [Getting Started Guide](./01-getting-started.md)
 
 Learn what Animancer is, why it's awesome, and write your first animation code in under 10 minutes.
 
 ### Already familiar with Animancer?
 
-**Jump to:** [Code Examples](./05-CODE-EXAMPLES.md)
+**Jump to:** [Code Examples](./05-code-examples.md)
 
 Browse 12+ ready-to-use implementation patterns for common game scenarios.
 
 ### Need to optimize or debug?
 
-**Check out:** [Best Practices](./04-BEST-PRACTICES.md)
+**Check out:** [Best Practices](./04-best-practices.md)
 
 Avoid common pitfalls and learn performance optimization techniques.
 

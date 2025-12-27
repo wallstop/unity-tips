@@ -824,9 +824,9 @@ private void ClearAll() { }
 
 ## Next Steps
 
-- **[Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — Custom processors, editor workflows
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world recipes and examples
-- **[Best Practices](05-BEST-PRACTICES.md)** — Optimization, pitfalls, team workflows
+- **[Advanced Techniques](03-advanced-techniques.md)** — Custom processors, editor workflows
+- **[Common Patterns](04-common-patterns.md)** — Real-world recipes and examples
+- **[Best Practices](05-best-practices.md)** — Optimization, pitfalls, team workflows
 
 ---
 

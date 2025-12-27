@@ -729,8 +729,8 @@ callback
 
 ## Next Steps
 
-- **[Best Practices & Pitfalls](./04-BEST-PRACTICES.md)** - Avoid common mistakes
-- **[Code Examples & Recipes](./05-CODE-EXAMPLES.md)** - Ready-to-use implementations
+- **[Best Practices & Pitfalls](./04-best-practices.md)** - Avoid common mistakes
+- **[Code Examples & Recipes](./05-code-examples.md)** - Ready-to-use implementations
 
 ---
 

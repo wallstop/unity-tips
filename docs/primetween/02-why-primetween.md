@@ -389,8 +389,8 @@ Windows, Mac, Linux, iOS, Android, WebGL).
   data
 - [Unity Asset Store](https://assetstore.unity.com/packages/tools/animation/primetween-high-performance-animations-and-sequences-252960)
   — Free download
-- [API Reference](03-API-REFERENCE.md) — Complete method documentation
-- [Common Patterns](04-COMMON-PATTERNS.md) — Battle-tested recipes from IshoBoy
+- [API Reference](03-api-reference.md) — Complete method documentation
+- [Common Patterns](04-common-patterns.md) — Battle-tested recipes from IshoBoy
 
 ---
 

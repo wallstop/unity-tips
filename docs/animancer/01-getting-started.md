@@ -143,7 +143,7 @@ state.Weight = 0.75f;                  // Blend at 75% influence
 
 > **💡 Pro Tip:** Have directional animations (walk_left, walk_right, etc.) that are all the same
 > length? You can seamlessly switch between them mid-animation by preserving `NormalizedTime`! See
-> [Code Examples - Directional Animation](./05-CODE-EXAMPLES.md#directional-animation-switching-seamless)
+> [Code Examples - Directional Animation](./05-code-examples.md#directional-animation-switching-seamless)
 
 ### 🎪 **3. Easy Animation Events**
 
@@ -213,11 +213,11 @@ animancer.Play(landClip, fadeDuration: 0.5f, fadeMode: FadeMode.FromStart);
 
 Now that you understand what Animancer is and why it's awesome, let's dive deeper:
 
-1. **[Core Concepts](./02-CORE-CONCEPTS.md)** - Understanding states, transitions, and the animation
+1. **[Core Concepts](./02-core-concepts.md)** - Understanding states, transitions, and the animation
    graph
-2. **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** - Layers, mixers, state machines, and more
-3. **[Best Practices & Pitfalls](./04-BEST-PRACTICES.md)** - Do's, don'ts, and common mistakes
-4. **[Code Examples & Recipes](./05-CODE-EXAMPLES.md)** - Ready-to-use patterns for common scenarios
+2. **[Advanced Techniques](./03-advanced-techniques.md)** - Layers, mixers, state machines, and more
+3. **[Best Practices & Pitfalls](./04-best-practices.md)** - Do's, don'ts, and common mistakes
+4. **[Code Examples & Recipes](./05-code-examples.md)** - Ready-to-use patterns for common scenarios
 
 ---
 
@@ -321,7 +321,7 @@ public class SimpleCharacterController : MonoBehaviour
 
 ## Next Steps
 
-Ready to dive deeper? Head to **[Core Concepts](./02-CORE-CONCEPTS.md)** to learn about animation
+Ready to dive deeper? Head to **[Core Concepts](./02-core-concepts.md)** to learn about animation
 states, the Animancer graph, and powerful control techniques.
 
 ---

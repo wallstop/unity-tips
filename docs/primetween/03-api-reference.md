@@ -796,9 +796,9 @@ Tween.Position(
 
 ## Next Steps
 
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — Battle-tested recipes from IshoBoy
-- **[Anti-Patterns](05-ANTI-PATTERNS.md)** — Common mistakes and how to avoid them
-- **[Getting Started](01-GETTING-STARTED.md)** — If you haven't read this yet
+- **[Common Patterns](04-common-patterns.md)** — Battle-tested recipes from IshoBoy
+- **[Anti-Patterns](05-anti-patterns.md)** — Common mistakes and how to avoid them
+- **[Getting Started](01-getting-started.md)** — If you haven't read this yet
 
 ---
 

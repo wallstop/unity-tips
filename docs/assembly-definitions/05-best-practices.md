@@ -923,10 +923,10 @@ Packages/ThirdParty/TheirCompany.TheirGame.Core.asmdef
 
 ## Further Reading
 
-- **[Getting Started](01-GETTING-STARTED.md)** — Basics of assembly definitions
-- **[Core Concepts](02-CORE-CONCEPTS.md)** — Deep dive into `.asmdef` files
-- **[Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — Complex patterns and integrations
-- **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world project structures
+- **[Getting Started](01-getting-started.md)** — Basics of assembly definitions
+- **[Core Concepts](02-core-concepts.md)** — Deep dive into `.asmdef` files
+- **[Advanced Techniques](03-advanced-techniques.md)** — Complex patterns and integrations
+- **[Common Patterns](04-common-patterns.md)** — Real-world project structures
 
 ---
 

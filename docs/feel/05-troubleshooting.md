@@ -761,5 +761,5 @@ isolates the issue from your complex project and makes it easier to identify the
 
 That's it! You should now be able to diagnose and fix any Feel issues. Return to:
 
-- **[Getting Started](01-GETTING-STARTED.md)** for basics
-- **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** for power-user features
+- **[Getting Started](01-getting-started.md)** for basics
+- **[Advanced Techniques](04-advanced-techniques.md)** for power-user features

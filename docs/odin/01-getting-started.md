@@ -644,12 +644,12 @@ serializer (adds ~2-5MB to build size).
 
 Now that you understand the basics:
 
-1. **[Core Features](02-CORE-FEATURES.md)** — Deep dive into Odin Serializer and Inspector
+1. **[Core Features](02-core-features.md)** — Deep dive into Odin Serializer and Inspector
    attributes
-2. **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world recipes for dictionaries, buttons,
+2. **[Common Patterns](04-common-patterns.md)** — Real-world recipes for dictionaries, buttons,
    validation
-3. **[Best Practices](05-BEST-PRACTICES.md)** — Avoid pitfalls and optimize performance
-4. **[Advanced Techniques](03-ADVANCED-TECHNIQUES.md)** — Custom processors and advanced workflows
+3. **[Best Practices](05-best-practices.md)** — Avoid pitfalls and optimize performance
+4. **[Advanced Techniques](03-advanced-techniques.md)** — Custom processors and advanced workflows
 
 ---
 

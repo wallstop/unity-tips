@@ -991,9 +991,9 @@ public class TweenPreset : ScriptableObject
 
 ## Next Steps
 
-- **[Anti-Patterns](05-ANTI-PATTERNS.md)** — Learn what NOT to do
-- **[API Reference](03-API-REFERENCE.md)** — Complete method documentation
-- **[Getting Started](01-GETTING-STARTED.md)** — Refresh the basics
+- **[Anti-Patterns](05-anti-patterns.md)** — Learn what NOT to do
+- **[API Reference](03-api-reference.md)** — Complete method documentation
+- **[Getting Started](01-getting-started.md)** — Refresh the basics
 
 ---
 

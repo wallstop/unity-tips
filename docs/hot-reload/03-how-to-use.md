@@ -72,7 +72,7 @@ You can toggle _Apply in Edit Mode_ within the Hot Reload window.
 - Combine with **Enter Play Mode Options** (skip domain reload) for even faster iteration.
 - Use version control hooks (pre-commit) to ensure patches are cleared before commits.
 - Educate the team about changes that still require a full compile (see
-  [Troubleshooting](04-TROUBLESHOOTING.md)).
+  [Troubleshooting](04-troubleshooting.md)).
 
 ---
 
@@ -88,4 +88,4 @@ You can toggle _Apply in Edit Mode_ within the Hot Reload window.
 
 ---
 
-Ready to diagnose issues? Move on to [Troubleshooting](04-TROUBLESHOOTING.md).
+Ready to diagnose issues? Move on to [Troubleshooting](04-troubleshooting.md).

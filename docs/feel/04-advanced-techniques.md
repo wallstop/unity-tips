@@ -835,7 +835,7 @@ scene with the relevant override enabled.
 
 You're now a Feel power user! For final reference:
 
-1. **[Troubleshooting](05-TROUBLESHOOTING.md)** — Detailed solutions to edge cases
+1. **[Troubleshooting](05-troubleshooting.md)** — Detailed solutions to edge cases
 
 **Pro Tip**: Share your custom feedbacks with the community! Feel has an active Discord and forum
 where users exchange scripts and techniques.

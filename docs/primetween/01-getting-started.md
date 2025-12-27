@@ -367,10 +367,10 @@ void Start()
 
 Now that you understand the basics:
 
-1. **[Why PrimeTween?](02-WHY-PRIMETWEEN.md)** — Performance comparisons with DOTween/LeanTween
-2. **[API Reference](03-API-REFERENCE.md)** — Complete method documentation with examples
-3. **[Common Patterns](04-COMMON-PATTERNS.md)** — Real-world recipes from IshoBoy codebase
-4. **[Anti-Patterns](05-ANTI-PATTERNS.md)** — What NOT to do and why
+1. **[Why PrimeTween?](02-why-primetween.md)** — Performance comparisons with DOTween/LeanTween
+2. **[API Reference](03-api-reference.md)** — Complete method documentation with examples
+3. **[Common Patterns](04-common-patterns.md)** — Real-world recipes from IshoBoy codebase
+4. **[Anti-Patterns](05-anti-patterns.md)** — What NOT to do and why
 
 ## Quick Reference Card
 

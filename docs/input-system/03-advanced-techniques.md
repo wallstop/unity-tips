@@ -169,4 +169,4 @@ Combine buffering with state machines to execute stored actions when the charact
 
 ---
 
-**Next:** Jump to [Common Patterns](./04-COMMON-PATTERNS.md) for ready-to-use gameplay recipes.
+**Next:** Jump to [Common Patterns](./04-common-patterns.md) for ready-to-use gameplay recipes.

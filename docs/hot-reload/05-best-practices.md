@@ -76,8 +76,8 @@ Change `_spawnInterval` or the behaviour inside `Spawn()` during Play Mode to tu
 
 ## Next Steps
 
-1. Read [Getting Started](01-GETTING-STARTED.md) if you skipped the setup.
-2. Share [How to Use It](03-HOW-TO-USE.md) with the rest of your team.
+1. Read [Getting Started](01-getting-started.md) if you skipped the setup.
+2. Share [How to Use It](03-how-to-use.md) with the rest of your team.
 3. Log recurring issues in your project wiki so the whole team benefits.
 
 ---

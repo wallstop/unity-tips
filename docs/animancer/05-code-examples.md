@@ -1164,10 +1164,10 @@ references** (don't load at runtime)
 
 ## Next Steps
 
-- **[Getting Started](./01-GETTING-STARTED.md)** - Introduction to Animancer
-- **[Core Concepts](./02-CORE-CONCEPTS.md)** - Understanding the fundamentals
-- **[Advanced Techniques](./03-ADVANCED-TECHNIQUES.md)** - Layers, mixers, state machines
-- **[Best Practices](./04-BEST-PRACTICES.md)** - Avoid common pitfalls
+- **[Getting Started](./01-getting-started.md)** - Introduction to Animancer
+- **[Core Concepts](./02-core-concepts.md)** - Understanding the fundamentals
+- **[Advanced Techniques](./03-advanced-techniques.md)** - Layers, mixers, state machines
+- **[Best Practices](./04-best-practices.md)** - Avoid common pitfalls
 
 ---
 

@@ -465,9 +465,9 @@ days per change.
 
 Convinced? Let's dive into the full catalog of feedbacks:
 
-1. **[Feedback Catalog](03-FEEDBACK-CATALOG.md)** — All 150+ feedbacks explained
-2. **[Advanced Techniques](04-ADVANCED-TECHNIQUES.md)** — Power-user features
-3. **[Troubleshooting](05-TROUBLESHOOTING.md)** — Common issues and solutions
+1. **[Feedback Catalog](03-feedback-catalog.md)** — All 150+ feedbacks explained
+2. **[Advanced Techniques](04-advanced-techniques.md)** — Power-user features
+3. **[Troubleshooting](05-troubleshooting.md)** — Common issues and solutions
 
 Not convinced? Try the **free MMFeedbacks** version first — it's enough to get a taste of the
 workflow without spending anything!
