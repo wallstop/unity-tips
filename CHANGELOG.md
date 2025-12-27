@@ -7,12 +7,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- **Spell Checking** - Added cspell with Unity/C# dictionaries to catch typos in documentation
+- **Stale Management** - Automated workflow to mark and close inactive issues/PRs after 60 days
+- **Security Scanning** - CodeQL analysis for Python scripts and dependency review on PRs
+- **PR Quality Checks** - Automatic size labeling (XS/S/M/L/XL) and category labels (documentation,
+  scripts, ci/cd, config)
+- Warning comments on large PRs (500+ lines) encouraging smaller, focused changes
+
 ### Changed
 
 - Reorganized all documentation files to use kebab-case naming convention
 - Renamed 35 documentation files across 7 folders (animancer, assembly-definitions, feel,
   hot-reload, input-system, odin, primetween)
 - Updated 315+ internal links to reflect new file names
+- CI workflow now explicitly triggers re-runs after auto-fix commits
 
 ## 0.1.0 - 2025-12-27
 
@@ -86,4 +96,4 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Fixed C# code syntax errors in documentation examples
 - Fixed coroutine formatting issues
 - Fixed markdown ordered list numbering
-- Resolved checkin validation errors
+- Resolved pre-commit validation errors
