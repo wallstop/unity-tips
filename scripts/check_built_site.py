@@ -12,7 +12,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Sequence, Set
+from typing import List, Optional, Sequence, Set, Tuple
 from urllib.parse import unquote
 from html.parser import HTMLParser
 
@@ -50,6 +50,7 @@ def extract_html_links(content: str) -> List[str]:
     try:
         parser.feed(content)
     except Exception:
+        # Malformed HTML is acceptable - return whatever links were extracted
         pass
     return parser.links
 
