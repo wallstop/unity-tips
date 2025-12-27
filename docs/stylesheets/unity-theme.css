@@ -298,7 +298,7 @@
   outline-offset: 2px;
 }
 
-[data-md-color-scheme="slate"] .tabbed-labels > label:focus {
+[data-md-color-scheme="slate"] .md-typeset .tabbed-labels > label:focus {
   outline: 2px solid var(--unity-accent-orange);
   outline-offset: 2px;
 }
