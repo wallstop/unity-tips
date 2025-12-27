@@ -177,3 +177,69 @@ jobs:
               });
               console.log(`Added labels: ${labelsToAdd.join(', ')}`);
             }
+
+  wiki-check:
+    name: Validate wiki sync readiness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR affects wiki sync
+        id: check-files
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Get changed files
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            const fileNames = files.map(f => f.filename);
+
+            // Check if any wiki-related files are changed
+            const wikiRelatedPatterns = [
+              /^docs\//,
+              /^README\.md$/,
+              /^CONTRIBUTING\.md$/,
+              /^CHANGELOG\.md$/,
+              /^\.github\/workflows\/wiki\.yml$/,
+              /^scripts\/sync-wiki\.py$/,
+              /^scripts\/link_utils\.py$/,
+            ];
+
+            const affectsWiki = fileNames.some(f =>
+              wikiRelatedPatterns.some(pattern => pattern.test(f))
+            );
+
+            console.log(`PR affects wiki sync: ${affectsWiki}`);
+            core.setOutput('affects_wiki', affectsWiki.toString());
+
+      - name: Checkout repository
+        if: steps.check-files.outputs.affects_wiki == 'true'
+        uses: actions/checkout@v6
+
+      - name: Log wiki check context
+        if: steps.check-files.outputs.affects_wiki == 'true'
+        run: |
+          echo "This PR modifies files that trigger wiki sync."
+          echo "Checking if wiki repository is available..."
+
+      - name: Check wiki availability
+        id: wiki-check
+        if: steps.check-files.outputs.affects_wiki == 'true'
+        uses: ./.github/actions/check-wiki
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report wiki status
+        if: steps.check-files.outputs.affects_wiki == 'true'
+        run: |
+          if [ "${{ steps.wiki-check.outputs.wiki-exists }}" == "true" ]; then
+            echo "Wiki sync will run when this PR is merged."
+          else
+            echo "::warning::This PR modifies files that trigger wiki sync, but the wiki is not set up."
+            echo "::warning::The wiki sync workflow will skip gracefully, but no wiki updates will occur."
+          fi

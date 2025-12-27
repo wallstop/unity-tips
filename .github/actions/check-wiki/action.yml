@@ -1,0 +1,40 @@
+---
+name: Check Wiki Availability
+description: Check if the GitHub wiki repository exists and is accessible
+
+inputs:
+  github-token:
+    description: GitHub token for authentication
+    required: true
+
+outputs:
+  wiki-exists:
+    description: Whether the wiki repository exists ('true' or 'false')
+    value: ${{ steps.check.outputs.wiki_exists }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check wiki availability
+      id: check
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: |
+        # Check if wiki is accessible using git ls-remote (lightweight, no clone needed)
+        # GitHub wikis are stored as separate git repos at <repo>.wiki.git
+        WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+
+        if git ls-remote "$WIKI_URL" HEAD >/dev/null 2>&1; then
+          echo "Wiki repository exists and is accessible"
+          echo "wiki_exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning::Wiki repository not found or not accessible."
+          echo "::warning::To enable wiki sync, please:"
+          echo "::warning::  1. Go to repository Settings > General > Features"
+          echo "::warning::  2. Enable 'Wikis'"
+          echo "::warning::  3. Create an initial wiki page through the GitHub UI (e.g., Home)"
+          echo "::warning::  4. Re-run the 'Sync Documentation to Wiki' workflow"
+          echo "wiki_exists=false" >> "$GITHUB_OUTPUT"
+        fi
