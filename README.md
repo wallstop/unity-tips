@@ -2,8 +2,8 @@
 
 > Battle-tested practices and tools to build better Unity games faster. From beginner to expert.
 
-**[View the full documentation site](https://wallstop.github.io/unity-tips)** - Best viewed on GitHub
-Pages with search, dark mode, and organized navigation.
+**[View the full documentation site](https://wallstop.github.io/unity-tips)** - Best viewed on
+GitHub Pages with search, dark mode, and organized navigation.
 
 ---
 
