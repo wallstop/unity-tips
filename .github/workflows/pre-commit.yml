@@ -24,8 +24,6 @@ jobs:
       pull-requests: write
 
     steps:
-      # For PRs from the same repo, use PAT to enable workflow re-triggering on auto-fix commits
-      # Falls back to GITHUB_TOKEN if PAT is not configured (auto-fix won't re-trigger CI)
       - name: Check out PR branch
         if:
           github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
@@ -34,8 +32,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
-          # PAT enables workflow triggers on push; GITHUB_TOKEN does not
-          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
 
       - name: Check out repository (forked PR)
         if:
@@ -89,9 +85,6 @@ jobs:
           steps.check_changes.outputs.has_fixes == 'true' &&
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          # Use PAT for push to trigger workflow runs; falls back to GITHUB_TOKEN
-          GH_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
         run: |
           set -eo pipefail
           git config user.name "github-actions[bot]"
@@ -100,14 +93,28 @@ jobs:
           git commit -m "chore: auto-apply pre-commit fixes"
           git push
           echo "pushed=true" >> "$GITHUB_OUTPUT"
+          echo "new_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-          # Check if PAT was used (enables workflow re-trigger)
-          if [ -n "${{ secrets.PAT }}" ]; then
-            echo "::notice::Auto-fix pushed with PAT - CI will re-run automatically."
-          else
-            echo "::warning::Auto-fix pushed with GITHUB_TOKEN - CI will NOT re-run automatically."
-            echo "::warning::To enable automatic CI re-runs, add a PAT secret named 'PAT' with 'contents: write' and 'workflows: write' permissions."
-          fi
+      - name: Trigger CI re-run on auto-fix commit
+        if: steps.apply_fixes.outputs.pushed == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const newSha = '${{ steps.apply_fixes.outputs.new_sha }}';
+            const prNumber = context.payload.pull_request.number;
+
+            console.log(`Auto-fix commit pushed: ${newSha}`);
+            console.log(`Triggering workflow re-run for PR #${prNumber}...`);
+
+            // Trigger workflow_dispatch to re-run checks on the new commit
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'pre-commit.yml',
+              ref: context.payload.pull_request.head.ref
+            });
+
+            console.log('::notice::Workflow re-run triggered for auto-fix commit.')
 
       - name: Re-run pre-commit to validate fixes
         id: rerun_precommit
