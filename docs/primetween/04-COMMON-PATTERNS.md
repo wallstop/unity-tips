@@ -413,15 +413,20 @@ public class PickupMagnet : MonoBehaviour
 }
 ```
 
-**Advanced**: Update target position each frame:
+**Advanced**: Update target position each frame by creating a new tween (PrimeTween auto-overwrites):
 
 ```csharp
 void Update()
 {
-    if (magnetTween.isAlive)
+    if (Vector3.Distance(transform.position, player.position) < magnetRadius)
     {
-        // Continuously update target as player moves
-        magnetTween.endValue = player.position;
+        // PrimeTween automatically overwrites previous tween on same target/property
+        magnetTween = Tween.Position(
+            transform,
+            player.position,
+            duration: magnetDuration,
+            ease: magnetEase
+        );
     }
 }
 ```

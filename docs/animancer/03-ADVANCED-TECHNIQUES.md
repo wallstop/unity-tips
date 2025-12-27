@@ -281,6 +281,9 @@ using Animancer.FSM;
 public class CharacterFSM : MonoBehaviour
 {
     [SerializeField] private AnimancerComponent _animancer;
+    [SerializeField] private AnimationClip _idleClip;
+    [SerializeField] private AnimationClip _walkClip;
+    [SerializeField] private AnimationClip _attackClip;
 
     // Define states
     private StateMachine<CharacterState>.WithDefault _stateMachine;
@@ -319,6 +322,11 @@ public class CharacterFSM : MonoBehaviour
     }
 
     public AnimancerComponent Animancer => _animancer;
+    public AnimationClip IdleClip => _idleClip;
+    public AnimationClip WalkClip => _walkClip;
+    public AnimationClip AttackClip => _attackClip;
+    public StateMachine<CharacterState>.WithDefault StateMachine => _stateMachine;
+    public IdleState IdleState => _idleState;
 }
 
 // Base state class
@@ -345,7 +353,7 @@ public class IdleState : CharacterState
 
     public override void OnEnterState()
     {
-        _character.Animancer.Play(_idleClip);
+        _character.Animancer.Play(_character.IdleClip);
     }
 }
 
@@ -356,7 +364,7 @@ public class WalkState : CharacterState
 
     public override void OnEnterState()
     {
-        _character.Animancer.Play(_walkClip);
+        _character.Animancer.Play(_character.WalkClip);
     }
 }
 
@@ -369,7 +377,7 @@ public class AttackState : CharacterState
 
     public override void OnEnterState()
     {
-        AnimancerState state = _character.Animancer.Play(_attackClip);
+        AnimancerState state = _character.Animancer.Play(_character.AttackClip);
         state.OwnedEvents.Clear();
 
         // Return to idle when attack finishes (v8 uses OwnedEvents)
@@ -546,10 +554,9 @@ public class WeightedLayerExample : MonoBehaviour
         AnimancerLayer waveLayer = _animancer.Layers[1];
         AnimancerState waveState = waveLayer.Play(_waveClip);
 
-        // Set custom bone weights (requires Pro)
-        // waveLayer.SetBoneWeight("LeftArm", 1.0f);
-        // waveLayer.SetBoneWeight("RightArm", 1.0f);
-        // waveLayer.SetBoneWeight("Spine", 0.3f);  // Slight spine influence
+        // Configure bone weights via WeightedMaskLayers in the Inspector
+        // or use Avatar Masks for simpler per-bone masking.
+        // See: https://kybernetik.com.au/animancer/docs/manual/blending/layers/weighted/
     }
 }
 ```
@@ -604,8 +611,9 @@ public class CustomFadeExample : MonoBehaviour
 
         AnimancerState state = _animancer.Play(_clip, fadeDuration: 0.5f);
 
-        // Apply custom curve (requires accessing fade internals)
-        // state.FadeCurve = easeCurve;
+        // Apply custom easing using FadeGroup (v8.0+)
+        // state.FadeGroup.SetEasing(Easing.Function.SineInOut);
+        // See: https://kybernetik.com.au/animancer/docs/manual/blending/fading/
     }
 }
 ```
