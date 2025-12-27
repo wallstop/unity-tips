@@ -93,7 +93,9 @@ def is_human_readable(text: str, href: str) -> bool:
     stripped = text.strip()
     if not stripped:
         return False
-    if stripped.lower().startswith("http://") or stripped.lower().startswith("https://"):
+    if stripped.lower().startswith("http://") or stripped.lower().startswith(
+        "https://"
+    ):
         return False
     if stripped.lower() == href.strip().lower():
         return False
@@ -166,7 +168,9 @@ def build_replacement(match: LinkMatch, new_text: str) -> Optional[str]:
     return None
 
 
-def apply_modifications(text: str, modifications: Sequence[Tuple[int, int, str]]) -> str:
+def apply_modifications(
+    text: str, modifications: Sequence[Tuple[int, int, str]]
+) -> str:
     chunks: List[str] = []
     last_index = 0
     for start, end, replacement in sorted(modifications, key=lambda m: m[0]):

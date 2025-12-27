@@ -15,7 +15,12 @@ import shutil
 from pathlib import Path, PurePosixPath
 
 # Import shared link utilities for proper code block handling
-from link_utils import extract_links, find_code_fence_ranges, find_inline_code_ranges, in_ranges
+from link_utils import (
+    extract_links,
+    find_code_fence_ranges,
+    find_inline_code_ranges,
+    in_ranges,
+)
 
 DOCS_DIR = Path("docs")
 WIKI_DIR = Path("wiki")
@@ -202,7 +207,9 @@ def convert_links(content: str, source_file: str) -> str:
 
         # Handle invalid paths (escaping root)
         if resolved is None:
-            _unmapped_links.append((source_file, href, "path escapes documentation root"))
+            _unmapped_links.append(
+                (source_file, href, "path escapes documentation root")
+            )
             continue
 
         # Remove .md extension for matching
@@ -431,7 +438,9 @@ def main() -> int:
         print(f"\nWarning: {len(_unmapped_links)} unmapped link(s) found:")
         for source, link, reason in _unmapped_links:
             print(f"  {source}: [{link}] - {reason}")
-        print("  These links will not work in the wiki and may need to be added to WIKI_STRUCTURE.")
+        print(
+            "  These links will not work in the wiki and may need to be added to WIKI_STRUCTURE."
+        )
 
     if errors > 0:
         print(f"\nWiki sync completed with {errors} error(s)!")

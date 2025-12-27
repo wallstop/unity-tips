@@ -117,7 +117,9 @@ class LinkChecker:
             return self._check_local_anchor(base_path, target, anchor)
         return True, ""
 
-    def _check_local_anchor(self, base_path: Path, target: Path, anchor: str) -> Tuple[bool, str]:
+    def _check_local_anchor(
+        self, base_path: Path, target: Path, anchor: str
+    ) -> Tuple[bool, str]:
         anchor = anchor.strip()
         if not anchor:
             return False, "Empty anchor reference"
@@ -181,7 +183,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if all_issues:
         for issue in all_issues:
-            print(f"{issue.path}:{issue.line}:{issue.column}: {issue.message} ({issue.href})")
+            print(
+                f"{issue.path}:{issue.line}:{issue.column}: {issue.message} ({issue.href})"
+            )
         return 1
     return 0
 

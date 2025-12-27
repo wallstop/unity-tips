@@ -15,7 +15,7 @@ def extract_local_links(content: str) -> Set[str]:
     """Extract all local markdown links from content."""
     links: Set[str] = set()
     # Match [text](link) pattern
-    pattern = r'\[(?:[^\]]*)\]\(([^)]+)\)'
+    pattern = r"\[(?:[^\]]*)\]\(([^)]+)\)"
     for match in re.finditer(pattern, content):
         href = match.group(1).strip()
         # Skip external links and anchors-only
@@ -58,8 +58,11 @@ def check_orphaned(docs_dir: Path) -> List[Path]:
     entry_points = get_entry_points(docs_dir)
 
     # Add root-level docs as entry points
-    root_docs = {docs_dir.parent / "README.md", docs_dir.parent / "CONTRIBUTING.md",
-                 docs_dir.parent / "AGENTS.md"}
+    root_docs = {
+        docs_dir.parent / "README.md",
+        docs_dir.parent / "CONTRIBUTING.md",
+        docs_dir.parent / "AGENTS.md",
+    }
     for doc in root_docs:
         if doc.exists():
             entry_points.add(doc.resolve())
@@ -87,7 +90,11 @@ def check_orphaned(docs_dir: Path) -> List[Path]:
             if target.is_dir():
                 target = target / "README.md"
 
-            if target.exists() and target.suffix.lower() == ".md" and target not in visited:
+            if (
+                target.exists()
+                and target.suffix.lower() == ".md"
+                and target not in visited
+            ):
                 to_visit.append(target)
 
     # Find orphaned docs
