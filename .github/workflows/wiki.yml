@@ -1,0 +1,74 @@
+---
+name: Sync Documentation to Wiki
+
+"on":
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "CHANGELOG.md"
+      - ".github/workflows/wiki.yml"
+      - "scripts/sync-wiki.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    name: Sync docs to GitHub Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Clone wiki repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Clone the wiki repo (create if it doesn't exist)
+          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki || {
+            echo "Wiki doesn't exist yet. Creating initial wiki..."
+            mkdir wiki
+            cd wiki
+            git init
+            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+            echo "# Unity Tips & Tools" > Home.md
+            echo "" >> Home.md
+            echo "Welcome to the Unity Tips & Tools wiki!" >> Home.md
+            git add .
+            git commit -m "Initialize wiki"
+            git branch -M master
+            git push -u origin master
+            cd ..
+            rm -rf wiki
+            git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki
+          }
+
+      - name: Sync documentation to wiki
+        run: python scripts/sync-wiki.py
+
+      - name: Push changes to wiki
+        run: |
+          cd wiki
+          git add -A
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "Sync documentation from main repository
+
+          Source commit: ${{ github.sha }}"
+            git push origin master || git push origin main
+          fi
