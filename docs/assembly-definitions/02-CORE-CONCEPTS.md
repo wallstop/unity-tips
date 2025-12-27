@@ -670,26 +670,25 @@ using MyGame.Gameplay;
 
 namespace MyGame.Tests
 {
-    public class PlayerTests
+    public class PlayerTests : TestBase
     {
         [Test]
-        public void Player_InitialHealth_Is100()
+        public void PlayerInitialHealthIs100()
         {
-            // For MonoBehaviour-based classes, create via GameObject
-            var go = new GameObject("TestPlayer");
-            var player = go.AddComponent<Player>();
+            // Track() ensures cleanup even if assertion fails
+            var player = TrackGameObject("TestPlayer").AddComponent<Player>();
 
             Assert.AreEqual(100, player.Health);
-
-            // Clean up
-            Object.DestroyImmediate(go);
+            // No manual cleanup - TestBase.TearDown handles it automatically
         }
     }
 }
 ```
 
-> **Tip:** For better testability, consider separating pure logic into plain C# classes that can be
-> instantiated with `new`. MonoBehaviours require GameObjects, which adds test setup overhead.
+> **Tip:** Always use a `TestBase` class that tracks instantiated objects and cleans them up in
+> `[TearDown]`. This prevents leaks when assertions fail and eliminates try/finally boilerplate.
+> See [Automated Testing](../best-practices/16-automated-testing-ci.md) for the full `TestBase`
+> implementation.
 
 ## Assembly Reload Optimization
 
