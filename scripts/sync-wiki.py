@@ -216,6 +216,11 @@ def convert_links(content: str, source_file: str) -> str:
         # Remove .md extension for matching
         resolved_without_ext = remove_md_suffix(resolved)
 
+        # Strip docs/ prefix if present (for links from root files like README.md)
+        # WIKI_STRUCTURE uses paths relative to docs/, not the repo root
+        if resolved_without_ext.startswith("docs/"):
+            resolved_without_ext = resolved_without_ext[5:]  # Remove "docs/" prefix
+
         # Look up wiki page name with exact matching
         wiki_name = None
         for src_path, name in WIKI_STRUCTURE.items():
