@@ -1,0 +1,104 @@
+---
+name: Sync Documentation to Wiki
+
+"on":
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "CHANGELOG.md"
+      - ".github/workflows/wiki.yml"
+      - "scripts/sync-wiki.py"
+      - "scripts/link_utils.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Prevent concurrent wiki syncs to avoid git conflicts
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-wiki:
+    name: Sync docs to GitHub Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Clone wiki repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+
+          # Clone the wiki repo (create if it doesn't exist)
+          if git clone "$WIKI_URL" wiki 2>/dev/null; then
+            echo "Wiki cloned successfully"
+            cd wiki
+          else
+            echo "Wiki doesn't exist yet. Creating initial wiki..."
+            mkdir -p wiki
+            cd wiki
+            git init
+            git remote add origin "$WIKI_URL"
+            echo "# Unity Tips & Tools" > Home.md
+            echo "" >> Home.md
+            echo "Welcome to the Unity Tips & Tools wiki!" >> Home.md
+            git add .
+            git commit -m "Initialize wiki"
+            # GitHub wikis use 'master' as default branch
+            git branch -M master
+            if ! git push -u origin master; then
+              echo "::error::Failed to push initial wiki. Please ensure wiki is enabled in repository settings."
+              exit 1
+            fi
+            echo "Wiki initialized successfully"
+          fi
+
+          # Now we're in the wiki directory in both branches
+          WIKI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "WIKI_BRANCH=$WIKI_BRANCH" >> "$GITHUB_ENV"
+          echo "Using wiki branch: $WIKI_BRANCH"
+
+      - name: Sync documentation to wiki
+        env:
+          PYTHONPATH: scripts
+        run: python scripts/sync-wiki.py
+
+      - name: Push changes to wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd wiki
+          git add -A
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+            exit 0
+          fi
+
+          git commit -m "Sync documentation from main repository
+
+          Source commit: ${{ github.sha }}"
+
+          echo "Pushing changes to wiki..."
+          if ! git push origin "$WIKI_BRANCH"; then
+            echo "::error::Failed to push wiki changes. Please check permissions and try again."
+            exit 1
+          fi
+
+          echo "Wiki sync completed successfully"
