@@ -1,6 +1,6 @@
 # Best Practices & Examples
 
-> Optimise your workflow with repeatable patterns, team policies, and automation ideas.
+> Optimize your workflow with repeatable patterns, team policies, and automation ideas.
 
 ---
 

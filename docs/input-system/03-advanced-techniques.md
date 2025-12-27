@@ -19,7 +19,7 @@
 
 ## Runtime Rebinding
 
-Runtime rebinding lets players personalise controls without touching your inspector.
+Runtime rebinding lets players personalize controls without touching your inspector.
 
 ```csharp
 public IEnumerator RebindJump(InputActionReference actionRef)

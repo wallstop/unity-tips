@@ -30,7 +30,7 @@ code and save again.
 Use **Recompile** when you:
 
 - Add new methods, classes, or namespaces.
-- Change serialized field declarations that Unity must recognise.
+- Change serialized field declarations that Unity must recognize.
 - Update attributes or reflection-heavy code.
 
 Manual recompile performs a regular Unity build but keeps the workflow in one place.
@@ -60,7 +60,7 @@ Manual recompile performs a regular Unity build but keeps the workflow in one pl
 ## Edit Mode vs. Play Mode
 
 - **Play Mode**: Fastest feedback; state is preserved.
-- **Edit Mode**: Useful for editor tooling, scriptable object processors, or runtime initialisation
+- **Edit Mode**: Useful for editor tooling, scriptable object processors, or runtime initialization
   code that runs in edit scripts.
 
 You can toggle _Apply in Edit Mode_ within the Hot Reload window.

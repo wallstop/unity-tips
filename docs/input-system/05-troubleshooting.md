@@ -86,7 +86,7 @@
 
 ## Checklist
 
-- [ ] Action maps organised and disabled when not in use
+- [ ] Action maps organized and disabled when not in use
 - [ ] Gameplay/UI maps separated
 - [ ] Devices tested: keyboard, Xbox, PlayStation, Switch Pro, touch
 - [ ] Rebinding UI saves overrides to disk
