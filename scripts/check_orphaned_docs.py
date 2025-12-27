@@ -7,7 +7,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set
+from typing import List, Optional, Sequence, Set
 from urllib.parse import unquote, urlparse
 
 
@@ -32,29 +32,6 @@ def extract_local_links(content: str) -> Set[str]:
 def find_all_docs(docs_dir: Path) -> Set[Path]:
     """Find all markdown files in docs directory."""
     return {p for p in docs_dir.rglob("*.md")}
-
-
-def find_linked_docs(docs_dir: Path, all_docs: Set[Path]) -> Set[Path]:
-    """Find all documents that are linked from other documents."""
-    linked: Set[Path] = set()
-
-    for doc in all_docs:
-        content = doc.read_text(encoding="utf-8")
-        for link in extract_local_links(content):
-            # Resolve relative path
-            if link.startswith("/"):
-                target = (docs_dir.parent / link.lstrip("/")).resolve()
-            else:
-                target = (doc.parent / link).resolve()
-
-            # Handle directory links (implicit README.md)
-            if target.is_dir():
-                target = target / "README.md"
-
-            if target.exists() and target.suffix.lower() == ".md":
-                linked.add(target)
-
-    return linked
 
 
 def get_entry_points(docs_dir: Path) -> Set[Path]:

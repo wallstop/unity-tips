@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
@@ -39,9 +38,6 @@ def extract_csharp_blocks(file: Path) -> List[CodeBlock]:
     """Extract C# code blocks from a markdown file."""
     content = file.read_text(encoding="utf-8")
     blocks: List[CodeBlock] = []
-
-    # Match fenced code blocks with csharp/cs language
-    pattern = r"```(?:csharp|cs)\s*\n(.*?)```"
     lines = content.split("\n")
 
     in_block = False
@@ -74,7 +70,6 @@ def check_balanced(code: str, open_char: str, close_char: str) -> Tuple[bool, in
     depth = 0
     in_string = False
     in_char = False
-    in_comment = False
     in_multiline_comment = False
     escape_next = False
 
@@ -242,13 +237,14 @@ def check_code_block(block: CodeBlock) -> List[SyntaxIssue]:
     ]
 
     for pattern, fix in typo_patterns:
-        if re.search(pattern, code):
+        match = re.search(pattern, code)
+        if match:
             issues.append(
                 SyntaxIssue(
                     file=block.file,
                     line=block.line_start,
                     message=f"Possible typo: should be {fix}",
-                    code_snippet=re.search(pattern, code).group(0) if re.search(pattern, code) else "",
+                    code_snippet=match.group(0),
                 )
             )
 
