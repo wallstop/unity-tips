@@ -368,7 +368,7 @@ public class LazyCache : MonoBehaviour
 
     private void Update()
     {
-        var rigidBody = RB;
+        var rigidBody = Rb;
         // Automatically caches on first access
         if (rigidBody != null)
             rigidBody.AddForce(Vector3.up);

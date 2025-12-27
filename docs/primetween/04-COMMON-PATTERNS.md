@@ -413,15 +413,47 @@ public class PickupMagnet : MonoBehaviour
 }
 ```
 
-**Advanced**: Update target position each frame:
+**Advanced**: For a moving target, chain short tweens instead of updating every frame:
 
 ```csharp
-void Update()
+public class PickupMagnetFollowing : MonoBehaviour
 {
-    if (magnetTween.isAlive)
+    [SerializeField] private float tweenDuration = 0.15f;
+    [SerializeField] private Ease magnetEase = Ease.InQuad;
+
+    private Transform player;
+    private Tween magnetTween;
+
+    public void StartMagnet(Transform target, System.Action onCollected)
     {
-        // Continuously update target as player moves
-        magnetTween.endValue = player.position;
+        player = target;
+        ChainNextTween(onCollected);
+    }
+
+    private void ChainNextTween(System.Action onCollected)
+    {
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        // Close enough - collect it
+        if (distance < 0.1f)
+        {
+            onCollected?.Invoke();
+            Destroy(gameObject);
+            return;
+        }
+
+        // Chain to next position, then re-evaluate
+        magnetTween = Tween.Position(
+            transform,
+            player.position,
+            duration: tweenDuration,
+            ease: magnetEase
+        ).OnComplete(() => ChainNextTween(onCollected));
+    }
+
+    private void OnDisable()
+    {
+        magnetTween.Stop();
     }
 }
 ```

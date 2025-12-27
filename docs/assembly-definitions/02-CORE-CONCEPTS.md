@@ -665,21 +665,30 @@ This tells Unity this is a test assembly. It:
 
 ```csharp
 using NUnit.Framework;
+using UnityEngine;
 using MyGame.Gameplay;
 
 namespace MyGame.Tests
 {
-    public class PlayerTests
+    public class PlayerTests : TestBase
     {
         [Test]
-        public void Player_InitialHealth_Is100()
+        public void PlayerInitialHealthIs100()
         {
-            var player = new Player();
+            // Track() ensures cleanup even if assertion fails
+            var player = TrackGameObject("TestPlayer").AddComponent<Player>();
+
             Assert.AreEqual(100, player.Health);
+            // No manual cleanup - TestBase.TearDown handles it automatically
         }
     }
 }
 ```
+
+> **Tip:** Always use a `TestBase` class that tracks instantiated objects and cleans them up in
+> `[TearDown]`. This prevents leaks when assertions fail and eliminates try/finally boilerplate. See
+> [Automated Testing](../best-practices/16-automated-testing-ci.md) for the full `TestBase`
+> implementation.
 
 ## Assembly Reload Optimization
 

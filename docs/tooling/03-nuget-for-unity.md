@@ -429,7 +429,7 @@ using Xunit;
 public class PlayerTests
 {
     [Fact]
-    public void TakeDamage_ReducesHealth()
+    public void TakeDamageReducesHealth()
     {
         var player = new Player { Health = 100 };
         player.TakeDamage(20);
@@ -440,7 +440,7 @@ public class PlayerTests
     [InlineData(100, 50, 50)]
     [InlineData(100, 100, 0)]
     [InlineData(100, 150, 0)]
-    public void TakeDamage_MultipleScenarios(int initial, int damage, int expected)
+    public void TakeDamageMultipleScenarios(int initial, int damage, int expected)
     {
         var player = new Player { Health = initial };
         player.TakeDamage(damage);

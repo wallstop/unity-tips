@@ -272,6 +272,7 @@ Here are the **10 most important attributes** to learn first:
 private Dictionary<string, int> _scores = new();
 
 // Custom labels for better UX
+[OdinSerialize]
 [DictionaryDrawerSettings(KeyLabel = "Player Name", ValueLabel = "Score")]
 private Dictionary<string, int> _scoresPretty = new();
 ```

@@ -184,9 +184,9 @@ public class MovementMixer : MonoBehaviour
         _movementMixer = new LinearMixerState();
 
         // Add animations at different threshold values
-        _movementMixer.Add(_idle, threshold: 0f);    // 0 = idle
-        _movementMixer.Add(_walk, threshold: 5f);    // 5 = walk
-        _movementMixer.Add(_run,  threshold: 10f);   // 10 = run
+        _movementMixer.Add(_idle, 0f);    // 0 = idle
+        _movementMixer.Add(_walk, 5f);    // 5 = walk
+        _movementMixer.Add(_run,  10f);   // 10 = run
 
         // Play the mixer
         _animancer.Play(_movementMixer);
@@ -281,6 +281,9 @@ using Animancer.FSM;
 public class CharacterFSM : MonoBehaviour
 {
     [SerializeField] private AnimancerComponent _animancer;
+    [SerializeField] private AnimationClip _idleClip;
+    [SerializeField] private AnimationClip _walkClip;
+    [SerializeField] private AnimationClip _attackClip;
 
     // Define states
     private StateMachine<CharacterState>.WithDefault _stateMachine;
@@ -319,6 +322,11 @@ public class CharacterFSM : MonoBehaviour
     }
 
     public AnimancerComponent Animancer => _animancer;
+    public AnimationClip IdleClip => _idleClip;
+    public AnimationClip WalkClip => _walkClip;
+    public AnimationClip AttackClip => _attackClip;
+    public StateMachine<CharacterState>.WithDefault StateMachine => _stateMachine;
+    public IdleState IdleState => _idleState;
 }
 
 // Base state class
@@ -345,7 +353,7 @@ public class IdleState : CharacterState
 
     public override void OnEnterState()
     {
-        _character.Animancer.Play(_idleClip);
+        _character.Animancer.Play(_character.IdleClip);
     }
 }
 
@@ -356,7 +364,7 @@ public class WalkState : CharacterState
 
     public override void OnEnterState()
     {
-        _character.Animancer.Play(_walkClip);
+        _character.Animancer.Play(_character.WalkClip);
     }
 }
 
@@ -369,7 +377,7 @@ public class AttackState : CharacterState
 
     public override void OnEnterState()
     {
-        AnimancerState state = _character.Animancer.Play(_attackClip);
+        AnimancerState state = _character.Animancer.Play(_character.AttackClip);
         state.OwnedEvents.Clear();
 
         // Return to idle when attack finishes (v8 uses OwnedEvents)
@@ -481,36 +489,27 @@ public class ComboSystem : MonoBehaviour
     [SerializeField] private AnimationClip _heavyAttack;
     [SerializeField] private AnimationClip _finisher;
 
-    void Start()
-    {
-        // Register transitions in the library
-        // If current state is lightAttack, and we request heavyAttack, use special transition
-        _comboLibrary.RegisterTransition(_lightAttack, _heavyAttack,
-            fadeTime: 0.1f,
-            allowInterrupt: true);
-
-        // Heavy attack can combo into finisher
-        _comboLibrary.RegisterTransition(_heavyAttack, _finisher,
-            fadeTime: 0.05f,
-            allowInterrupt: true);
-    }
-
     public void LightAttack()
     {
-        // Transition library automatically picks the right transition
-        _comboLibrary.Play(_animancer, _lightAttack);
+        // Transition library automatically picks the right transition based on current state
+        // Configure transitions in the Inspector via the TransitionLibrary asset
+        _animancer.Play(_comboLibrary.GetTransition(_lightAttack));
     }
 
     public void HeavyAttack()
     {
-        _comboLibrary.Play(_animancer, _heavyAttack);
+        _animancer.Play(_comboLibrary.GetTransition(_heavyAttack));
     }
 
     public void Finisher()
     {
-        _comboLibrary.Play(_animancer, _finisher);
+        _animancer.Play(_comboLibrary.GetTransition(_finisher));
     }
 }
+
+// Note: TransitionLibrary transitions are configured in the Inspector, not in code.
+// Create a TransitionLibrary asset (Create → Animancer → Transition Library)
+// and define which transitions can follow each other.
 ```
 
 ### Benefits
@@ -555,10 +554,9 @@ public class WeightedLayerExample : MonoBehaviour
         AnimancerLayer waveLayer = _animancer.Layers[1];
         AnimancerState waveState = waveLayer.Play(_waveClip);
 
-        // Set custom bone weights (requires Pro)
-        // waveLayer.SetBoneWeight("LeftArm", 1.0f);
-        // waveLayer.SetBoneWeight("RightArm", 1.0f);
-        // waveLayer.SetBoneWeight("Spine", 0.3f);  // Slight spine influence
+        // Configure bone weights via WeightedMaskLayers in the Inspector
+        // or use Avatar Masks for simpler per-bone masking.
+        // See: https://kybernetik.com.au/animancer/docs/manual/blending/layers/weighted/
     }
 }
 ```
@@ -613,8 +611,9 @@ public class CustomFadeExample : MonoBehaviour
 
         AnimancerState state = _animancer.Play(_clip, fadeDuration: 0.5f);
 
-        // Apply custom curve (requires accessing fade internals)
-        // state.FadeCurve = easeCurve;
+        // Apply custom easing using FadeGroup (v8.0+)
+        // state.FadeGroup.SetEasing(Easing.Function.SineInOut);
+        // See: https://kybernetik.com.au/animancer/docs/manual/blending/fading/
     }
 }
 ```
