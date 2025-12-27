@@ -11,10 +11,16 @@ name: Sync Documentation to Wiki
       - "CHANGELOG.md"
       - ".github/workflows/wiki.yml"
       - "scripts/sync-wiki.py"
+      - "scripts/link_utils.py"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+# Prevent concurrent wiki syncs to avoid git conflicts
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
 
 jobs:
   sync-wiki:
@@ -68,6 +74,8 @@ jobs:
           echo "Using wiki branch: $WIKI_BRANCH"
 
       - name: Sync documentation to wiki
+        env:
+          PYTHONPATH: scripts
         run: python scripts/sync-wiki.py
 
       - name: Push changes to wiki

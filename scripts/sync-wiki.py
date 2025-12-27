@@ -20,6 +20,7 @@ from link_utils import (
     find_code_fence_ranges,
     find_inline_code_ranges,
     in_ranges,
+    split_anchor,
 )
 
 DOCS_DIR = Path("docs")
@@ -186,17 +187,17 @@ def convert_links(content: str, source_file: str) -> str:
             continue
 
         href = link_match.href
+        link_text = link_match.text
 
         # Skip external links and anchors
         if href.startswith(("http://", "https://", "#", "mailto:")):
             continue
 
-        # Handle anchors in links
-        anchor = ""
-        link_path = href
-        if "#" in href:
-            link_path, anchor = href.split("#", 1)
-            anchor = "#" + anchor
+        # Handle anchors in links using split_anchor (handles URL decoding)
+        link_path, anchor_text = split_anchor(href)
+
+        # Format anchor for wiki link
+        anchor = f"#{anchor_text}" if anchor_text else ""
 
         # Skip if it's just an anchor
         if not link_path:
@@ -229,8 +230,10 @@ def convert_links(content: str, source_file: str) -> str:
             wiki_name = ROOT_WIKI_NAMES[resolved_without_ext]
 
         if wiki_name is not None:
+            # Use wiki page name as fallback if link text is empty
+            display_text = link_text if link_text.strip() else wiki_name
             # Replace with wiki link format
-            new_link = f"[[{wiki_name}{anchor}|{link_match.text}]]"
+            new_link = f"[[{wiki_name}{anchor}|{display_text}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
         else:
             # Track unmapped internal links for warning
