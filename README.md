@@ -4,6 +4,16 @@
 
 ---
 
+> **AI-Assisted Documentation**
+>
+> This documentation was created with AI assistance. All asset recommendations, tips, and
+> architectural patterns are sourced and driven by [wallstop](https://github.com/wallstop) based on
+> real-world Unity development experience. AI (Claude) has been used to help generate code samples,
+> format documents, create examples, and audit content for accuracy. All content has been reviewed
+> for correctness.
+
+---
+
 > **⚠️ PAID ASSETS WARNING**
 >
 > This repository includes recommendations for 3rd party paid assets (unaffiliated). These assets

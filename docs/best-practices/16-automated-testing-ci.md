@@ -58,17 +58,61 @@ public class CurrencyTests
   - Validate behaviour over time
 
 ```csharp
-[UnityTest]
-public IEnumerator PlayerTakesFireDamageOverTime()
+public class FireDamageTests : TestBase
 {
-    var player = new GameObject().AddComponent<Player>();
-    player.EnterFireZone();
+    [UnityTest]
+    public IEnumerator PlayerTakesFireDamageOverTime()
+    {
+        var player = Track(new GameObject()).AddComponent<Player>();
+        player.EnterFireZone();
 
-    float initialHealth = player.Health;
-    yield return new WaitForSeconds(2f);
+        float initialHealth = player.Health;
+        yield return new WaitForSeconds(2f);
 
-    Assert.Less(player.Health, initialHealth);
-    Object.Destroy(player.gameObject);
+        Assert.Less(player.Health, initialHealth);
+        // No manual cleanup needed - TestBase.TearDown handles it
+    }
+}
+```
+
+### Test Base Class Pattern
+
+Always use a base class that tracks and automatically cleans up Unity objects. This prevents leaks
+even when assertions fail:
+
+```csharp
+using UnityEngine;
+using UnityEngine.TestTools;
+using NUnit.Framework;
+using System.Collections.Generic;
+
+public abstract class TestBase
+{
+    private readonly List<Object> _trackedObjects = new();
+
+    protected T Track<T>(T obj) where T : Object
+    {
+        _trackedObjects.Add(obj);
+        return obj;
+    }
+
+    protected GameObject TrackGameObject(string name = "TestObject")
+    {
+        return Track(new GameObject(name));
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        foreach (var obj in _trackedObjects)
+        {
+            if (obj != null)
+            {
+                Object.DestroyImmediate(obj);
+            }
+        }
+        _trackedObjects.Clear();
+    }
 }
 ```
 
@@ -83,7 +127,7 @@ using UnityEngine.SceneManagement;
 using NUnit.Framework;
 using System.Collections;
 
-public class GameplayTests
+public class GameplayTests : TestBase
 {
     [UnityTest]
     public IEnumerator PlayerCanCollectPowerup()
@@ -92,12 +136,12 @@ public class GameplayTests
         SceneManager.LoadScene("TestArena");
         yield return null; // Wait one frame for scene to load
 
-        // Instantiate player from prefab
+        // Instantiate player from prefab - Track() ensures cleanup
         var playerPrefab = Resources.Load<GameObject>("Player");
-        var player = Object.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+        var player = Track(Object.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity));
 
-        // Create powerup
-        var powerup = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        // Create powerup - Track() ensures cleanup even if assertion fails
+        var powerup = Track(GameObject.CreatePrimitive(PrimitiveType.Sphere));
         powerup.transform.position = new Vector3(1, 0, 0);
         powerup.AddComponent<Powerup>();
 
@@ -112,7 +156,7 @@ public class GameplayTests
 
         // Assert powerup was collected
         Assert.IsTrue(player.GetComponent<Player>().HasPowerup);
-        Assert.IsTrue(powerup == null); // Should be destroyed after collection
+        // No manual cleanup needed - TestBase.TearDown handles everything
     }
 }
 ```

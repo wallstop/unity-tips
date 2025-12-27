@@ -197,8 +197,8 @@ public class IndividualFeedbackControl : MonoBehaviour
         if (shakeEffect != null)
         {
             // Modify settings at runtime
-            shakeEffect.ShakeAmplitude = 2.0f;
-            shakeEffect.ShakeDuration = 0.5f;
+            shakeEffect.CameraShakeProperties.Amplitude = 2.0f;
+            shakeEffect.CameraShakeProperties.Duration = 0.5f;
         }
 
         // Disable a specific feedback

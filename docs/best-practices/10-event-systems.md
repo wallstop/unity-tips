@@ -319,8 +319,9 @@ Messages are defined as types (structs/classes) rather than assets.
 
 ### Comparisons of Modern Event Systems
 
-See a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging
-[here](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md).
+See the
+[DxMessaging Comparisons guide](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md)
+for a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging.
 
 ### Example: DxMessaging
 
@@ -829,7 +830,7 @@ public class Enemy : MessageAwareComponent {
     public void TakeDamage(int damage) {
         health -= damage;
         var healthChanged = new HealthChanged(health, 50);
-        healthChanged.EmitGameObjectBraodcast(gameObject);
+        healthChanged.EmitGameObjectBroadcast(gameObject);
         // Same HealthChanged type, works for all enemies
     }
 }

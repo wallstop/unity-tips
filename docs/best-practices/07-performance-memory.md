@@ -516,7 +516,7 @@ public class CachedReferences : MonoBehaviour
 ### 2. Use Object Pooling
 
 ```csharp
-// See best-practices/02-object-pooling.md for full details
+// See best-practices/09-object-pooling.md for full details
 
 // Instead of:
 Instantiate(bulletPrefab);

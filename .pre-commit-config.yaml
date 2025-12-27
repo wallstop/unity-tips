@@ -14,6 +14,10 @@ repos:
     hooks:
       - id: prettier
         files: "\\.(md|markdown|mdx|json|ya?ml)$"
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.4
+    hooks:
+      - id: actionlint
   - repo: local
     hooks:
       - id: fix-markdown-ordered-lists
@@ -33,6 +37,17 @@ repos:
         language: python
         types: [markdown]
         additional_dependencies: ["requests>=2.31.0"]
+      - id: check-orphaned-docs
+        name: Check for orphaned documents
+        entry: scripts/check_orphaned_docs.py
+        language: python
+        pass_filenames: false
+        always_run: true
+      - id: check-csharp-syntax
+        name: Validate C# code blocks
+        entry: scripts/check_csharp_syntax.py
+        language: python
+        types: [markdown]
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.13.0
     hooks:

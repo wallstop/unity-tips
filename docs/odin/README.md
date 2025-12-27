@@ -708,4 +708,4 @@ from production experience.
 
 **Happy Serializing!** 🎉
 
-_Documentation last updated: 2025-10-15_
+_Documentation last updated: 2025-12-27_

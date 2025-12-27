@@ -448,7 +448,7 @@ namespace MyGame.Editor.Tools
         [MenuItem("Debug/Player/Full Heal")]
         static void FullHeal()
         {
-            var player = Object.FindObjectOfType<Player>();
+            var player = Object.FindAnyObjectByType<Player>();
             if (player != null)
             {
                 // Use reflection or public methods to heal
@@ -459,7 +459,7 @@ namespace MyGame.Editor.Tools
         [MenuItem("Debug/Player/Add Gold")]
         static void AddGold()
         {
-            var player = Object.FindObjectOfType<Player>();
+            var player = Object.FindAnyObjectByType<Player>();
             if (player != null)
             {
                 player.AddGold(1000);
