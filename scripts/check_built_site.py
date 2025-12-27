@@ -12,8 +12,8 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple
-from urllib.parse import unquote, urljoin, urlparse
+from typing import List, Optional, Sequence, Set
+from urllib.parse import unquote
 from html.parser import HTMLParser
 
 

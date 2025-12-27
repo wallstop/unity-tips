@@ -200,6 +200,9 @@ jobs:
           python scripts/check_mkdocs_links.py --skip-pages-compat
 
       - name: Check link patterns in documentation
+        env:
+          # Treat network errors as warnings since CI may have restricted network access
+          LINK_CHECK_WARN_ON_NETWORK_ERROR: "true"
         run: |
           # Run existing link checker for all markdown files
           python scripts/check_links.py README.md CONTRIBUTING.md CHANGELOG.md $(find docs -name "*.md")

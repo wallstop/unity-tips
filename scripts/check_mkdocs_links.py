@@ -14,11 +14,11 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Any, List, Optional, Sequence, Set
 
 import yaml
 
-from link_utils import LinkMatch, extract_links, split_anchor
+from link_utils import LinkMatch, extract_links
 
 
 class SafeLineLoader(yaml.SafeLoader):
