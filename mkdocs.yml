@@ -17,8 +17,7 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
     # Light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    - scheme: default
       primary: teal
       accent: amber
       toggle:

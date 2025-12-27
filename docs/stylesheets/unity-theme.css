@@ -194,8 +194,12 @@
 }
 
 /* Scrollbar styling for Unity feel */
-/* Firefox scrollbar support */
-[data-md-color-scheme="slate"] * {
+/* Firefox scrollbar support - applied to specific scrollable containers */
+[data-md-color-scheme="slate"] body,
+[data-md-color-scheme="slate"] .md-content,
+[data-md-color-scheme="slate"] .md-sidebar__scrollwrap,
+[data-md-color-scheme="slate"] .md-search__scrollwrap,
+[data-md-color-scheme="slate"] pre {
   scrollbar-width: thin;
   scrollbar-color: var(--unity-bg-lighter) var(--unity-bg-dark);
 }
@@ -263,4 +267,38 @@
   background-color: var(--unity-bg-medium);
   padding: 1em;
   border-radius: 4px;
+}
+
+/* Focus styles for keyboard navigation accessibility */
+[data-md-color-scheme="slate"] .md-typeset a:focus {
+  outline: 2px solid var(--unity-accent-orange);
+  outline-offset: 2px;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .md-button:focus {
+  outline: 2px solid var(--unity-accent-orange);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.3);
+}
+
+[data-md-color-scheme="slate"] .md-search__input:focus {
+  outline: 2px solid var(--unity-accent-teal);
+  outline-offset: -2px;
+  border-color: var(--unity-accent-teal);
+}
+
+[data-md-color-scheme="slate"] .md-nav__link:focus {
+  outline: 2px solid var(--unity-accent-orange);
+  outline-offset: 2px;
+}
+
+[data-md-color-scheme="slate"] .md-header__button:focus,
+[data-md-color-scheme="slate"] .md-footer__link:focus {
+  outline: 2px solid var(--unity-accent-orange);
+  outline-offset: 2px;
+}
+
+[data-md-color-scheme="slate"] .tabbed-labels > label:focus {
+  outline: 2px solid var(--unity-accent-orange);
+  outline-offset: 2px;
 }
