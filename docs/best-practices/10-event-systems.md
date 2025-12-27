@@ -319,7 +319,9 @@ Messages are defined as types (structs/classes) rather than assets.
 
 ### Comparisons of Modern Event Systems
 
-See the [DxMessaging Comparisons guide](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md) for a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging.
+See the
+[DxMessaging Comparisons guide](https://github.com/wallstop/DxMessaging/blob/master/Docs/Comparisons.md)
+for a breakdown of modern solutions like UniRx, MessagePipe, Zenject Signals, and DxMessaging.
 
 ### Example: DxMessaging
 
