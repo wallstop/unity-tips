@@ -66,6 +66,9 @@ jobs:
       - name: Run pre-commit (initial)
         id: run_precommit
         continue-on-error: true
+        env:
+          # Treat network errors as warnings since CI may have restricted network access
+          LINK_CHECK_WARN_ON_NETWORK_ERROR: "true"
         run: pre-commit run --all-files
 
       - name: Check for auto-fixable changes
@@ -98,6 +101,8 @@ jobs:
       - name: Re-run pre-commit to validate fixes
         id: rerun_precommit
         if: steps.apply_fixes.outputs.pushed == 'true'
+        env:
+          LINK_CHECK_WARN_ON_NETWORK_ERROR: "true"
         run: |
           echo "Validating auto-applied fixes..."
           pre-commit run --all-files

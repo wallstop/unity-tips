@@ -53,75 +53,28 @@ jobs:
           # Create docs directory structure for MkDocs
           mkdir -p site-docs
 
-          # Copy root documentation files
-          cp README.md site-docs/
+          # Copy and transform README.md and CHANGELOG.md for GitHub Pages
+          # (transforms ./docs/path links to ./path)
+          # Note: README.md is renamed to overview.md to avoid conflict with index.md
+          python scripts/transform_readme_for_pages.py README.md -o site-docs/overview.md -q
+          python scripts/transform_readme_for_pages.py CHANGELOG.md -o site-docs/CHANGELOG.md -q
+
+          # Copy other root documentation files
           cp CONTRIBUTING.md site-docs/
-          cp CHANGELOG.md site-docs/
 
           # Copy all documentation folders
           cp -r docs/* site-docs/
 
-          # Create index.md from README
-          cat > site-docs/index.md << 'EOF'
-          ---
-          title: Unity Tips & Tools
-          description: Battle-tested practices and tools to build better Unity games faster
-          ---
-
-          # Unity Tips & Tools
-
-          > Battle-tested practices and tools to build better Unity games faster. From beginner to expert.
-
-          Welcome to the Unity Tips & Tools documentation! This site contains comprehensive guides
-          for Unity best practices, recommended tools, and architectural patterns.
-
-          ## Quick Navigation
-
-          <div class="grid cards" markdown>
-
-          - :material-rocket-launch: **[Best Practices](best-practices/README.md)**
-
-              ---
-
-              Prevent 80% of Unity bugs with lifecycle methods, null checks, physics patterns, and more.
-
-          - :material-tools: **[Development Tooling](tooling/README.md)**
-
-              ---
-
-              Auto-format code, catch allocations, and streamline your workflow.
-
-          - :material-animation: **[Animation & Polish](animancer/README.md)**
-
-              ---
-
-              Code-driven animation with Animancer, tweens with PrimeTween, and game juice with Feel.
-
-          - :material-speedometer: **[Performance](graphy/README.md)**
-
-              ---
-
-              Monitor FPS/memory, find asset usage, and optimize your builds.
-
-          </div>
-
-          ## Getting Started
-
-          **New to Unity?** Start with [Best Practices](best-practices/README.md) to avoid common pitfalls.
-
-          **Setting up a project?** Check out [Development Tooling](tooling/README.md) for essential automation.
-
-          **Need specific help?** Use the search bar above or browse the sidebar navigation.
-
-          ---
-
-          [:octicons-mark-github-16: View on GitHub](https://github.com/wallstop/unity-tips){ .md-button }
-          EOF
+          # Create index.md landing page
+          python scripts/create_index_md.py -o site-docs/index.md -q
 
       - name: Build documentation
         run: mkdocs build --config-file mkdocs.yml --site-dir _site
         env:
           MKDOCS_DOCS_DIR: site-docs
+
+      - name: Validate built site links
+        run: python scripts/check_built_site.py _site
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
