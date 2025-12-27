@@ -1,0 +1,259 @@
+/*
+ * Unity-like Dark Theme for MkDocs Material
+ * Inspired by the Unity Editor's dark theme color palette
+ */
+
+:root {
+  /* Unity Editor color palette */
+  --unity-bg-darkest: #1e1e1e;
+  --unity-bg-dark: #282828;
+  --unity-bg-medium: #3c3c3c;
+  --unity-bg-light: #414141;
+  --unity-bg-lighter: #4a4a4a;
+  --unity-text: #e4e4e4;
+  --unity-text-muted: #9a9a9a;
+  --unity-accent-blue: #3a79bb;
+  --unity-accent-teal: #009688;
+  --unity-accent-orange: #ff9500;
+  --unity-border: #232323;
+  --unity-selection: #2c5d87;
+  --unity-link: #5c9bd1;
+  --unity-code-bg: #1a1a1a;
+}
+
+/* Dark mode (slate scheme) overrides */
+[data-md-color-scheme="slate"] {
+  /* Background colors */
+  --md-default-bg-color: var(--unity-bg-dark);
+  --md-default-bg-color--light: var(--unity-bg-medium);
+  --md-default-bg-color--lighter: var(--unity-bg-light);
+  --md-default-bg-color--lightest: var(--unity-bg-lighter);
+
+  /* Text colors */
+  --md-default-fg-color: var(--unity-text);
+  --md-default-fg-color--light: var(--unity-text-muted);
+  --md-default-fg-color--lighter: rgba(228, 228, 228, 0.62);
+  --md-default-fg-color--lightest: rgba(228, 228, 228, 0.32);
+
+  /* Primary and accent - using teal and amber from config */
+  --md-primary-fg-color: var(--unity-accent-teal);
+  --md-primary-bg-color: var(--unity-text);
+  --md-accent-fg-color: var(--unity-accent-orange);
+
+  /* Code blocks - darker like Unity console */
+  --md-code-bg-color: var(--unity-code-bg);
+  --md-code-fg-color: var(--unity-text);
+  --md-code-hl-color: rgba(255, 149, 0, 0.2);
+
+  /* Navigation */
+  --md-footer-bg-color: var(--unity-bg-darkest);
+  --md-footer-bg-color--dark: var(--unity-bg-darkest);
+
+  /* Typeset links */
+  --md-typeset-a-color: var(--unity-link);
+}
+
+/* Header styling - Unity-like darker header */
+[data-md-color-scheme="slate"] .md-header {
+  background-color: var(--unity-bg-darkest);
+  border-bottom: 1px solid var(--unity-border);
+}
+
+/* Navigation tabs - Unity toolbar style */
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: var(--unity-bg-dark);
+  border-bottom: 1px solid var(--unity-border);
+}
+
+/* Sidebar styling */
+[data-md-color-scheme="slate"] .md-sidebar {
+  background-color: var(--unity-bg-dark);
+}
+
+[data-md-color-scheme="slate"] .md-nav__link:hover {
+  color: var(--unity-link);
+}
+
+[data-md-color-scheme="slate"] .md-nav__link--active {
+  color: var(--unity-accent-orange);
+  font-weight: 600;
+}
+
+/* Code blocks - Unity console style */
+[data-md-color-scheme="slate"] .highlight {
+  background-color: var(--unity-code-bg);
+  border: 1px solid var(--unity-border);
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="slate"] .highlight code {
+  background-color: transparent;
+}
+
+[data-md-color-scheme="slate"] code {
+  background-color: var(--unity-bg-darkest);
+  border: 1px solid var(--unity-border);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+[data-md-color-scheme="slate"] pre code {
+  border: none;
+  padding: 0;
+}
+
+/* Admonitions - Unity-like styling */
+[data-md-color-scheme="slate"] .md-typeset .admonition,
+[data-md-color-scheme="slate"] .md-typeset details {
+  background-color: var(--unity-bg-medium);
+  border-left: 4px solid;
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.note,
+[data-md-color-scheme="slate"] .md-typeset details.note {
+  border-left-color: var(--unity-accent-blue);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.tip,
+[data-md-color-scheme="slate"] .md-typeset details.tip {
+  border-left-color: var(--unity-accent-teal);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.warning,
+[data-md-color-scheme="slate"] .md-typeset details.warning {
+  border-left-color: var(--unity-accent-orange);
+}
+
+/* Tables - Unity inspector style */
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) {
+  background-color: var(--unity-bg-medium);
+  border: 1px solid var(--unity-border);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: var(--unity-bg-darkest);
+  border-bottom: 2px solid var(--unity-accent-teal);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:hover {
+  background-color: var(--unity-selection);
+}
+
+/* Search - Unity-like search bar */
+[data-md-color-scheme="slate"] .md-search__input {
+  background-color: var(--unity-bg-medium);
+  border: 1px solid var(--unity-border);
+}
+
+[data-md-color-scheme="slate"] .md-search__input::placeholder {
+  color: var(--unity-text-muted);
+}
+
+/* Buttons and interactive elements */
+[data-md-color-scheme="slate"] .md-typeset .md-button {
+  background-color: var(--unity-accent-teal);
+  border: none;
+  color: white;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .md-button:hover {
+  background-color: var(--unity-accent-blue);
+}
+
+/* Content tabs - Unity-style */
+[data-md-color-scheme="slate"] .md-typeset .tabbed-labels > label {
+  color: var(--unity-text-muted);
+  border-bottom: 2px solid transparent;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .tabbed-labels > label:hover {
+  color: var(--unity-text);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .tabbed-set > input:checked + label {
+  color: var(--unity-accent-orange);
+  border-bottom-color: var(--unity-accent-orange);
+}
+
+/* Task lists - Unity checkbox style */
+[data-md-color-scheme="slate"] .md-typeset .task-list-indicator::before {
+  background-color: var(--unity-bg-lighter);
+  border: 1px solid var(--unity-text-muted);
+}
+
+[data-md-color-scheme="slate"] .md-typeset [type="checkbox"]:checked + .task-list-indicator::before {
+  background-color: var(--unity-accent-teal);
+  border-color: var(--unity-accent-teal);
+}
+
+/* Footer */
+[data-md-color-scheme="slate"] .md-footer {
+  background-color: var(--unity-bg-darkest);
+  border-top: 1px solid var(--unity-border);
+}
+
+/* Scrollbar styling for Unity feel */
+[data-md-color-scheme="slate"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-track {
+  background: var(--unity-bg-dark);
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb {
+  background: var(--unity-bg-lighter);
+  border-radius: 5px;
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--unity-text-muted);
+}
+
+/* Copy button on code blocks */
+[data-md-color-scheme="slate"] .md-clipboard {
+  color: var(--unity-text-muted);
+}
+
+[data-md-color-scheme="slate"] .md-clipboard:hover {
+  color: var(--unity-accent-orange);
+}
+
+/* Keyboard keys styling */
+[data-md-color-scheme="slate"] .md-typeset kbd {
+  background-color: var(--unity-bg-light);
+  border: 1px solid var(--unity-border);
+  box-shadow: 0 2px 0 var(--unity-bg-darkest);
+}
+
+/* Mark/highlight text */
+[data-md-color-scheme="slate"] .md-typeset mark {
+  background-color: rgba(255, 149, 0, 0.3);
+  color: var(--unity-text);
+}
+
+/* Blockquotes */
+[data-md-color-scheme="slate"] .md-typeset blockquote {
+  border-left: 4px solid var(--unity-accent-teal);
+  background-color: var(--unity-bg-medium);
+  padding: 0.5em 1em;
+}
+
+/* Horizontal rules */
+[data-md-color-scheme="slate"] .md-typeset hr {
+  border-color: var(--unity-border);
+}
+
+/* Definition lists */
+[data-md-color-scheme="slate"] .md-typeset dd {
+  margin-left: 1.5em;
+}
+
+/* Improve contrast for mermaid diagrams */
+[data-md-color-scheme="slate"] .mermaid {
+  background-color: var(--unity-bg-medium);
+  padding: 1em;
+  border-radius: 4px;
+}

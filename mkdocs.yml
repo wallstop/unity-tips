@@ -9,22 +9,22 @@ docs_dir: site-docs
 theme:
   name: material
   palette:
-    # Light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: deep purple
-      accent: purple
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Dark mode
-    - media: "(prefers-color-scheme: dark)"
+    # Dark mode (Unity-like, default)
+    - media: "(prefers-color-scheme)"
       scheme: slate
-      primary: deep purple
-      accent: purple
+      primary: teal
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
   features:
     - navigation.instant
     - navigation.tracking
@@ -89,6 +89,9 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/wallstop/unity-tips
   generator: false
+
+extra_css:
+  - stylesheets/unity-theme.css
 
 nav:
   - Home: index.md
