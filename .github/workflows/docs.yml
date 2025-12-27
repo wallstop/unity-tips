@@ -53,10 +53,14 @@ jobs:
           # Create docs directory structure for MkDocs
           mkdir -p site-docs
 
-          # Copy root documentation files
-          cp README.md site-docs/
+          # Copy and transform README.md and CHANGELOG.md for GitHub Pages
+          # (transforms ./docs/path links to ./path)
+          # Note: README.md is renamed to overview.md to avoid conflict with index.md
+          python scripts/transform_readme_for_pages.py README.md -o site-docs/overview.md -q
+          python scripts/transform_readme_for_pages.py CHANGELOG.md -o site-docs/CHANGELOG.md -q
+
+          # Copy other root documentation files
           cp CONTRIBUTING.md site-docs/
-          cp CHANGELOG.md site-docs/
 
           # Copy all documentation folders
           cp -r docs/* site-docs/
@@ -122,6 +126,9 @@ jobs:
         run: mkdocs build --config-file mkdocs.yml --site-dir _site
         env:
           MKDOCS_DOCS_DIR: site-docs
+
+      - name: Validate built site links
+        run: python scripts/check_built_site.py _site
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -93,7 +93,7 @@ extra:
 nav:
   - Home: index.md
   - Getting Started:
-      - Overview: README.md
+      - Overview: overview.md
       - Contributing: CONTRIBUTING.md
   - Best Practices:
       - Overview: best-practices/README.md

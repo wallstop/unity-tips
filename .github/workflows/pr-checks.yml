@@ -178,6 +178,86 @@ jobs:
               console.log(`Added labels: ${labelsToAdd.join(', ')}`);
             }
 
+  link-check:
+    name: Validate documentation links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml requests
+
+      - name: Run MkDocs link validation
+        run: |
+          # Validate mkdocs.yml nav and link compatibility
+          python scripts/check_mkdocs_links.py --skip-pages-compat
+
+      - name: Check link patterns in documentation
+        run: |
+          # Run existing link checker for all markdown files
+          python scripts/check_links.py README.md CONTRIBUTING.md CHANGELOG.md $(find docs -name "*.md")
+
+  docs-build-check:
+    name: Validate documentation builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-mkdocs-${{ hashFiles('requirements-docs.txt') }}
+          restore-keys: |
+            pip-mkdocs-
+
+      - name: Install dependencies
+        run: pip install -r requirements-docs.txt
+
+      - name: Prepare documentation structure
+        run: |
+          mkdir -p site-docs
+          # Note: README.md is renamed to overview.md to avoid conflict with index.md
+          python scripts/transform_readme_for_pages.py README.md -o site-docs/overview.md -q
+          python scripts/transform_readme_for_pages.py CHANGELOG.md -o site-docs/CHANGELOG.md -q
+          cp CONTRIBUTING.md site-docs/
+          cp -r docs/* site-docs/
+
+          # Create index.md
+          cat > site-docs/index.md << 'EOF'
+          ---
+          title: Unity Tips & Tools
+          description: Battle-tested practices and tools to build better Unity games faster
+          ---
+
+          # Unity Tips & Tools
+
+          > Battle-tested practices and tools to build better Unity games faster. From beginner to expert.
+
+          Welcome to the Unity Tips & Tools documentation!
+          EOF
+
+      - name: Build documentation
+        run: mkdocs build --config-file mkdocs.yml --site-dir _site --strict
+        env:
+          MKDOCS_DOCS_DIR: site-docs
+
+      - name: Validate built site links
+        run: python scripts/check_built_site.py _site
+
   wiki-check:
     name: Validate wiki sync readiness
     runs-on: ubuntu-latest
