@@ -154,8 +154,9 @@ def validate_nav_files(config: MkDocsConfig, base_dir: Path) -> List[ValidationI
             if (base_dir / file_ref).exists():
                 found = True
 
-        # index.md is generated during build, always consider it valid
-        if not found and file_ref == "index.md":
+        # These files are generated during build, always consider them valid
+        # index.md is generated from template, overview.md is generated from README.md
+        if not found and file_ref in {"index.md", "overview.md"}:
             found = True
 
         if not found:
