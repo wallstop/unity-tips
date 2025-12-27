@@ -665,6 +665,7 @@ This tells Unity this is a test assembly. It:
 
 ```csharp
 using NUnit.Framework;
+using UnityEngine;
 using MyGame.Gameplay;
 
 namespace MyGame.Tests
@@ -674,12 +675,21 @@ namespace MyGame.Tests
         [Test]
         public void Player_InitialHealth_Is100()
         {
-            var player = new Player();
+            // For MonoBehaviour-based classes, create via GameObject
+            var go = new GameObject("TestPlayer");
+            var player = go.AddComponent<Player>();
+
             Assert.AreEqual(100, player.Health);
+
+            // Clean up
+            Object.DestroyImmediate(go);
         }
     }
 }
 ```
+
+> **Tip:** For better testability, consider separating pure logic into plain C# classes that can be
+> instantiated with `new`. MonoBehaviours require GameObjects, which adds test setup overhead.
 
 ## Assembly Reload Optimization
 

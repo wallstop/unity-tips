@@ -13,7 +13,7 @@
 4. [Inventory Hotkeys](#inventory-hotkeys)
 5. [Charging Attacks](#charging-attacks)
 6. [Context Actions](#context-actions)
-7. [Input Hints & Prompts](#input-hints--prompts)
+7. [Input Hints & Prompts](#input-hints-prompts)
 8. [Accessibility Features](#accessibility-features)
 
 ---

@@ -1,7 +1,7 @@
 # PrimeTween API Reference
 
 > **Quick Navigation**: [Transform](#transform-animations) • [Color](#color-animations) •
-> [UI](#ui-animations) • [Custom](#custom-tweens) • [Sequences](#sequences) • [Shake](#shake--punch)
+> [UI](#ui-animations) • [Custom](#custom-tweens) • [Sequences](#sequences) • [Shake](#shake-punch)
 > • [Control](#tween-control) • [Settings](#tween-settings)
 
 ## Transform Animations

@@ -9,9 +9,9 @@
 
 1. [Serialization Best Practices](#serialization-best-practices)
 2. [Performance Optimization](#performance-optimization)
-3. [Common Mistakes & Solutions](#common-mistakes--solutions)
+3. [Common Mistakes & Solutions](#common-mistakes-solutions)
 4. [Editor vs Runtime Considerations](#editor-vs-runtime-considerations)
-5. [Version Control & Team Workflows](#version-control--team-workflows)
+5. [Version Control & Team Workflows](#version-control-team-workflows)
 6. [Build Size Management](#build-size-management)
 7. [Pre-Ship Checklist](#pre-ship-checklist)
 
