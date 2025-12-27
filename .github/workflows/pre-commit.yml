@@ -9,16 +9,19 @@ name: Lint Docs
       - "**"
   workflow_dispatch:
 
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre-commit:
-    if:
-      ${{ github.event_name != 'push' || github.ref == 'refs/heads/main' || github.actor ==
-      'github-actions[bot]' }}
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: write
+      pull-requests: write
 
     steps:
       - name: Check out PR branch
@@ -29,8 +32,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
+          # Use a token that can trigger workflows (if available)
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check out repository
+      - name: Check out repository (forked PR)
         if:
           github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name !=
           github.repository
@@ -60,68 +65,81 @@ jobs:
       - name: Install pre-commit
         run: pip install --upgrade pip pre-commit
 
-      - name: Run pre-commit
+      - name: Run pre-commit (initial)
         id: run_precommit
         continue-on-error: true
         run: pre-commit run --all-files
 
-      - name: Apply automatic fixes
+      - name: Check for auto-fixable changes
+        id: check_changes
+        if: steps.run_precommit.outcome == 'failure'
+        run: |
+          if git diff --quiet; then
+            echo "has_fixes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_fixes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply and push automatic fixes
         id: apply_fixes
-        if:
-          steps.run_precommit.outcome == 'failure' && github.event_name == 'pull_request' &&
+        if: |
+          steps.run_precommit.outcome == 'failure' &&
+          steps.check_changes.outputs.has_fixes == 'true' &&
+          github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository
         run: |
           set -eo pipefail
-          if git diff --quiet; then
-            echo "changes=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          if git diff --cached --quiet; then
-            echo "changes=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           git commit -m "chore: auto-apply pre-commit fixes"
-          if git push; then
-            echo "changes=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::Unable to push auto-fixes. Please run pre-commit locally."
-            exit 1
-          fi
+          git push
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Trigger fresh validation after auto-fixes
-        if: steps.apply_fixes.outputs.changes == 'true'
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const branch = context.payload.pull_request.head.ref
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'pre-commit.yml',
-              ref: branch,
-            })
-
-      - name: Re-run pre-commit after fixes
-        if:
-          steps.run_precommit.outcome == 'failure' && github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-        run: pre-commit run --all-files
-
-      - name: Fail for push checks
-        if: steps.run_precommit.outcome == 'failure' && github.event_name != 'pull_request'
+      - name: Re-run pre-commit to validate fixes
+        id: rerun_precommit
+        if: steps.apply_fixes.outputs.pushed == 'true'
         run: |
-          echo "::error::Pre-commit checks failed. Please run 'pre-commit run --all-files' locally."
+          echo "Validating auto-applied fixes..."
+          pre-commit run --all-files
+
+      - name: Report success after auto-fix
+        if: steps.apply_fixes.outputs.pushed == 'true' && steps.rerun_precommit.outcome == 'success'
+        run: |
+          echo "✅ Auto-fixes applied and validated successfully!"
+          echo "::notice::Pre-commit fixes were automatically applied and pushed."
+
+      - name: Fail if initial check failed with no auto-fixes available
+        if: |
+          steps.run_precommit.outcome == 'failure' &&
+          steps.check_changes.outputs.has_fixes == 'false'
+        run: |
+          echo "::error::Pre-commit checks failed with no auto-fixable changes."
+          echo "Please run 'pre-commit run --all-files' locally to see the issues."
           exit 1
 
       - name: Fail for forked pull requests
-        if:
-          steps.run_precommit.outcome == 'failure' && github.event_name == 'pull_request' &&
+        if: |
+          steps.run_precommit.outcome == 'failure' &&
+          github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name != github.repository
         run: |
-          echo "::error::Pre-commit checks failed and auto-fix cannot push to forked repositories. Please run 'pre-commit run --all-files' locally."
+          echo "::error::Pre-commit checks failed. Auto-fix cannot push to forked repositories."
+          echo "Please run 'pre-commit run --all-files' locally and push the fixes."
+          exit 1
+
+      - name: Fail for push events (non-PR)
+        if: |
+          steps.run_precommit.outcome == 'failure' &&
+          github.event_name != 'pull_request'
+        run: |
+          echo "::error::Pre-commit checks failed on push."
+          echo "Please run 'pre-commit run --all-files' locally."
+          exit 1
+
+      - name: Fail if re-validation failed after auto-fix
+        if: steps.rerun_precommit.outcome == 'failure'
+        run: |
+          echo "::error::Pre-commit still failing after auto-fixes."
+          echo "Some issues require manual intervention."
           exit 1
