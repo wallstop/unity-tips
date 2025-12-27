@@ -11,10 +11,11 @@ This script:
 
 from __future__ import annotations
 
-import re
 import shutil
-import sys
 from pathlib import Path, PurePosixPath
+
+# Import shared link utilities for proper code block handling
+from link_utils import extract_links, find_code_fence_ranges, find_inline_code_ranges, in_ranges
 
 DOCS_DIR = Path("docs")
 WIKI_DIR = Path("wiki")
@@ -120,6 +121,11 @@ def normalize_path(path: str) -> str:
     return str(PurePosixPath(Path(path)))
 
 
+def remove_md_suffix(path: str) -> str:
+    """Remove .md extension from path if present, only at the end."""
+    return path.removesuffix(".md")
+
+
 def resolve_relative_path(source_file: str, link: str) -> str | None:
     """
     Resolve a relative link path from a source file location.
@@ -146,67 +152,84 @@ def resolve_relative_path(source_file: str, link: str) -> str | None:
         elif part != ".":
             parts.append(part)
 
-    # If we escaped the root, return None to indicate invalid path
-    if escape_count > 0 and not parts:
+    # If we ever tried to escape the root, the path is invalid
+    if escape_count > 0:
         return None
 
     return str(PurePosixPath(*parts)) if parts else "."
 
 
 def convert_links(content: str, source_file: str) -> str:
-    """Convert relative markdown links to wiki links."""
+    """Convert relative markdown links to wiki links, skipping code blocks."""
+    # Get code ranges to skip
+    code_ranges = find_code_fence_ranges(content)
+    inline_code_ranges = find_inline_code_ranges(content)
+    skip_ranges = code_ranges + inline_code_ranges
 
-    def replace_link(match: re.Match) -> str:
-        text = match.group(1)
-        link = match.group(2)
+    # Use link_utils to extract links properly (handles nested brackets, escaping, etc.)
+    links = extract_links(content)
+
+    # Process links in reverse order to maintain correct positions during replacement
+    result = content
+    for link_match in reversed(links):
+        # Skip links inside code blocks
+        if in_ranges(link_match.start, skip_ranges):
+            continue
+
+        # Only process inline links (not autolinks or bare URLs)
+        if link_match.kind != "inline":
+            continue
+
+        href = link_match.href
 
         # Skip external links and anchors
-        if link.startswith(("http://", "https://", "#", "mailto:")):
-            return match.group(0)
+        if href.startswith(("http://", "https://", "#", "mailto:")):
+            continue
 
         # Handle anchors in links
         anchor = ""
-        link_path = link
-        if "#" in link:
-            link_path, anchor = link.split("#", 1)
+        link_path = href
+        if "#" in href:
+            link_path, anchor = href.split("#", 1)
             anchor = "#" + anchor
 
         # Skip if it's just an anchor
         if not link_path:
-            return match.group(0)
+            continue
 
         # Resolve relative path using POSIX-style paths
         resolved = resolve_relative_path(normalize_path(source_file), link_path)
 
         # Handle invalid paths (escaping root)
         if resolved is None:
-            _unmapped_links.append((source_file, link, "path escapes documentation root"))
-            return match.group(0)
+            _unmapped_links.append((source_file, href, "path escapes documentation root"))
+            continue
 
         # Remove .md extension for matching
-        resolved_without_ext = resolved.replace(".md", "")
+        resolved_without_ext = remove_md_suffix(resolved)
 
         # Look up wiki page name with exact matching
-        for src_path, wiki_name in WIKI_STRUCTURE.items():
-            src_without_ext = src_path.replace(".md", "")
+        wiki_name = None
+        for src_path, name in WIKI_STRUCTURE.items():
+            src_without_ext = remove_md_suffix(src_path)
             # Exact match only - no endswith to avoid false positives
             if resolved_without_ext == src_without_ext:
-                return f"[[{wiki_name}{anchor}|{text}]]"
+                wiki_name = name
+                break
 
         # Handle root files
-        if resolved_without_ext in ROOT_WIKI_NAMES:
-            return f"[[{ROOT_WIKI_NAMES[resolved_without_ext]}{anchor}|{text}]]"
+        if wiki_name is None and resolved_without_ext in ROOT_WIKI_NAMES:
+            wiki_name = ROOT_WIKI_NAMES[resolved_without_ext]
 
-        # Track unmapped internal links for warning
-        if not link.startswith(("http://", "https://", "mailto:")):
-            _unmapped_links.append((source_file, link, "no mapping found"))
+        if wiki_name is not None:
+            # Replace with wiki link format
+            new_link = f"[[{wiki_name}{anchor}|{link_match.text}]]"
+            result = result[: link_match.start] + new_link + result[link_match.end :]
+        else:
+            # Track unmapped internal links for warning
+            _unmapped_links.append((source_file, href, "no mapping found"))
 
-        # Fallback: keep original link
-        return match.group(0)
-
-    # Match markdown links [text](link)
-    pattern = r"\[([^\]]+)\]\(([^)]+)\)"
-    return re.sub(pattern, replace_link, content)
+    return result
 
 
 def read_file_safe(path: Path) -> str | None:
@@ -419,4 +442,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

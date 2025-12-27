@@ -41,6 +41,7 @@ jobs:
           # Clone the wiki repo (create if it doesn't exist)
           if git clone "$WIKI_URL" wiki 2>/dev/null; then
             echo "Wiki cloned successfully"
+            cd wiki
           else
             echo "Wiki doesn't exist yet. Creating initial wiki..."
             mkdir -p wiki
@@ -61,8 +62,7 @@ jobs:
             echo "Wiki initialized successfully"
           fi
 
-          # Determine the default branch name
-          cd wiki
+          # Now we're in the wiki directory in both branches
           WIKI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           echo "WIKI_BRANCH=$WIKI_BRANCH" >> "$GITHUB_ENV"
           echo "Using wiki branch: $WIKI_BRANCH"
