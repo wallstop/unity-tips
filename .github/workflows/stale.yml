@@ -3,8 +3,8 @@ name: Manage Stale Issues and PRs
 
 "on":
   schedule:
-    # Run daily at midnight UTC
-    - cron: "0 0 * * *"
+    # Run weekly on Sundays at midnight UTC
+    - cron: "0 0 * * 0"
   workflow_dispatch:
 
 permissions:

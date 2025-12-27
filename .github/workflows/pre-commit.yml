@@ -93,28 +93,7 @@ jobs:
           git commit -m "chore: auto-apply pre-commit fixes"
           git push
           echo "pushed=true" >> "$GITHUB_OUTPUT"
-          echo "new_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Trigger CI re-run on auto-fix commit
-        if: steps.apply_fixes.outputs.pushed == 'true'
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const newSha = '${{ steps.apply_fixes.outputs.new_sha }}';
-            const prNumber = context.payload.pull_request.number;
-
-            console.log(`Auto-fix commit pushed: ${newSha}`);
-            console.log(`Triggering workflow re-run for PR #${prNumber}...`);
-
-            // Trigger workflow_dispatch to re-run checks on the new commit
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'pre-commit.yml',
-              ref: context.payload.pull_request.head.ref
-            });
-
-            console.log('::notice::Workflow re-run triggered for auto-fix commit.')
+          # GitHub automatically triggers a new workflow run on the pushed commit
 
       - name: Re-run pre-commit to validate fixes
         id: rerun_precommit
