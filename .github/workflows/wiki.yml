@@ -36,24 +36,35 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+
           # Clone the wiki repo (create if it doesn't exist)
-          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki || {
+          if git clone "$WIKI_URL" wiki 2>/dev/null; then
+            echo "Wiki cloned successfully"
+          else
             echo "Wiki doesn't exist yet. Creating initial wiki..."
             mkdir wiki
             cd wiki
             git init
-            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+            git remote add origin "$WIKI_URL"
             echo "# Unity Tips & Tools" > Home.md
             echo "" >> Home.md
             echo "Welcome to the Unity Tips & Tools wiki!" >> Home.md
             git add .
             git commit -m "Initialize wiki"
+            # GitHub wikis use 'master' as default branch
             git branch -M master
             git push -u origin master
             cd ..
             rm -rf wiki
-            git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki
-          }
+            git clone "$WIKI_URL" wiki
+          fi
+
+          # Determine the default branch name
+          cd wiki
+          WIKI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "WIKI_BRANCH=$WIKI_BRANCH" >> "$GITHUB_ENV"
+          cd ..
 
       - name: Sync documentation to wiki
         run: python scripts/sync-wiki.py
@@ -67,8 +78,11 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to sync"
           else
-            git commit -m "Sync documentation from main repository
+            git commit -m "$(cat <<EOF
+          Sync documentation from main repository
 
-          Source commit: ${{ github.sha }}"
-            git push origin master || git push origin main
+          Source commit: ${{ github.sha }}
+          EOF
+          )"
+            git push origin "$WIKI_BRANCH"
           fi

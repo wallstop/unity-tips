@@ -9,16 +9,18 @@ This script:
 4. Creates a Home.md landing page
 """
 
-import os
+from __future__ import annotations
+
 import re
 import shutil
-from pathlib import Path
+import sys
+from pathlib import Path, PurePosixPath
 
 DOCS_DIR = Path("docs")
 WIKI_DIR = Path("wiki")
 ROOT_FILES = ["README.md", "CONTRIBUTING.md", "CHANGELOG.md"]
 
-# Mapping of source paths to wiki page names
+# Mapping of source paths to wiki page names (always use forward slashes)
 WIKI_STRUCTURE = {
     # Best Practices
     "best-practices/README.md": "Best-Practices",
@@ -104,6 +106,31 @@ WIKI_STRUCTURE = {
 }
 
 
+def normalize_path(path: str) -> str:
+    """Normalize a path to use forward slashes (POSIX style) for consistent matching."""
+    return str(PurePosixPath(Path(path)))
+
+
+def resolve_relative_path(source_file: str, link: str) -> str:
+    """Resolve a relative link path from a source file location."""
+    source_dir = PurePosixPath(source_file).parent
+    if str(source_dir) == ".":
+        resolved = PurePosixPath(link)
+    else:
+        # Join and normalize the path
+        resolved = source_dir / link
+        # Normalize to handle .. and .
+        parts = []
+        for part in resolved.parts:
+            if part == "..":
+                if parts:
+                    parts.pop()
+            elif part != ".":
+                parts.append(part)
+        resolved = PurePosixPath(*parts) if parts else PurePosixPath(".")
+    return str(resolved)
+
+
 def convert_links(content: str, source_file: str) -> str:
     """Convert relative markdown links to wiki links."""
 
@@ -115,31 +142,38 @@ def convert_links(content: str, source_file: str) -> str:
         if link.startswith(("http://", "https://", "#", "mailto:")):
             return match.group(0)
 
-        # Resolve relative path
-        source_dir = str(Path(source_file).parent)
-        if source_dir == ".":
-            resolved = link
-        else:
-            resolved = os.path.normpath(os.path.join(source_dir, link))
-
-        # Remove .md extension and handle anchors
+        # Handle anchors in links
         anchor = ""
-        if "#" in resolved:
-            resolved, anchor = resolved.split("#", 1)
+        link_path = link
+        if "#" in link:
+            link_path, anchor = link.split("#", 1)
             anchor = "#" + anchor
 
-        resolved = resolved.replace(".md", "")
+        # Skip if it's just an anchor
+        if not link_path:
+            return match.group(0)
 
-        # Look up wiki page name
+        # Resolve relative path using POSIX-style paths
+        resolved = resolve_relative_path(normalize_path(source_file), link_path)
+
+        # Remove .md extension for matching
+        resolved_without_ext = resolved.replace(".md", "")
+
+        # Look up wiki page name with exact matching
         for src_path, wiki_name in WIKI_STRUCTURE.items():
             src_without_ext = src_path.replace(".md", "")
-            if resolved == src_without_ext or resolved.endswith(src_without_ext):
+            # Exact match only - no endswith to avoid false positives
+            if resolved_without_ext == src_without_ext:
                 return f"[[{wiki_name}{anchor}|{text}]]"
 
         # Handle root files
-        if resolved in ["README", "CONTRIBUTING", "CHANGELOG"]:
-            wiki_names = {"README": "Home", "CONTRIBUTING": "Contributing", "CHANGELOG": "Changelog"}
-            return f"[[{wiki_names.get(resolved, resolved)}{anchor}|{text}]]"
+        root_wiki_names = {
+            "README": "Home",
+            "CONTRIBUTING": "Contributing",
+            "CHANGELOG": "Changelog",
+        }
+        if resolved_without_ext in root_wiki_names:
+            return f"[[{root_wiki_names[resolved_without_ext]}{anchor}|{text}]]"
 
         # Fallback: keep original link
         return match.group(0)
@@ -149,18 +183,50 @@ def convert_links(content: str, source_file: str) -> str:
     return re.sub(pattern, replace_link, content)
 
 
-def process_file(src_path: Path, wiki_name: str) -> None:
-    """Process a markdown file and copy to wiki directory."""
-    content = src_path.read_text(encoding="utf-8")
+def read_file_safe(path: Path) -> str | None:
+    """Safely read a file, returning None on error."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError as e:
+        print(f"  Error reading {path}: {e}")
+        return None
+    except UnicodeDecodeError as e:
+        print(f"  Error decoding {path}: {e}")
+        return None
 
-    # Convert links
-    relative_path = str(src_path.relative_to(DOCS_DIR)) if str(src_path).startswith(str(DOCS_DIR)) else str(src_path)
+
+def write_file_safe(path: Path, content: str) -> bool:
+    """Safely write a file, returning False on error."""
+    try:
+        path.write_text(content, encoding="utf-8")
+        return True
+    except OSError as e:
+        print(f"  Error writing {path}: {e}")
+        return False
+
+
+def process_file(src_path: Path, wiki_name: str) -> bool:
+    """Process a markdown file and copy to wiki directory."""
+    content = read_file_safe(src_path)
+    if content is None:
+        return False
+
+    # Convert links using normalized path
+    try:
+        relative_path = str(src_path.relative_to(DOCS_DIR))
+    except ValueError:
+        relative_path = str(src_path)
+
+    # Normalize to forward slashes for consistent link resolution
+    relative_path = normalize_path(relative_path)
     content = convert_links(content, relative_path)
 
     # Write to wiki
     dest_path = WIKI_DIR / f"{wiki_name}.md"
-    dest_path.write_text(content, encoding="utf-8")
-    print(f"  {src_path} -> {dest_path}")
+    if write_file_safe(dest_path, content):
+        print(f"  {src_path} -> {dest_path}")
+        return True
+    return False
 
 
 def generate_sidebar() -> str:
@@ -229,10 +295,10 @@ def generate_sidebar() -> str:
 def generate_home() -> str:
     """Generate the Home.md landing page."""
     readme_path = Path("README.md")
-    if readme_path.exists():
-        content = readme_path.read_text(encoding="utf-8")
-        content = convert_links(content, "README.md")
-        return content
+    content = read_file_safe(readme_path)
+    if content is not None:
+        return convert_links(content, "README.md")
+
     return """# Unity Tips & Tools
 
 > Battle-tested practices and tools to build better Unity games faster.
@@ -255,25 +321,32 @@ For the best reading experience with search and navigation, visit the
 """
 
 
-def main() -> None:
-    """Main entry point."""
+def main() -> int:
+    """Main entry point. Returns 0 on success, 1 on failure."""
     print("Syncing documentation to GitHub Wiki...")
+    errors = 0
+
+    # Ensure wiki directory exists
+    WIKI_DIR.mkdir(parents=True, exist_ok=True)
 
     # Clean wiki directory (except .git)
-    if WIKI_DIR.exists():
-        for item in WIKI_DIR.iterdir():
-            if item.name != ".git":
+    for item in WIKI_DIR.iterdir():
+        if item.name != ".git":
+            try:
                 if item.is_dir():
                     shutil.rmtree(item)
                 else:
                     item.unlink()
+            except OSError as e:
+                print(f"  Warning: Could not remove {item}: {e}")
 
     # Process all mapped files
     print("\nProcessing documentation files:")
     for src_rel, wiki_name in WIKI_STRUCTURE.items():
         src_path = DOCS_DIR / src_rel
         if src_path.exists():
-            process_file(src_path, wiki_name)
+            if not process_file(src_path, wiki_name):
+                errors += 1
         else:
             print(f"  Warning: {src_path} not found")
 
@@ -286,20 +359,28 @@ def main() -> None:
     for filename, wiki_name in root_mapping.items():
         src_path = Path(filename)
         if src_path.exists():
-            process_file(src_path, wiki_name)
+            if not process_file(src_path, wiki_name):
+                errors += 1
 
     # Generate Home page
     print("\nGenerating Home page...")
     home_content = generate_home()
-    (WIKI_DIR / "Home.md").write_text(home_content, encoding="utf-8")
+    if not write_file_safe(WIKI_DIR / "Home.md", home_content):
+        errors += 1
 
     # Generate sidebar
     print("Generating sidebar...")
     sidebar_content = generate_sidebar()
-    (WIKI_DIR / "_Sidebar.md").write_text(sidebar_content, encoding="utf-8")
+    if not write_file_safe(WIKI_DIR / "_Sidebar.md", sidebar_content):
+        errors += 1
+
+    if errors > 0:
+        print(f"\nWiki sync completed with {errors} error(s)!")
+        return 1
 
     print("\nWiki sync complete!")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
