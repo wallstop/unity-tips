@@ -168,9 +168,6 @@ graph LR
     G -->|No| H[Exit Play Mode]
     H --> A
 
-    style C fill:#FFB6C1
-    style D fill:#FFB6C1
-    style E fill:#FFB6C1
 ```
 
 **Total time per iteration:** 8-75+ seconds
@@ -185,7 +182,6 @@ graph LR
     D --> E{Works?}
     E -->|No| A
 
-    style C fill:#90EE90
 ```
 
 **Total time per iteration:** < 1 second

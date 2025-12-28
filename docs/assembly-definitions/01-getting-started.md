@@ -63,7 +63,6 @@ graph LR
     A[1. Assembly-CSharp-firstpass<br/>Plugins + Standard Assets] --> B[2. Assembly-CSharp<br/>YOUR ENTIRE PROJECT]
     B --> C[3. Assembly-CSharp-Editor<br/>Editor scripts]
 
-    style B fill:#FFB6C1
 ```
 
 **The Problem:**
@@ -102,10 +101,6 @@ graph TD
     B --> D[3. MyGame.Editor<br/>100 scripts<br/>1 second]
     A --> D
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#FFD700
 ```
 
 **The Benefit:**
@@ -196,10 +191,6 @@ graph TD
     B --> D[Editor<br/>Depends on Gameplay]
     C --> D
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#FFD700
 ```
 
 **Good Architecture:**
@@ -377,9 +368,6 @@ graph TD
     A[MyGame.Core<br/>Foundation<br/>No dependencies] --> B[MyGame.Gameplay<br/>Game Logic<br/>Depends on Core]
     A --> C[MyGame.UI<br/>User Interface<br/>Depends on Core]
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
 ```
 
 **Now:**

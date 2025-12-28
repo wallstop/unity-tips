@@ -232,12 +232,6 @@ graph LR
     H[Experienced User?] --> G
     H --> F
 
-    style A fill:#4CAF50
-    style B fill:#2196F3
-    style C fill:#2196F3
-    style E fill:#9C27B0
-    style F fill:#FF9800
-    style G fill:#FFC107
 ```
 
 ### For Beginners

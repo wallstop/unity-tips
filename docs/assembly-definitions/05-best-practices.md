@@ -161,8 +161,6 @@ graph LR
     A[UI] --> B[Gameplay]
     B --> A
 
-    style A fill:#FFB6C1
-    style B fill:#FFB6C1
 ```
 
 **Problem:**
@@ -179,9 +177,6 @@ graph TD
     A[Core<br/>Interfaces + Events] --> B[UI]
     A --> C[Gameplay]
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
 ```
 
 **Implementation:**

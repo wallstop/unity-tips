@@ -26,8 +26,6 @@ graph LR
     F -->|Solutions| I[Single Source of Truth]
     F -->|Solutions| J[Easy Debugging]
 
-    style F fill:#4CAF50
-    style A fill:#FF5252
 ```
 
 ### Problems with Animator Controllers

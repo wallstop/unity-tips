@@ -500,10 +500,6 @@ graph TD
     F --> F2[✅ Best Developer Experience]
     F --> F3[⚠️ Larger Build Size]
 
-    style F fill:#90EE90
-    style D fill:#87CEEB
-    style E fill:#87CEEB
-    style C fill:#FFB6C1
 ```
 
 ---

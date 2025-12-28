@@ -366,9 +366,6 @@ graph TB
     F --> H
     F --> I
 
-    style D fill:#4CAF50
-    style E fill:#2196F3
-    style F fill:#9C27B0
 ```
 
 ---
@@ -956,10 +953,6 @@ graph LR
     G --> H
     H --> I[Review Do's and Don'ts]
 
-    style B fill:#4CAF50
-    style C fill:#2196F3
-    style D fill:#9C27B0
-    style F fill:#FFC107
 ```
 
 ### Beginner (30-45 minutes)

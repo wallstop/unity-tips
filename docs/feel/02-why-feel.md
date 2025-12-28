@@ -25,11 +25,6 @@ graph LR
     B --> E[Squash Animation]
     B --> F[Slight Camera Kick]
 
-    style B fill:#4a9eff
-    style C fill:#90EE90
-    style D fill:#90EE90
-    style E fill:#90EE90
-    style F fill:#90EE90
 ```
 
 Without feedback (C, D, E, F), jumping feels **mechanical and boring**. With feedback, it feels

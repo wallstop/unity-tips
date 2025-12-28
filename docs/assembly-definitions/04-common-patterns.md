@@ -42,10 +42,6 @@ graph TD
     A --> D[MyGame.Editor]
     B --> D
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#FFD700
 ```
 
 **MyGame.Core.asmdef:**
@@ -163,16 +159,6 @@ graph TD
     A --> I[Menus]
     A --> J[HUD]
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#87CEEB
-    style E fill:#87CEEB
-    style F fill:#DDA0DD
-    style G fill:#DDA0DD
-    style H fill:#FFA07A
-    style I fill:#FFD700
-    style J fill:#FFD700
 ```
 
 **Benefits:**
@@ -296,7 +282,6 @@ graph TD
     A --> C[UI]
     B --> C
 
-    style C fill:#FFB6C1
 ```
 
 UI depends on Gameplay → Changes to gameplay recompile UI
@@ -308,9 +293,6 @@ graph TD
     A[Core] --> B[Gameplay]
     A --> C[UI]
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
 ```
 
 UI and Gameplay both depend on Core only

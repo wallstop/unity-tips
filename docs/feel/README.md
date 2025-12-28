@@ -178,9 +178,6 @@ graph LR
     D --> E{Happy with result?}
     E -->|No| C
     E -->|Yes| F[Ship it!]
-
-    style A fill:#90EE90
-    style F fill:#4a9eff
 ```
 
 **No programmer required** for iteration. Designers own game feel from start to finish.

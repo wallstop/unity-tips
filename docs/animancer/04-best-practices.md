@@ -404,9 +404,6 @@ graph LR
     C[3-4 Layers] --> D[Good Performance]
     E[5+ Layers] --> F[Diminishing Returns]
 
-    style A fill:#4CAF50
-    style C fill:#FF9800
-    style E fill:#F44336
 ```
 
 **Rule of Thumb:** Use only as many layers as you truly need. Most characters need 1-2 max.

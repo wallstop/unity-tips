@@ -1151,28 +1151,28 @@ UnityEvent's overhead is usually acceptable. Always profile your specific use ca
 
 ## Quick Decision Guide
 
-```
-Do non-programmers need to create/modify event flow?
-│
-├─ YES → ScriptableObject Events
-│   │
-│   ├─ Will you have > 50 event types?
-│   │   ├─ YES → Consider event bus (scaling issues)
-│   │   └─ NO → ScriptableObject Events are good fit
-│   │
-│   └─ High-frequency events (>10000/second)?
-│       ├─ YES → Hybrid: event bus for these, ScriptableObjects for others
-│       └─ NO → ScriptableObject Events are good fit
-│
-└─ NO → Event Bus/Messaging
-    │
-    ├─ Team comfortable with external packages?
-    │   ├─ YES → Use DxMessaging or similar
-    │   └─ NO → Implement simple event bus or reconsider ScriptableObjects
-    │
-    └─ Need compile-time safety and refactoring support?
-        ├─ YES → Event Bus is best choice
-        └─ NO → Either pattern works
+```mermaid
+flowchart TD
+    A{Do non-programmers need to<br/>create/modify event flow?}
+
+    A -->|YES| B[ScriptableObject Events]
+    A -->|NO| C[Event Bus/Messaging]
+
+    B --> D{Will you have > 50 event types?}
+    D -->|YES| E["Consider event bus<br/><i>scaling issues</i>"]
+    D -->|NO| F["ScriptableObject Events<br/>are good fit ✅"]
+
+    B --> G{High-frequency events?<br/>10000+/second}
+    G -->|YES| H["Hybrid: event bus for these,<br/>ScriptableObjects for others"]
+    G -->|NO| F
+
+    C --> I{Team comfortable with<br/>external packages?}
+    I -->|YES| J["Use DxMessaging<br/>or similar"]
+    I -->|NO| K["Implement simple event bus<br/>or reconsider ScriptableObjects"]
+
+    C --> L{Need compile-time safety<br/>and refactoring support?}
+    L -->|YES| M["Event Bus is<br/>best choice ✅"]
+    L -->|NO| N["Either pattern works"]
 ```
 
 ---
