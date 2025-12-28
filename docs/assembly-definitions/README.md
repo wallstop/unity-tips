@@ -158,10 +158,6 @@ graph TD
     F --> G[😭 Wait...]
     G --> H[😭 Finally done!]
 
-    style E fill:#FFB6C1
-    style F fill:#FFB6C1
-    style G fill:#FFB6C1
-    style H fill:#FFB6C1
 ```
 
 **With Assembly Definitions**, you control what recompiles:
@@ -178,10 +174,6 @@ graph TD
     E --> G[MyGame.Gameplay.dll - Untouched]
     E --> H[MyGame.Editor.dll - Untouched]
 
-    style D fill:#90EE90
-    style F fill:#87CEEB
-    style G fill:#87CEEB
-    style H fill:#87CEEB
 ```
 
 ### Real-World Performance Impact
@@ -308,11 +300,6 @@ graph TD
     A --> D[MyGame.Editor<br/>Depends on Core]
     B --> E[MyGame.Tests<br/>Depends on Core & Gameplay]
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#FFD700
-    style E fill:#DDA0DD
 ```
 
 **Clean Architecture Rules:**
@@ -461,8 +448,6 @@ graph TD
     D --> D3[✅ Better organization]
     D --> D4[⚠️ More setup complexity]
 
-    style D fill:#90EE90
-    style B fill:#87CEEB
 ```
 
 ### ✅ Use Assembly Definitions When:

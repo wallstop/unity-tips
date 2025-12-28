@@ -42,10 +42,6 @@ graph TD
     C --> F[Wave Animation]
     D --> G[Look Around]
 
-    style A fill:#4CAF50
-    style B fill:#2196F3
-    style C fill:#FF9800
-    style D fill:#9C27B0
 ```
 
 ### Why Use Layers?

@@ -211,10 +211,6 @@ flowchart LR
     AM1 --> A2 --> P2
     AM1 --> A3 --> P3
     A3 --> P4
-
-    style ActionMaps fill:#90EE90
-    style Actions fill:#87CEEB
-    style Properties fill:#FFD700
 ```
 
 **Action Maps**: Different input contexts (e.g., "Player" for gameplay, "UI" for menus) **Actions**:

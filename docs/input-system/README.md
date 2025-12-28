@@ -194,13 +194,6 @@ graph LR
     H --> F
 
     I[Fixing an Issue?] --> G
-
-    style A fill:#4CAF50
-    style B fill:#2196F3
-    style C fill:#2196F3
-    style E fill:#FFC107
-    style F fill:#9C27B0
-    style G fill:#F44336
 ```
 
 ### For Beginners

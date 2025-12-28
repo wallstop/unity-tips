@@ -262,11 +262,153 @@
   margin-left: 1.5em;
 }
 
-/* Improve contrast for mermaid diagrams */
+/* Mermaid diagram styling - Dark theme (slate) */
 [data-md-color-scheme="slate"] .mermaid {
   background-color: var(--unity-bg-medium);
   padding: 1em;
   border-radius: 4px;
+}
+
+/* Mermaid theme-aware colors for dark mode */
+[data-md-color-scheme="slate"] .mermaid .node rect,
+[data-md-color-scheme="slate"] .mermaid .node circle,
+[data-md-color-scheme="slate"] .mermaid .node ellipse,
+[data-md-color-scheme="slate"] .mermaid .node polygon,
+[data-md-color-scheme="slate"] .mermaid .node path {
+  fill: var(--unity-bg-light) !important;
+  stroke: var(--unity-text-muted) !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .node .label,
+[data-md-color-scheme="slate"] .mermaid .nodeLabel {
+  color: var(--unity-text) !important;
+  fill: var(--unity-text) !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .edgePath .path,
+[data-md-color-scheme="slate"] .mermaid .flowchart-link {
+  stroke: var(--unity-text-muted) !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .edgeLabel {
+  background-color: var(--unity-bg-medium) !important;
+  color: var(--unity-text) !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .cluster rect {
+  fill: var(--unity-bg-darkest) !important;
+  stroke: var(--unity-accent-teal) !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .cluster .nodeLabel,
+[data-md-color-scheme="slate"] .mermaid .cluster-label {
+  color: var(--unity-text) !important;
+  fill: var(--unity-text) !important;
+}
+
+/* Semantic colors for dark mode */
+[data-md-color-scheme="slate"] .mermaid .node.success rect,
+[data-md-color-scheme="slate"] .mermaid .node.success polygon {
+  fill: #2d5a3d !important;
+  stroke: #4caf50 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .node.info rect,
+[data-md-color-scheme="slate"] .mermaid .node.info polygon {
+  fill: #1e4a6d !important;
+  stroke: #2196f3 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .node.warning rect,
+[data-md-color-scheme="slate"] .mermaid .node.warning polygon {
+  fill: #5a4a1e !important;
+  stroke: #ff9800 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .node.error rect,
+[data-md-color-scheme="slate"] .mermaid .node.error polygon {
+  fill: #5a2d2d !important;
+  stroke: #f44336 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .node.highlight rect,
+[data-md-color-scheme="slate"] .mermaid .node.highlight polygon {
+  fill: #3d4a5a !important;
+  stroke: #9c27b0 !important;
+}
+
+/* Mermaid styling - Light theme (default) */
+[data-md-color-scheme="default"] .mermaid {
+  background-color: #f5f5f5;
+  padding: 1em;
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="default"] .mermaid .node rect,
+[data-md-color-scheme="default"] .mermaid .node circle,
+[data-md-color-scheme="default"] .mermaid .node ellipse,
+[data-md-color-scheme="default"] .mermaid .node polygon,
+[data-md-color-scheme="default"] .mermaid .node path {
+  fill: #ffffff !important;
+  stroke: #666666 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .node .label,
+[data-md-color-scheme="default"] .mermaid .nodeLabel {
+  color: #333333 !important;
+  fill: #333333 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .edgePath .path,
+[data-md-color-scheme="default"] .mermaid .flowchart-link {
+  stroke: #666666 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .edgeLabel {
+  background-color: #f5f5f5 !important;
+  color: #333333 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .cluster rect {
+  fill: #e8e8e8 !important;
+  stroke: #009688 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .cluster .nodeLabel,
+[data-md-color-scheme="default"] .mermaid .cluster-label {
+  color: #333333 !important;
+  fill: #333333 !important;
+}
+
+/* Semantic colors for light mode */
+[data-md-color-scheme="default"] .mermaid .node.success rect,
+[data-md-color-scheme="default"] .mermaid .node.success polygon {
+  fill: #c8e6c9 !important;
+  stroke: #4caf50 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .node.info rect,
+[data-md-color-scheme="default"] .mermaid .node.info polygon {
+  fill: #bbdefb !important;
+  stroke: #2196f3 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .node.warning rect,
+[data-md-color-scheme="default"] .mermaid .node.warning polygon {
+  fill: #ffe0b2 !important;
+  stroke: #ff9800 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .node.error rect,
+[data-md-color-scheme="default"] .mermaid .node.error polygon {
+  fill: #ffcdd2 !important;
+  stroke: #f44336 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .node.highlight rect,
+[data-md-color-scheme="default"] .mermaid .node.highlight polygon {
+  fill: #e1bee7 !important;
+  stroke: #9c27b0 !important;
 }
 
 /* Focus styles for keyboard navigation accessibility */

@@ -24,12 +24,6 @@ graph TD
     E1[MyGame.Presentation] -.-> E
     F1[MyGame.Editor] -.-> F
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#87CEFA
-    style E fill:#FFA07A
-    style F fill:#FFD700
 ```
 
 **Infrastructure Layer** (MyGame.Infrastructure.asmdef)

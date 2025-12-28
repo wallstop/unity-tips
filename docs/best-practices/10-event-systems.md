@@ -1173,12 +1173,6 @@ flowchart TD
     C --> L{Need compile-time safety<br/>and refactoring support?}
     L -->|YES| M["Event Bus is<br/>best choice ✅"]
     L -->|NO| N["Either pattern works"]
-
-    style B fill:#90EE90
-    style C fill:#87CEEB
-    style F fill:#90EE90
-    style M fill:#87CEEB
-    style H fill:#FFD700
 ```
 
 ---

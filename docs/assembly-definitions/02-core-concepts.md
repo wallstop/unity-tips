@@ -442,13 +442,6 @@ graph TD
     C --> G
     D --> G
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
-    style D fill:#87CEEB
-    style E fill:#87CEEB
-    style F fill:#FFD700
-    style G fill:#DDA0DD
 ```
 
 **Rules:**
@@ -467,8 +460,6 @@ graph LR
     A[MyGame.UI] --> B[MyGame.Gameplay]
     B --> A
 
-    style A fill:#FFB6C1
-    style B fill:#FFB6C1
 ```
 
 ```
@@ -484,9 +475,6 @@ graph TD
     A[MyGame.Core<br/>Shared interfaces/data] --> B[MyGame.UI]
     A --> C[MyGame.Gameplay]
 
-    style A fill:#90EE90
-    style B fill:#87CEEB
-    style C fill:#87CEEB
 ```
 
 Move the shared code (interfaces, data classes, etc.) into `Core`, then both `UI` and `Gameplay` can

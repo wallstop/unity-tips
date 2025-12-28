@@ -38,8 +38,6 @@ graph TD
     D --> G[AnimationClip]
     E --> H[AnimationClip]
 
-    style A fill:#4CAF50
-    style B fill:#2196F3
 ```
 
 **Key Points:**
@@ -121,7 +119,6 @@ graph LR
     B --> F[Events]
     B --> G[IsPlaying]
 
-    style B fill:#FF9800
 ```
 
 ### Accessing States
@@ -396,9 +393,6 @@ graph LR
     D -->|Three Quarters| E[1.0]
     E -->|End| F[Loop or Stop]
 
-    style A fill:#4CAF50
-    style C fill:#FF9800
-    style E fill:#F44336
 ```
 
 ### Why Normalized Time?
@@ -530,9 +524,6 @@ graph LR
     B -->|Fade Mid| C[Old: 0.5<br/>New: 0.5]
     C -->|Fade End| D[Old: 0.0<br/>New: 1.0]
 
-    style A fill:#F44336
-    style C fill:#FF9800
-    style D fill:#4CAF50
 ```
 
 During the fade, both animations play simultaneously with changing weights. Unity blends their poses

@@ -424,9 +424,6 @@ graph TD
     E --> E2[✅ Built-in]
     E --> E3[❌ Only shows dependencies]
 
-    style D fill:#90EE90
-    style C fill:#FFB6C1
-    style E fill:#87CEEB
 ```
 
 ---

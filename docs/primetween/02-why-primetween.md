@@ -277,11 +277,6 @@ graph TD
     F --> H[Smooth 60 FPS]
     G --> I[Frame Stutters on GC]
 
-    style C fill:#90EE90
-    style F fill:#90EE90
-    style H fill:#90EE90
-    style G fill:#FFB6C1
-    style I fill:#FFB6C1
 ```
 
 ### Sequence Complexity
@@ -298,9 +293,6 @@ graph LR
     G -->|DOTween| I[~304ms<br/>Scales linearly]
     G -->|LeanTween| J[~12,000,000ms<br/>UNUSABLE]
 
-    style C fill:#90EE90
-    style H fill:#90EE90
-    style J fill:#FF6B6B
 ```
 
 ### Memory Allocation Over Time
@@ -320,10 +312,6 @@ graph TD
     G --> J[Frame Drop]
     H --> J
 
-    style C fill:#90EE90
-    style F fill:#90EE90
-    style I fill:#90EE90
-    style J fill:#FFB6C1
 ```
 
 ## Real-World Performance Impact

@@ -21,7 +21,6 @@ graph LR
     B --> D[Sound Effect]
     B --> E[Particle Burst]
     B --> F[Camera Flash]
-    style B fill:#4a9eff
 ```
 
 ## What Problem Does Feel Solve?

@@ -1127,10 +1127,6 @@ graph LR
     F --> G
     G --> H[Optimize with Pooling]
 
-    style B fill:#4CAF50
-    style C fill:#2196F3
-    style D fill:#9C27B0
-    style F fill:#FFC107
 ```
 
 ### Beginner (30-45 minutes)

@@ -102,10 +102,6 @@ graph LR
     B -->|PrimeTween| C[0 Bytes<br/>No GC]
     B -->|DOTween| D[73,400 Bytes<br/>GC Spike]
     B -->|LeanTween| E[29,200 Bytes<br/>GC Spike]
-
-    style C fill:#90EE90
-    style D fill:#FFB6C1
-    style E fill:#FFB6C1
 ```
 
 ### 2.6x Faster Than Competitors

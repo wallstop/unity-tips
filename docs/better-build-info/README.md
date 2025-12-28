@@ -720,9 +720,6 @@ graph TD
     E --> E1[✅ Runtime Performance]
     E --> E2[❌ Not for Build Size]
 
-    style D fill:#90EE90
-    style C fill:#FFB6C1
-    style E fill:#87CEEB
 ```
 
 ---

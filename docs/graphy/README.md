@@ -558,9 +558,6 @@ graph TD
     E --> E2[❌ Delayed feedback]
     E --> E3[⚠️ Requires setup]
 
-    style F fill:#90EE90
-    style D fill:#87CEEB
-    style E fill:#FFB6C1
 ```
 
 ---

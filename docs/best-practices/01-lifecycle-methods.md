@@ -94,12 +94,6 @@ flowchart TD
     PHYSICS --> GAMELOGIC
     GAMELOGIC --> RENDER
     RENDER --> CLEANUP
-
-    style INIT fill:#90EE90
-    style PHYSICS fill:#87CEEB
-    style GAMELOGIC fill:#FFD700
-    style RENDER fill:#DDA0DD
-    style CLEANUP fill:#FFB6C1
 ```
 
 ## Awake vs Start
@@ -138,11 +132,6 @@ flowchart LR
     S["All Start() calls"] -.-> T1
     U1["First Update()"] -.-> T2
     U2["Second Update()"] -.-> T3
-
-    style A fill:#90EE90
-    style S fill:#87CEEB
-    style U1 fill:#FFD700
-    style U2 fill:#FFD700
 ```
 
 All `Awake()` methods complete before any `Start()` method begins.
@@ -361,11 +350,6 @@ flowchart TD
         R["4. Rendering"]
         F --> U --> L --> R
     end
-
-    style F fill:#87CEEB
-    style U fill:#FFD700
-    style L fill:#DDA0DD
-    style R fill:#90EE90
 ```
 
 ## Enable/Disable Methods
@@ -864,14 +848,6 @@ flowchart TD
     F -->|Physics?| G[FixedUpdate]
     F -->|Camera/ordering?| H[LateUpdate]
     F -->|Everything else?| I[Update]
-
-    style B fill:#90EE90
-    style C fill:#87CEEB
-    style D fill:#FFD700
-    style E fill:#FFB6C1
-    style G fill:#87CEEB
-    style H fill:#DDA0DD
-    style I fill:#FFD700
 ```
 
 ## Summary
