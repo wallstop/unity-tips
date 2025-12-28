@@ -186,17 +186,35 @@ The **Input Actions Asset** is the heart of the Input System. It's where you def
 
 The editor has three main sections:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ Action Maps │   Actions   │   Properties (Bindings)    │
-├─────────────┼─────────────┼────────────────────────────┤
-│             │             │                            │
-│  Player     │    Move     │  Binding: <Keyboard>/w/a/s │
-│  UI         │    Jump     │  Binding: <Keyboard>/space │
-│  Driving    │    Fire     │  Binding: <Mouse>/left     │
-│             │             │  Binding: <Gamepad>/south  │
-│             │             │                            │
-└─────────────┴─────────────┴────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph ActionMaps["Action Maps"]
+        AM1[Player]
+        AM2[UI]
+        AM3[Driving]
+    end
+
+    subgraph Actions["Actions"]
+        A1[Move]
+        A2[Jump]
+        A3[Fire]
+    end
+
+    subgraph Properties["Properties (Bindings)"]
+        P1["Binding: &lt;Keyboard&gt;/w/a/s"]
+        P2["Binding: &lt;Keyboard&gt;/space"]
+        P3["Binding: &lt;Mouse&gt;/left"]
+        P4["Binding: &lt;Gamepad&gt;/south"]
+    end
+
+    AM1 --> A1 --> P1
+    AM1 --> A2 --> P2
+    AM1 --> A3 --> P3
+    A3 --> P4
+
+    style ActionMaps fill:#90EE90
+    style Actions fill:#87CEEB
+    style Properties fill:#FFD700
 ```
 
 **Action Maps**: Different input contexts (e.g., "Player" for gameplay, "UI" for menus) **Actions**:

@@ -48,50 +48,58 @@ must happen in the right order.
 
 Unity MonoBehaviours have specific lifecycle methods that run at different times:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    INITIALIZATION                       │
-├─────────────────────────────────────────────────────────┤
-│  1. Constructor (avoid using!)                          │
-│  2. Awake (once, before any Start)                      │
-│  3. OnEnable (if active)                                │
-│  4. Start (once, before first Update)                   │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph INIT["🚀 INITIALIZATION"]
+        A1["1. Constructor<br/><i>avoid using!</i>"]
+        A2["2. Awake<br/><i>once, before any Start</i>"]
+        A3["3. OnEnable<br/><i>if active</i>"]
+        A4["4. Start<br/><i>once, before first Update</i>"]
+        A1 --> A2 --> A3 --> A4
+    end
 
-┌─────────────────────────────────────────────────────────┐
-│                      PHYSICS                            │
-├─────────────────────────────────────────────────────────┤
-│  FixedUpdate (50 times/sec by default)                  │
-│  - Physics calculations                                 │
-│  - Rigidbody operations                                 │
-└─────────────────────────────────────────────────────────┘
+    subgraph PHYSICS["⚙️ PHYSICS"]
+        B1["FixedUpdate<br/><i>50 times/sec by default</i>"]
+        B2["Physics calculations"]
+        B3["Rigidbody operations"]
+        B1 --- B2
+        B1 --- B3
+    end
 
-┌─────────────────────────────────────────────────────────┐
-│                    GAME LOGIC                           │
-├─────────────────────────────────────────────────────────┤
-│  Update (every frame)                                   │
-│  - Input                                                │
-│  - Game logic                                           │
-│  - Non-physics movement                                 │
-│                                                         │
-│  LateUpdate (after all Updates)                         │
-│  - Camera following                                     │
-│  - Ordered operations                                   │
-└─────────────────────────────────────────────────────────┘
+    subgraph GAMELOGIC["🎮 GAME LOGIC"]
+        C1["Update<br/><i>every frame</i>"]
+        C2["Input / Game logic / Non-physics movement"]
+        C3["LateUpdate<br/><i>after all Updates</i>"]
+        C4["Camera following / Ordered operations"]
+        C1 --- C2
+        C1 --> C3
+        C3 --- C4
+    end
 
-┌─────────────────────────────────────────────────────────┐
-│                     RENDERING                           │
-├─────────────────────────────────────────────────────────┤
-│  OnWillRenderObject, OnPreRender, OnRenderObject, etc.  │
-└─────────────────────────────────────────────────────────┘
+    subgraph RENDER["🖼️ RENDERING"]
+        D1["OnWillRenderObject"]
+        D2["OnPreRender"]
+        D3["OnRenderObject"]
+        D1 --> D2 --> D3
+    end
 
-┌─────────────────────────────────────────────────────────┐
-│                      CLEANUP                            │
-├─────────────────────────────────────────────────────────┤
-│  OnDisable (when disabled)                              │
-│  OnDestroy (when destroyed)                             │
-│  OnApplicationQuit (when game exits)                    │
-└─────────────────────────────────────────────────────────┘
+    subgraph CLEANUP["🧹 CLEANUP"]
+        E1["OnDisable<br/><i>when disabled</i>"]
+        E2["OnDestroy<br/><i>when destroyed</i>"]
+        E3["OnApplicationQuit<br/><i>when game exits</i>"]
+        E1 --> E2 --> E3
+    end
+
+    INIT --> PHYSICS
+    PHYSICS --> GAMELOGIC
+    GAMELOGIC --> RENDER
+    RENDER --> CLEANUP
+
+    style INIT fill:#90EE90
+    style PHYSICS fill:#87CEEB
+    style GAMELOGIC fill:#FFD700
+    style RENDER fill:#DDA0DD
+    style CLEANUP fill:#FFB6C1
 ```
 
 ## Awake vs Start
@@ -120,13 +128,21 @@ private void Start()
 
 ### Execution Timeline
 
-```
-Time: 0ms    100ms   200ms   300ms   400ms
-      |       |       |       |       |
-      └─ All Awake() calls
-              └─ All Start() calls
-                      └─ First Update()
-                              └─ Second Update()
+```mermaid
+flowchart LR
+    subgraph Timeline["Execution Timeline"]
+        T0["0ms"] --> T1["100ms"] --> T2["200ms"] --> T3["300ms"] --> T4["400ms"]
+    end
+
+    A["All Awake() calls"] -.-> T0
+    S["All Start() calls"] -.-> T1
+    U1["First Update()"] -.-> T2
+    U2["Second Update()"] -.-> T3
+
+    style A fill:#90EE90
+    style S fill:#87CEEB
+    style U1 fill:#FFD700
+    style U2 fill:#FFD700
 ```
 
 All `Awake()` methods complete before any `Start()` method begins.
@@ -335,18 +351,21 @@ private void LateUpdate()
 
 ### Update Methods Timeline
 
-```
-Single Frame:
-┌────────────────────────────────────────┐
-│ 1. All FixedUpdate() calls             │
-│    (may run 0, 1, or multiple times)   │
-├────────────────────────────────────────┤
-│ 2. All Update() calls                  │
-├────────────────────────────────────────┤
-│ 3. All LateUpdate() calls              │
-├────────────────────────────────────────┤
-│ 4. Rendering                           │
-└────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Frame["Single Frame"]
+        direction TB
+        F["1. All FixedUpdate() calls<br/><i>may run 0, 1, or multiple times</i>"]
+        U["2. All Update() calls"]
+        L["3. All LateUpdate() calls"]
+        R["4. Rendering"]
+        F --> U --> L --> R
+    end
+
+    style F fill:#87CEEB
+    style U fill:#FFD700
+    style L fill:#DDA0DD
+    style R fill:#90EE90
 ```
 
 ## Enable/Disable Methods
@@ -833,17 +852,26 @@ public class ResourceManager : MonoBehaviour
 
 ### Decision Tree
 
-```
-Need to initialize?
-├─ Own components? → Awake
-├─ Other objects? → Start
-├─ Events? → OnEnable
-└─ Cleanup? → OnDisable/OnDestroy
+```mermaid
+flowchart TD
+    A{Need to initialize?}
+    A -->|Own components?| B[Awake]
+    A -->|Other objects?| C[Start]
+    A -->|Events?| D[OnEnable]
+    A -->|Cleanup?| E[OnDisable/OnDestroy]
 
-Need update loop?
-├─ Physics? → FixedUpdate
-├─ Camera/ordering? → LateUpdate
-└─ Everything else? → Update
+    F{Need update loop?}
+    F -->|Physics?| G[FixedUpdate]
+    F -->|Camera/ordering?| H[LateUpdate]
+    F -->|Everything else?| I[Update]
+
+    style B fill:#90EE90
+    style C fill:#87CEEB
+    style D fill:#FFD700
+    style E fill:#FFB6C1
+    style G fill:#87CEEB
+    style H fill:#DDA0DD
+    style I fill:#FFD700
 ```
 
 ## Summary
