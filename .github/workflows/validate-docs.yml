@@ -13,6 +13,7 @@ name: Validate Documentation
       - "CHANGELOG.md"
       - "scripts/sync-wiki.py"
       - "scripts/check_wiki_links.py"
+      - "scripts/validate_wiki_links.py"
       - "scripts/link_utils.py"
       # GitHub Pages-related files
       - "mkdocs.yml"

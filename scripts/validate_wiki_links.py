@@ -7,6 +7,7 @@ Used by pre-commit to validate wiki links in a single hook.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -16,10 +17,14 @@ def main() -> int:
     """Run wiki sync and validation."""
     scripts_dir = Path(__file__).parent
 
+    # Preserve existing environment and add PYTHONPATH
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(scripts_dir)
+
     # Run sync-wiki.py
     result = subprocess.run(
         [sys.executable, scripts_dir / "sync-wiki.py"],
-        env={"PYTHONPATH": str(scripts_dir)},
+        env=env,
     )
     if result.returncode != 0:
         print("Wiki sync failed", file=sys.stderr)
@@ -28,7 +33,7 @@ def main() -> int:
     # Run check_wiki_links.py
     result = subprocess.run(
         [sys.executable, scripts_dir / "check_wiki_links.py"],
-        env={"PYTHONPATH": str(scripts_dir)},
+        env=env,
     )
     if result.returncode != 0:
         print("Wiki link validation failed", file=sys.stderr)
