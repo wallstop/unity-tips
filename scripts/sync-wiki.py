@@ -166,6 +166,95 @@ def resolve_relative_path(source_file: str, link: str) -> str | None:
     return str(PurePosixPath(*parts)) if parts else "."
 
 
+def is_in_table_row(content: str, position: int) -> bool:
+    """Check if a position in the content is inside a Markdown table row.
+
+    A table row starts with | and contains | as column separators.
+    We detect this by finding the start of the current line and checking
+    if it begins with |.
+
+    Note: Separator rows (e.g., | --- | --- |) are excluded from detection
+    since they don't contain content that needs link conversion. Per the
+    GitHub Flavored Markdown specification (section 4.10), a valid separator
+    row requires each cell to contain at least 3 consecutive dashes.
+    """
+    # Find the start of the line containing this position
+    line_start = content.rfind("\n", 0, position) + 1
+
+    # Find the end of the line
+    line_end = content.find("\n", position)
+    if line_end == -1:
+        line_end = len(content)
+
+    line = content[line_start:line_end]
+
+    # A table row starts with | (possibly with leading whitespace)
+    stripped = line.strip()
+    if not stripped.startswith("|"):
+        return False
+
+    # Check it's not a separator row like | --- | --- |
+    # Per GFM spec, each cell must have at least 3 consecutive dashes
+    # This avoids false positives for rows with content like | - | : |
+    if _is_separator_row(stripped):
+        return False
+
+    return True
+
+
+def _is_separator_row(line: str) -> bool:
+    """Check if a line is a Markdown table separator row.
+
+    Per the GitHub Flavored Markdown specification (section 4.10), a separator
+    row consists of cells where each cell contains only:
+    - At least 3 consecutive hyphens (---)
+    - Optional leading/trailing colons for alignment (:)
+    - Optional surrounding whitespace
+
+    Examples of valid separator rows:
+        | --- | --- |
+        |:---:|:---|
+        | :--: | --- |
+
+    Examples of invalid separator rows (treated as content):
+        | -- | -- |    (cells have only 2 dashes)
+        | - | - |      (cells have only 1 dash)
+        | --- | - |    (second cell has only 1 dash)
+    """
+    # Split by | and check each cell
+    # First and last elements may be empty due to leading/trailing |
+    cells = line.split("|")
+
+    # Filter out empty cells from leading/trailing pipes
+    cells = [cell.strip() for cell in cells if cell.strip()]
+
+    if not cells:
+        return False
+
+    # Each cell must contain only dashes, colons, and spaces
+    # AND each cell must have at least 3 consecutive dashes (GFM requirement)
+    separator_chars = set("-: ")
+    for cell in cells:
+        # Check cell contains only valid separator characters
+        if not all(c in separator_chars for c in cell):
+            return False
+
+        # Check cell has at least 3 consecutive dashes
+        max_consecutive_dashes = 0
+        current_dash_count = 0
+        for c in cell:
+            if c == "-":
+                current_dash_count += 1
+                max_consecutive_dashes = max(max_consecutive_dashes, current_dash_count)
+            else:
+                current_dash_count = 0
+
+        if max_consecutive_dashes < 3:
+            return False
+
+    return True
+
+
 def convert_links(content: str, source_file: str) -> str:
     """Convert relative markdown links to wiki links, skipping code blocks."""
     # Get code ranges to skip
@@ -242,9 +331,26 @@ def convert_links(content: str, source_file: str) -> str:
         if wiki_name is not None:
             # Use wiki page name as fallback if link text is empty
             display_text = link_text if link_text.strip() else wiki_name
-            # Replace with wiki link format: [[DisplayText|PageName]]
+
+            # Check if this link is inside a table row
+            # If so, we need to escape the pipe character to prevent it from
+            # being interpreted as a table column separator
+            # Note: Use original content for position check since link_match.start
+            # refers to positions in the original content, not the modified result
+            in_table = is_in_table_row(content, link_match.start)
+
+            if in_table:
+                # In tables, use escaped pipe: [[Display\|Page]]
+                # GitHub Wiki interprets \| correctly inside tables
+                separator = "\\|"
+            else:
+                separator = "|"
+
+            # Replace with wiki link format:
+            # - Normal context: [[DisplayText|PageName]]
+            # - Table context:  [[DisplayText\|PageName]] (escaped pipe)
             # Note: GitHub Wiki format is opposite of MediaWiki
-            new_link = f"[[{display_text}|{wiki_name}{anchor}]]"
+            new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
         else:
             # Track unmapped internal links for warning
