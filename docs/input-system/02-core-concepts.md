@@ -76,10 +76,10 @@ Bindings connect actions to devices. Composites combine several controls into on
 
 ```csharp
 "Move" (Vector2)
-    Up [Keyboard/W]
-    Down [Keyboard/S]
-    Left [Keyboard/A]
-    Right [Keyboard/D]
+    Up [Keyboard / W]
+    Down [Keyboard / S]
+    Left [Keyboard / A]
+    Right [Keyboard / D]
 ```
 
 - **Use composites** for directional input instead of reading four separate keys.

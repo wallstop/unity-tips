@@ -143,7 +143,7 @@ AnimancerState state = _animancer.Play(myClip);
 state.Time = 2.0f;                    // Jump to 2 seconds
 state.NormalizedTime = 0.5f;          // Jump to 50% through
 state.Speed = 1.5f;                   // Play at 1.5x speed
-state.Weight = 0.8f;                  // Blend weight (0-1)
+state.Weight = 0.8f;                  // Blend weight (0 - 1)
 
 // Information
 state.Length;                          // Total duration in seconds

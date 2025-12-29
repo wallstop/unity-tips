@@ -129,7 +129,7 @@ public class HasteEffect : Effect
     public float duration = 5f;
 }
 
-player.ApplyEffect(hasteEffect);  // Auto-stacking, duration management, done!
+player.ApplyEffect(hasteEffect);  // Auto - stacking, duration management, done!
 ```
 
 ---
@@ -949,7 +949,7 @@ void Update()
 ```csharp
 // ❌ WRONG - Mixing concerns
 [SelfComponent]
-public Rigidbody rb;  // Public AND auto-wired?
+public Rigidbody rb;  // Public AND auto - wired?
 
 // ✅ CORRECT - Keep auto-wired fields private
 [SelfComponent]

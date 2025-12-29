@@ -104,7 +104,7 @@ Tween myTween = Tween.Position(transform, targetPos, 1f);
 
 if (myTween.isAlive) myTween.Stop();     // Cancel animation
 myTween.Complete();                       // Jump to end instantly
-myTween.isPaused = true;                  // Pause/resume
+myTween.isPaused = true;                  // Pause / resume
 ```
 
 ### 3. **Duration & Easing**
@@ -387,7 +387,7 @@ Tween.Color(renderer, endValue, duration);
 Tween t = Tween.Position(...);
 t.Stop();         // Cancel
 t.Complete();     // Jump to end
-t.isPaused = true; // Pause/resume
+t.isPaused = true; // Pause / resume
 
 // Callbacks (zero-alloc)
 Tween.Position(transform, endValue, duration)

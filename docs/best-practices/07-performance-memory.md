@@ -22,7 +22,7 @@ second, 3,600 per minute. Eventually, GC kicks in and freezes your game.
 // ❌ This innocent-looking code creates 3600 allocations per minute
 void Update()
 {
-    string message = "Score: " + score;  // 60 allocations/sec
+    string message = "Score: " + score;  // 60 allocations / sec
     healthText.text = message;
 }
 ```
@@ -283,7 +283,7 @@ for (int i = 0; i < 100; i++)
 
 ```csharp
 // ✓ CORRECT - StringBuilder for repeated operations
-private StringBuilder sb = new StringBuilder(256); // Pre-allocate capacity
+private StringBuilder sb = new StringBuilder(256); // Pre - allocate capacity
 
 private string BuildMessage()
 {

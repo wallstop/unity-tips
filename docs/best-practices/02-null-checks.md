@@ -15,8 +15,8 @@ GameObject obj = /* destroyed object */;
 // These are DIFFERENT in Unity!
 if (obj == null)        // ✓ Unity's null check - detects destroyed objects (SAFE)
 if (obj is null)        // ❌ C# null check - doesn't detect destroyed objects (UNSAFE)
-obj?.DoSomething();     // ❌ Null-conditional - bypasses Unity (UNSAFE)
-obj = obj ?? fallback;  // ❌ Null-coalescing - bypasses Unity (UNSAFE)
+obj?.DoSomething();     // ❌ Null - conditional - bypasses Unity (UNSAFE)
+obj = obj ?? fallback;  // ❌ Null - coalescing - bypasses Unity (UNSAFE)
 ```
 
 **Real-world impact:** You check `if (enemy != null)` and it passes, but `enemy.transform` throws
@@ -65,8 +65,8 @@ Transform target = primary != null ? primary : secondary;
 // ❌ UNSAFE - These bypass Unity's null check
 if (obj is null) return;              // Pattern matching
 if (!ReferenceEquals(obj, null)) {}   // Reference check
-rigidbody?.AddForce(Vector3.up);      // Null-conditional
-Transform t = obj1 ?? obj2;           // Null-coalescing
+rigidbody?.AddForce(Vector3.up);      // Null - conditional
+Transform t = obj1 ?? obj2;           // Null - coalescing
 ```
 
 ### For Pure C# Objects: Use Modern Patterns
@@ -284,8 +284,8 @@ Transform t = obj1 != null ? obj1 : obj2;
 // ❌ UNSAFE - All bypass Unity's null check
 if (obj is null) {}                // Pattern matching
 if (ReferenceEquals(obj, null)) {} // Reference equality
-obj?.DoSomething();                // Null-conditional
-Transform t = obj1 ?? obj2;        // Null-coalescing
+obj?.DoSomething();                // Null - conditional
+Transform t = obj1 ?? obj2;        // Null - coalescing
 ```
 
 **For pure C# objects** (not derived from `UnityEngine.Object`):

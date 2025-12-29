@@ -562,12 +562,12 @@ Skip feedbacks based on settings or performance:
 ```csharp
 public class AdaptiveFeedback : MonoBehaviour
 {
-    public MMFeedbacks highQualityFeedback; // Particles, post-processing, etc.
+    public MMFeedbacks highQualityFeedback; // Particles, post - processing, etc.
     public MMFeedbacks lowQualityFeedback;  // Just sound and basic effects
 
     void PlayAdaptiveFeedback()
     {
-        if (QualitySettings.GetQualityLevel() >= 3) // High/Ultra quality
+        if (QualitySettings.GetQualityLevel() >= 3) // High / Ultra quality
         {
             highQualityFeedback.PlayFeedbacks();
         }

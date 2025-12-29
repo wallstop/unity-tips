@@ -264,7 +264,7 @@ void PlayAnimation(AnimationClip clip)
 void PlayAnimation(AnimationClip clip)
 {
     _bodyAnimancer.Play(clip);
-    _leftArmAnimancer.Play(clip);   // Plays 1-2 frames later
+    _leftArmAnimancer.Play(clip);   // Plays 1 - 2 frames later
     _rightArmAnimancer.Play(clip);  // Even later!
 }
 ```

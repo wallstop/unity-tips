@@ -219,7 +219,7 @@ public class NameInputUI : MonoBehaviour
 // Prevents accidental upgrades
 
 // ✅ Commit Packages/NuGet to source control
-git add Packages/NuGet
+git add Packages / NuGet
 git commit -m "Add Newtonsoft.Json via NuGet"
 ```
 

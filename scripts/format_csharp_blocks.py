@@ -321,8 +321,8 @@ class CSharpFormatter:
         return content
 
     def _format_operators_in_line(self, content: str) -> str:
-        """Add spaces around assignment and comparison operators."""
-        # Add spaces around these operators if they don't have them
+        """Add spaces around assignment, comparison, and arithmetic operators."""
+        # Add spaces around compound and comparison operators first (before single-char ops)
         operators = [
             ("==", r"(\S)==(\S)", r"\1 == \2"),
             ("!=", r"(\S)!=(\S)", r"\1 != \2"),
@@ -351,6 +351,15 @@ class CSharpFormatter:
             # This handles both `x=5` and `s="hello"` (masked as `s=\x00STR0\x00`)
             content = re.sub(r"(\w)=([^\s=])", r"\1 = \2", content)
 
+        # Handle binary arithmetic operators (+, -, *, /)
+        # Only when surrounded by word characters to avoid unary operators
+        # e.g., "a+b" -> "a + b" but "-5" stays as "-5"
+        content = re.sub(r"(\w)\+(\w)", r"\1 + \2", content)
+        content = re.sub(r"(\w)-(\w)", r"\1 - \2", content)
+        content = re.sub(r"(\w)\*(\w)", r"\1 * \2", content)
+        content = re.sub(r"(\w)/(\w)", r"\1 / \2", content)
+        content = re.sub(r"(\w)%(\w)", r"\1 % \2", content)
+
         return content
 
     def _format_commas_in_line(self, content: str) -> str:
@@ -361,7 +370,7 @@ class CSharpFormatter:
         content = re.sub(r"\s+,", ",", content)
         return content
 
-    def _split_code_and_comment(self, content: str) -> tuple:
+    def _split_code_and_comment(self, content: str) -> Tuple[str, str]:
         """Split a line into code and comment parts.
 
         Returns (code_part, comment_part) where comment_part includes the //.

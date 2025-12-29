@@ -110,7 +110,7 @@ pre-commit install
 ```csharp
 // ✅ Write code naturally, let CSharpier fix it
 public void Attack(Enemy target){
-int damage = baseDamage+critBonus;
+int damage = baseDamage + critBonus;
 target.TakeDamage(damage);
 Debug.Log("Attacked "+target.name);}
 

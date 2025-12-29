@@ -603,7 +603,7 @@ Don't stack many post-processing effects:
 ```csharp
 void Start()
 {
-    if (SystemInfo.processorFrequency < 2000) // Low-end device
+    if (SystemInfo.processorFrequency < 2000) // Low - end device
     {
         // Disable expensive feedbacks
         MMF_Particles particles = myFeedback.GetFeedbackOfType<MMF_Particles>();

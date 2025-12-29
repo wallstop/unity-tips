@@ -48,7 +48,7 @@ public class GoodPlayer : MonoBehaviour
     [SerializeField] private int maxHealth = 100;  // Config (in Inspector)
     private int currentHealth;                      // State (not in Inspector)
 
-    public int CurrentHealth => currentHealth;      // Read-only access
+    public int CurrentHealth => currentHealth;      // Read - only access
 
     public void TakeDamage(int damage)              // Controlled modification
     {

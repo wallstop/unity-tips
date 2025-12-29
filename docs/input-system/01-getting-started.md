@@ -21,7 +21,7 @@ void Update()
 // New way (Input System)
 void Awake()
 {
-    _jumpAction.performed += ctx => Jump();  // Event-driven, any device
+    _jumpAction.performed += ctx => Jump();  // Event - driven, any device
 }
 ```
 
