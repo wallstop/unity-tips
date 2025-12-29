@@ -492,11 +492,11 @@ public class EnemyDatabase : SerializedMonoBehaviour
     {
         #if UNITY_EDITOR
         var csv = new System.Text.StringBuilder();
-        csv.AppendLine("ID, Name, Health, Speed, Damage");
+        csv.AppendLine("ID,Name,Health,Speed,Damage");
 
         foreach (var enemy in _enemies)
         {
-            csv.AppendLine($"{enemy.ID}, {enemy.Name}, {enemy.Health}, {enemy.Speed}, {enemy.Damage}");
+            csv.AppendLine($"{enemy.ID},{enemy.Name},{enemy.Health},{enemy.Speed},{enemy.Damage}");
         }
 
         string path = UnityEditor.EditorUtility.SaveFilePanel("Export Enemies", "", "enemies.csv", "csv");
