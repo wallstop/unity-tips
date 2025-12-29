@@ -288,7 +288,9 @@ def convert_links(content: str, source_file: str) -> str:
             else:
                 separator = "|"
 
-            # Replace with wiki link format: [[DisplayText|PageName]]
+            # Replace with wiki link format:
+            # - Normal context: [[DisplayText|PageName]]
+            # - Table context:  [[DisplayText\|PageName]] (escaped pipe)
             # Note: GitHub Wiki format is opposite of MediaWiki
             new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
