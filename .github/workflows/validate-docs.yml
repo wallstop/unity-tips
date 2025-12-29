@@ -1,0 +1,238 @@
+---
+name: Validate Documentation
+
+# Run on pull requests to catch issues early, before merge
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      # Wiki-related files
+      - "docs/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "CHANGELOG.md"
+      - "scripts/sync-wiki.py"
+      - "scripts/check_wiki_links.py"
+      - "scripts/link_utils.py"
+      # GitHub Pages-related files
+      - "mkdocs.yml"
+      - "requirements-docs.txt"
+      - "scripts/transform_readme_for_pages.py"
+      - "scripts/create_index_md.py"
+      - "scripts/check_built_site.py"
+      # This workflow itself
+      - ".github/workflows/validate-docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-wiki:
+    name: Validate Wiki Generation and Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Generate wiki files
+        id: sync-wiki
+        env:
+          PYTHONPATH: scripts
+        run: |
+          echo "::group::Syncing documentation to wiki format"
+          if python scripts/sync-wiki.py; then
+            echo "✅ Wiki sync completed successfully"
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::❌ Wiki sync failed - see errors above"
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Validate wiki links
+        if: steps.sync-wiki.outputs.status == 'success'
+        env:
+          PYTHONPATH: scripts
+        run: |
+          echo "::group::Validating wiki links"
+          if python scripts/check_wiki_links.py --verbose; then
+            echo "✅ All wiki links are valid"
+          else
+            echo "::error::❌ Wiki link validation failed"
+            echo "::error::Broken wiki links detected. Please fix the links in your markdown files."
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Upload wiki artifacts for debugging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wiki-debug
+          path: wiki/
+          retention-days: 7
+
+  validate-pages:
+    name: Validate GitHub Pages Build and Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-mkdocs-${{ hashFiles('requirements-docs.txt') }}
+          restore-keys: |
+            pip-mkdocs-
+
+      - name: Install MkDocs dependencies
+        run: |
+          echo "::group::Installing dependencies"
+          pip install -r requirements-docs.txt
+          echo "✅ Dependencies installed"
+          echo "::endgroup::"
+
+      - name: Prepare documentation structure
+        id: prepare-docs
+        env:
+          PYTHONPATH: scripts
+        run: |
+          echo "::group::Preparing documentation structure"
+          set -e
+
+          # Create site-docs directory
+          mkdir -p site-docs
+
+          # Transform README and CHANGELOG for Pages (removes docs/ prefix from links)
+          echo "Transforming README.md → site-docs/overview.md"
+          python scripts/transform_readme_for_pages.py README.md -o site-docs/overview.md -q
+
+          echo "Transforming CHANGELOG.md → site-docs/CHANGELOG.md"
+          python scripts/transform_readme_for_pages.py CHANGELOG.md -o site-docs/CHANGELOG.md -q
+
+          # Copy CONTRIBUTING.md as-is
+          echo "Copying CONTRIBUTING.md → site-docs/"
+          cp CONTRIBUTING.md site-docs/
+
+          # Copy all documentation folders
+          echo "Copying docs/* → site-docs/"
+          cp -r docs/* site-docs/
+
+          # Create index.md landing page
+          echo "Creating site-docs/index.md"
+          python scripts/create_index_md.py -o site-docs/index.md -q
+
+          echo "✅ Documentation structure prepared"
+          echo "status=success" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: Build MkDocs site
+        if: steps.prepare-docs.outputs.status == 'success'
+        id: build-site
+        env:
+          MKDOCS_DOCS_DIR: site-docs
+        run: |
+          echo "::group::Building MkDocs site"
+          if mkdocs build --config-file mkdocs.yml --site-dir _site --strict; then
+            echo "✅ MkDocs build completed successfully"
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::❌ MkDocs build failed"
+            echo "::error::Check for invalid markdown syntax, missing files, or configuration errors."
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Validate built site links
+        if: steps.build-site.outputs.status == 'success'
+        env:
+          PYTHONPATH: scripts
+        run: |
+          echo "::group::Validating built site links"
+          if python scripts/check_built_site.py _site; then
+            echo "✅ All site links are valid"
+          else
+            echo "::error::❌ Built site link validation failed"
+            echo "::error::Broken links detected in the generated HTML site."
+            echo "::error::This usually means:"
+            echo "::error::  - A markdown link points to a non-existent file"
+            echo "::error::  - A link path is incorrect after transformation"
+            echo "::error::  - A file referenced in mkdocs.yml navigation doesn't exist"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Upload built site for debugging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-debug
+          path: _site/
+          retention-days: 7
+
+  validation-summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-wiki, validate-pages]
+    if: always()
+    steps:
+      - name: Check validation results
+        run: |
+          echo "## Documentation Validation Summary"
+          echo ""
+
+          wiki_result="${{ needs.validate-wiki.result }}"
+          pages_result="${{ needs.validate-pages.result }}"
+
+          echo "### Results"
+          echo ""
+
+          if [ "$wiki_result" == "success" ]; then
+            echo "✅ Wiki validation: **PASSED**"
+          else
+            echo "❌ Wiki validation: **FAILED**"
+          fi
+
+          if [ "$pages_result" == "success" ]; then
+            echo "✅ GitHub Pages validation: **PASSED**"
+          else
+            echo "❌ GitHub Pages validation: **FAILED**"
+          fi
+
+          echo ""
+
+          if [ "$wiki_result" == "success" ] && [ "$pages_result" == "success" ]; then
+            echo "### ✅ All validations passed!"
+            echo ""
+            echo "Your documentation is ready to be merged and deployed."
+            exit 0
+          else
+            echo "### ❌ Validation failed"
+            echo ""
+            echo "Please review the errors above and fix the issues."
+            echo ""
+            echo "**Common fixes:**"
+            echo "- Check that all linked files exist"
+            echo "- Verify link paths are correct (relative paths matter!)"
+            echo "- Ensure markdown syntax is valid"
+            echo "- Check that files referenced in mkdocs.yml exist"
+            echo ""
+            echo "**Debug artifacts:**"
+            echo "Download the uploaded artifacts from the Actions tab to inspect generated files."
+            exit 1
+          fi
