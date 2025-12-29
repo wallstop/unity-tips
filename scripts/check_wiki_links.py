@@ -7,9 +7,10 @@ remain outside of code blocks.
 
 Additional validations:
 - Validates that sidebar references only existing pages
-- Validates that all WIKI_STRUCTURE source files exist
 - Validates that critical pages (Best-Practices, Development-Tooling) are present
 - Validates that Home.md contains expected navigation links
+
+Note: WIKI_STRUCTURE source file validation is handled by sync-wiki.py.
 """
 
 from __future__ import annotations
