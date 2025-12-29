@@ -19,6 +19,8 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
+from link_utils import MAX_DISPLAY_LINE_LENGTH
+
 
 def find_code_blocks_with_links(content: str) -> list[tuple[int, int, str]]:
     """Find code blocks WITHOUT language specifiers that contain markdown links.
@@ -73,8 +75,8 @@ def fix_code_blocks(content: str, verbose: bool = False) -> tuple[str, int]:
         if verbose:
             # Show first line of block for context
             first_line = block_content.strip().split("\n")[0]
-            if len(first_line) > 60:
-                first_line = first_line[:60] + "..."
+            if len(first_line) > MAX_DISPLAY_LINE_LENGTH:
+                first_line = first_line[:MAX_DISPLAY_LINE_LENGTH] + "..."
             print(f"  Fixing code block: {first_line}")
 
         result = result[:start] + fixed_block + result[end:]

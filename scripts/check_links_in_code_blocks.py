@@ -16,7 +16,12 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 # Import shared link utilities for consistent code block detection
-from link_utils import find_code_fence_ranges, in_ranges
+from link_utils import (
+    MAX_LINK_TEXT_LENGTH,
+    MAX_URL_LENGTH,
+    find_code_fence_ranges,
+    in_ranges,
+)
 
 
 def truncate_with_ellipsis(text: str, max_len: int) -> str:
@@ -46,8 +51,8 @@ def check_file(file_path: Path, verbose: bool = False) -> list[str]:
     for match in link_pattern.finditer(content):
         if in_ranges(match.start(), code_ranges):
             line_num = content[: match.start()].count("\n") + 1
-            link_text = truncate_with_ellipsis(match.group(1), 40)
-            url = truncate_with_ellipsis(match.group(2), 50)
+            link_text = truncate_with_ellipsis(match.group(1), MAX_LINK_TEXT_LENGTH)
+            url = truncate_with_ellipsis(match.group(2), MAX_URL_LENGTH)
 
             warnings.append(
                 f"{file_path}:{line_num}: Link in code block won't be clickable: "

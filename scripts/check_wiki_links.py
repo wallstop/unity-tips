@@ -6,10 +6,10 @@ directory point to existing wiki pages, and that no markdown-style links
 remain outside of code blocks.
 
 Additional validations:
-- Validates sidebar references only existing pages
-- Validates all WIKI_STRUCTURE source files exist
-- Validates critical pages (Best-Practices, Development-Tooling) are present
-- Validates Home.md contains expected navigation links
+- Validates that sidebar references only existing pages
+- Validates that all WIKI_STRUCTURE source files exist
+- Validates that critical pages (Best-Practices, Development-Tooling) are present
+- Validates that Home.md contains expected navigation links
 """
 
 from __future__ import annotations
@@ -21,7 +21,13 @@ from pathlib import Path
 from typing import Set, Tuple, List
 
 # Import shared link utilities
-from link_utils import find_code_fence_ranges, find_inline_code_ranges, in_ranges
+from link_utils import (
+    CRITICAL_PAGES,
+    MIN_PAGE_CONTENT_LENGTH,
+    find_code_fence_ranges,
+    find_inline_code_ranges,
+    in_ranges,
+)
 
 WIKI_DIR = Path("wiki")
 DOCS_DIR = Path("docs")
@@ -38,14 +44,6 @@ def format_message(severity: Severity, message: str) -> str:
     """Format a validation message with consistent severity prefix."""
     return f"{severity.value}: {message}"
 
-
-# Critical wiki pages that MUST exist (these have historically caused issues)
-CRITICAL_PAGES = [
-    "Best-Practices",
-    "Development-Tooling",
-    "Home",
-    "_Sidebar",
-]
 
 # Required navigation links in Home.md (page_name, display_text_contains)
 # Note: Links must use the format [[PageName|Display Text]] with explicit display text.
@@ -156,12 +154,12 @@ def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
                         f"Page '{page_name}.md' exists but is empty",
                     )
                 )
-            elif len(content) < 100:
+            elif len(content) < MIN_PAGE_CONTENT_LENGTH:
                 errors.append(
                     format_message(
                         Severity.WARNING,
                         f"Page '{page_name}.md' has very little content "
-                        f"({len(content)} chars)",
+                        f"({len(content)} chars, minimum {MIN_PAGE_CONTENT_LENGTH})",
                     )
                 )
     return errors

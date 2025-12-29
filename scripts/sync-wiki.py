@@ -16,6 +16,7 @@ from pathlib import Path, PurePosixPath
 
 # Import shared link utilities for proper code block handling
 from link_utils import (
+    CRITICAL_PAGES,
     extract_links,
     find_code_fence_ranges,
     find_inline_code_ranges,
@@ -25,9 +26,6 @@ from link_utils import (
 
 DOCS_DIR = Path("docs")
 WIKI_DIR = Path("wiki")
-
-# Critical pages that MUST be generated (these have historically caused issues)
-CRITICAL_PAGES = ["Best-Practices", "Development-Tooling", "Home", "_Sidebar"]
 
 # Mapping of source paths to wiki page names (always use forward slashes)
 WIKI_STRUCTURE = {
