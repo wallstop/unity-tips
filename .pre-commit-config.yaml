@@ -60,6 +60,13 @@ repos:
         language: python
         types: [markdown]
         additional_dependencies: ["pyyaml>=6.0"]
+      - id: validate-wiki-links
+        name: Sync and validate wiki links
+        entry: scripts/validate_wiki_links.py
+        language: python
+        types: [markdown]
+        pass_filenames: false
+        always_run: true
       - id: check-csharp-syntax
         name: Validate C# code blocks
         entry: scripts/check_csharp_syntax.py
