@@ -1,1 +1,4 @@
 scripts/__pycache__/*
+
+# Generated wiki directory (synced to separate wiki repo by CI)
+wiki/
