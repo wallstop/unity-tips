@@ -267,8 +267,7 @@ class CSharpFormatter:
             return True
 
         first_line = lines[0]
-        shell_prefixes = ["dotnet ", "git ", "mkdir ", "cat ", "pip ", "npm "]
-        if any(first_line.startswith(p) for p in shell_prefixes):
+        if any(first_line.startswith(p) for p in self.SHELL_PREFIXES):
             return True
 
         # Skip very short code blocks (usually fragments)
@@ -276,6 +275,18 @@ class CSharpFormatter:
             return True
 
         return False
+
+    # Shell commands that should not be formatted
+    SHELL_PREFIXES = (
+        "git ",
+        "dotnet ",
+        "npm ",
+        "mkdir ",
+        "cat ",
+        "pip ",
+        "cd ",
+        "ls ",
+    )
 
     def _format_line(self, line: str) -> str:
         """Format a single line of C# code."""
@@ -295,19 +306,33 @@ class CSharpFormatter:
         ):
             return line
 
+        # Skip shell command lines
+        if any(content.startswith(prefix) for prefix in self.SHELL_PREFIXES):
+            return line
+
+        # Split into code and comment parts BEFORE formatting
+        # This prevents operator formatting from modifying comments
+        code_part, comment_part = self._split_code_and_comment(content)
+
         # Mask string literals before formatting
         self.masker = StringLiteralMasker()
-        masked_content = self.masker.mask(content)
+        masked_code = self.masker.mask(code_part)
 
-        # Apply formatting transformations on masked content
-        masked_content = self._format_keywords_in_line(masked_content)
-        masked_content = self._format_operators_in_line(masked_content)
-        masked_content = self._format_commas_in_line(masked_content)
-        masked_content = self._format_inheritance_colon(masked_content)
-        masked_content = self._remove_space_before_semicolon(masked_content)
+        # Apply formatting transformations on masked code (not comments)
+        masked_code = self._format_keywords_in_line(masked_code)
+        masked_code = self._format_operators_in_line(masked_code)
+        masked_code = self._format_commas_in_line(masked_code)
+        masked_code = self._format_inheritance_colon(masked_code)
+        masked_code = self._remove_space_before_semicolon(masked_code)
 
         # Restore string literals
-        content = self.masker.unmask(masked_content)
+        code_part = self.masker.unmask(masked_code)
+
+        # Rejoin code and comment
+        if comment_part:
+            content = code_part + comment_part
+        else:
+            content = code_part
 
         return indent_str + content
 
@@ -351,14 +376,16 @@ class CSharpFormatter:
             # This handles both `x=5` and `s="hello"` (masked as `s=\x00STR0\x00`)
             content = re.sub(r"(\w)=([^\s=])", r"\1 = \2", content)
 
-        # Handle binary arithmetic operators (+, -, *, /)
+        # Handle binary arithmetic operators (+, -)
         # Only when surrounded by word characters to avoid unary operators
         # e.g., "a+b" -> "a + b" but "-5" stays as "-5"
         content = re.sub(r"(\w)\+(\w)", r"\1 + \2", content)
-        content = re.sub(r"(\w)-(\w)", r"\1 - \2", content)
+        # Only format - when between lowercase identifiers (avoid "Read-only" etc.)
+        content = re.sub(r"([a-z0-9])-([a-z])", r"\1 - \2", content)
+        # * and % are safe - they're not used in paths/identifiers
         content = re.sub(r"(\w)\*(\w)", r"\1 * \2", content)
-        content = re.sub(r"(\w)/(\w)", r"\1 / \2", content)
         content = re.sub(r"(\w)%(\w)", r"\1 % \2", content)
+        # Don't format / - too ambiguous (paths: Keyboard/W, Packages/NuGet)
 
         return content
 
@@ -374,8 +401,11 @@ class CSharpFormatter:
         """Split a line into code and comment parts.
 
         Returns (code_part, comment_part) where comment_part includes the //.
+
+        Note: This is called before string masking. If "//" appears inside a string
+        (e.g., "https://"), the split may be imperfect, but string masking will
+        still handle the partial string correctly, and the result reconstructs properly.
         """
-        # Find // that's not inside a string (strings are already masked)
         idx = content.find("//")
         if idx == -1:
             return content, ""
@@ -389,27 +419,25 @@ class CSharpFormatter:
         - Ternary operators (a ? b : c)
         - Dictionary initializers (["key"]: value)
         - Generic constraints (where T : class)
-        - Comments (// Step 1: Do something)
-        """
-        # Split into code and comment parts - don't format comments
-        code_part, comment_part = self._split_code_and_comment(content)
 
+        Note: Comments are already split out before this method is called.
+        """
         # Only format if line contains a type declaration keyword
         # Match patterns like: class Foo:Bar, class Foo<T>:Bar<T>, struct Foo:IFoo
         if re.match(
             r"^\s*(public\s+|private\s+|internal\s+|protected\s+|abstract\s+|"
             r"sealed\s+|static\s+|partial\s+|readonly\s+)*"
             r"(class|interface|struct|record)\s+\w+",
-            code_part,
+            content,
         ):
             # Match TypeName:BaseType or TypeName<T>:BaseType<T> pattern
             # Handle generic types in both the class name and base type
-            code_part = re.sub(
+            content = re.sub(
                 r"(\w+(?:<[^>]+>)?)\s*:\s*(\w+)",
                 r"\1 : \2",
-                code_part,
+                content,
             )
-        return code_part + comment_part
+        return content
 
     def _remove_space_before_semicolon(self, content: str) -> str:
         """Remove space before semicolon."""

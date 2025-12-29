@@ -169,7 +169,7 @@ public class EnemyManager : MonoBehaviour
 public class EnemyManager : MonoBehaviour
 {
     public List<Enemy> enemies = new List<Enemy>();
-    private List<Enemy> _aliveEnemies = new List<Enemy>(100);  // Pre - allocate
+    private List<Enemy> _aliveEnemies = new List<Enemy>(100);  // Pre-allocate
     private List<Enemy> _nearbyEnemies = new List<Enemy>(100);
 
     void Update()
@@ -413,7 +413,7 @@ void Update()
 // ❌ Don't concatenate strings in hot paths
 void Update()
 {
-    text.text = "Score: " + score;  // 60 allocations / second!
+    text.text = "Score: " + score;  // 60 allocations/second!
 }
 
 // ❌ Don't call GetComponent every frame
@@ -652,7 +652,7 @@ void ShowDamage(int amount, Vector3 position)
 ```csharp
 // AFTER: Object pool + cached strings
 private ObjectPool<DamageText> _damagePool;
-private readonly string[] _cachedNumbers = new string[1000];  // Cache 0 - 999
+private readonly string[] _cachedNumbers = new string[1000];  // Cache 0-999
 
 void Awake()
 {

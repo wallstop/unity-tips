@@ -479,7 +479,7 @@ myFeedback.Resume();                   // Resume
 
 // Properties
 myFeedback.IsPlaying                   // Check if playing
-myFeedback.FeedbacksIntensity = 0.5f;  // Set global intensity (0 - 1)
+myFeedback.FeedbacksIntensity = 0.5f;  // Set global intensity (0-1)
 
 // Events (hook into feedback lifecycle)
 myFeedback.Events.OnPlay.AddListener(() => Debug.Log("Started!"));

@@ -361,9 +361,9 @@ public class GameState
 [CreateAssetMenu]
 public class EnemyState : ScriptableObject
 {
-    public Vector3 position;      // Bad! Position is per - instance
-    public int currentHealth;     // Bad! Health is per - instance
-    public Transform target;      // Bad! Target is per - instance
+    public Vector3 position;      // Bad! Position is per-instance
+    public int currentHealth;     // Bad! Health is per-instance
+    public Transform target;      // Bad! Target is per-instance
 }
 
 // ✓ DO - Use regular class for instance data

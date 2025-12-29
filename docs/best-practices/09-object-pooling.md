@@ -631,7 +631,7 @@ private void Awake()
         actionOnRelease: OnReleaseBullet,
         actionOnDestroy: OnDestroyBullet,
         collectionCheck: true,
-        defaultCapacity: 50  // Pre - creates 50 bullets at initialization
+        defaultCapacity: 50  // Pre-creates 50 bullets at initialization
     );
 }
 ```

@@ -72,7 +72,7 @@ public static class GameEvents
 // ❌ Problem 4: UnityEvent Boilerplate
 public class Door : MonoBehaviour
 {
-    public UnityEvent onOpen;  // Not type - safe
+    public UnityEvent onOpen;  // Not type-safe
     public UnityEvent onClose; // Lots of inspector wiring
     public UnityEvent onLock;  // Gets messy fast
 }

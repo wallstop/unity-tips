@@ -363,7 +363,7 @@ Sequence squashSequence = Sequence.Create()
 // Use in main sequence
 Sequence.Create()
     .Chain(Tween.Position(transform, dropPoint, 1f))
-    .Chain(squashSequence);  // Insert entire sub - sequence
+    .Chain(squashSequence);  // Insert entire sub-sequence
 ```
 
 ### Loops & Yoyo
@@ -391,7 +391,7 @@ void DropItem(Vector3 dropPosition)
             startValue: transform.position.y,
             endValue: dropPosition.y,
             duration: 1f,
-            ease: Ease.InQuad,  // Gravity - like fall
+            ease: Ease.InQuad,  // Gravity-like fall
             onValueChange: y => {
                 Vector3 pos = transform.position;
                 pos.y = y;
@@ -478,7 +478,7 @@ Quick rotation shake.
 // Damage wobble
 Tween.PunchRotation(
     transform,
-    strength: new Vector3(0, 0, 15),  // Z - axis wobble
+    strength: new Vector3(0, 0, 15),  // Z-axis wobble
     duration: 0.4f
 );
 ```
@@ -530,7 +530,7 @@ float elapsed = myTween.elapsedTime;      // Seconds elapsed
 float remaining = myTween.duration - myTween.elapsedTime;
 
 // Writable properties
-myTween.isPaused = true;                  // Pause / resume
+myTween.isPaused = true;                  // Pause/resume
 myTween.timeScale = 0.5f;                 // Slow motion (0.5x speed)
 ```
 

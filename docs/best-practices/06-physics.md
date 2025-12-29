@@ -274,9 +274,9 @@ Unity provides different `ForceMode` options for different physics scenarios:
 public enum ForceMode
 {
     Force,          // Continuous force (scaled by mass and time)
-    Acceleration,   // Continuous acceleration (mass - independent)
-    Impulse,        // Instant force (one - time push)
-    VelocityChange  // Instant velocity (mass - independent, one - time)
+    Acceleration,   // Continuous acceleration (mass-independent)
+    Impulse,        // Instant force (one-time push)
+    VelocityChange  // Instant velocity (mass-independent, one-time)
 }
 ```
 
