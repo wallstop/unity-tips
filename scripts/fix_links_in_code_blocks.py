@@ -33,11 +33,12 @@ def find_code_blocks_with_links(content: str) -> list[tuple[int, int, str]]:
         List of (start, end, block_content) tuples for blocks that need fixing.
     """
     # Pattern for code blocks WITHOUT language specifier only
-    # Matches: ``` followed by optional whitespace, then newline, content, closing ```
-    # Does NOT match ```python, ```csharp, etc.
+    # Matches: ``` followed by optional spaces/tabs, then exactly one newline, content,
+    # and closing ```. Does NOT match ```python, ```csharp, etc.
+    # Uses [ \t]* instead of \s* to avoid matching across multiple lines.
     # Note: Uses custom regex instead of shared find_code_fence_ranges() because
     # we specifically need to identify blocks WITHOUT language specifiers.
-    pattern = re.compile(r"^```\s*\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)
+    pattern = re.compile(r"^```[ \t]*\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL)
 
     # Pattern for markdown links with HTTP URLs
     link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^)]+)\)")

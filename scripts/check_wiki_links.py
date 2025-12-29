@@ -30,7 +30,6 @@ from link_utils import (
 )
 
 WIKI_DIR = Path("wiki")
-DOCS_DIR = Path("docs")
 
 
 class Severity(Enum):
@@ -184,7 +183,8 @@ def validate_home_links(wiki_pages: Set[str]) -> List[str]:
     for page_name, expected_display_text in REQUIRED_HOME_LINKS:
         # Check if there's a link to this page
         # Pattern matches [[PageName|text]] or [[PageName#anchor|text]]
-        # [^|\]] matches any char except pipe or closing bracket
+        # Note: Inside a character class [], the pipe | is literal (not OR operator),
+        # so [^|\]] matches any char except pipe or closing bracket.
         pattern = rf"\[\[{re.escape(page_name)}(?:#[^|\]]*)?\|([^\]]*)\]\]"
         matches = re.findall(pattern, content)
 
@@ -286,7 +286,11 @@ def validate_wiki(verbose: bool = False) -> int:
         try:
             content = md_file.read_text(encoding="utf-8")
         except OSError as e:
-            errors.append(f"{md_file.name}: Failed to read file: {e}")
+            errors.append(
+                format_message(
+                    Severity.CRITICAL, f"{md_file.name}: Failed to read file: {e}"
+                )
+            )
             continue
 
         # Check wiki links
@@ -296,15 +300,21 @@ def validate_wiki(verbose: bool = False) -> int:
         for page_name, anchor, line_num in wiki_links:
             if page_name not in wiki_pages:
                 errors.append(
-                    f"{md_file.name}:{line_num}: Broken link to non-existent page "
-                    f"'[[{page_name}]]'"
+                    format_message(
+                        Severity.CRITICAL,
+                        f"{md_file.name}:{line_num}: Broken link to non-existent page "
+                        f"'[[{page_name}]]'",
+                    )
                 )
 
         # Check for unconverted markdown links
         unconverted = find_unconverted_links(content, md_file)
         for href, line_num in unconverted:
             warnings.append(
-                f"{md_file.name}:{line_num}: Unconverted markdown link: [{href}]"
+                format_message(
+                    Severity.WARNING,
+                    f"{md_file.name}:{line_num}: Unconverted markdown link: [{href}]",
+                )
             )
 
     # Report results
