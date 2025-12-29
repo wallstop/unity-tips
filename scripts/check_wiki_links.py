@@ -48,6 +48,8 @@ CRITICAL_PAGES = [
 ]
 
 # Required navigation links in Home.md (page_name, display_text_contains)
+# Note: Links must use the format [[PageName|Display Text]] with explicit display text.
+# Links without display text like [[PageName]] won't match and will be flagged as missing.
 REQUIRED_HOME_LINKS = [
     ("Best-Practices", "Best Practices"),
     ("Development-Tooling", "Development Tooling"),
@@ -135,25 +137,33 @@ def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
                 )
             )
         else:
-            # Verify the file has content
+            # Verify the file has content (page exists since it's in wiki_pages)
             page_path = WIKI_DIR / f"{page_name}.md"
-            if page_path.exists():
+            try:
                 content = page_path.read_text(encoding="utf-8").strip()
-                if not content:
-                    errors.append(
-                        format_message(
-                            Severity.CRITICAL,
-                            f"Page '{page_name}.md' exists but is empty",
-                        )
+            except OSError as e:
+                errors.append(
+                    format_message(
+                        Severity.CRITICAL,
+                        f"Failed to read '{page_name}.md': {e}",
                     )
-                elif len(content) < 100:
-                    errors.append(
-                        format_message(
-                            Severity.WARNING,
-                            f"Page '{page_name}.md' has very little content "
-                            f"({len(content)} chars)",
-                        )
+                )
+                continue
+            if not content:
+                errors.append(
+                    format_message(
+                        Severity.CRITICAL,
+                        f"Page '{page_name}.md' exists but is empty",
                     )
+                )
+            elif len(content) < 100:
+                errors.append(
+                    format_message(
+                        Severity.WARNING,
+                        f"Page '{page_name}.md' has very little content "
+                        f"({len(content)} chars)",
+                    )
+                )
     return errors
 
 
@@ -168,11 +178,16 @@ def validate_home_links(wiki_pages: Set[str]) -> List[str]:
     if not home_path.exists():
         return [format_message(Severity.CRITICAL, "Home.md does not exist")]
 
-    content = home_path.read_text(encoding="utf-8")
+    try:
+        content = home_path.read_text(encoding="utf-8")
+    except OSError as e:
+        return [format_message(Severity.CRITICAL, f"Failed to read Home.md: {e}")]
 
     for page_name, expected_display_text in REQUIRED_HOME_LINKS:
         # Check if there's a link to this page
-        pattern = rf"\[\[{re.escape(page_name)}(?:#[^\]|]*)?\|([^\]]*)\]\]"
+        # Pattern matches [[PageName|text]] or [[PageName#anchor|text]]
+        # [^|\]] matches any char except pipe or closing bracket
+        pattern = rf"\[\[{re.escape(page_name)}(?:#[^|\]]*)?\|([^\]]*)\]\]"
         matches = re.findall(pattern, content)
 
         if not matches:
@@ -217,7 +232,10 @@ def validate_sidebar_links(wiki_pages: Set[str]) -> List[str]:
     if not sidebar_path.exists():
         return [format_message(Severity.CRITICAL, "_Sidebar.md does not exist")]
 
-    content = sidebar_path.read_text(encoding="utf-8")
+    try:
+        content = sidebar_path.read_text(encoding="utf-8")
+    except OSError as e:
+        return [format_message(Severity.CRITICAL, f"Failed to read _Sidebar.md: {e}")]
     wiki_links = extract_wiki_links(content)
 
     for page_name, anchor, line_num in wiki_links:
@@ -267,7 +285,11 @@ def validate_wiki(verbose: bool = False) -> int:
 
     # Phase 4: Validate all wiki links in all files
     for md_file in sorted(WIKI_DIR.glob("*.md")):
-        content = md_file.read_text(encoding="utf-8")
+        try:
+            content = md_file.read_text(encoding="utf-8")
+        except OSError as e:
+            errors.append(f"{md_file.name}: Failed to read file: {e}")
+            continue
 
         # Check wiki links
         wiki_links = extract_wiki_links(content)

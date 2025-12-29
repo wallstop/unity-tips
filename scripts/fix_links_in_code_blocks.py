@@ -21,15 +21,21 @@ from typing import Optional, Sequence
 
 
 def find_code_blocks_with_links(content: str) -> list[tuple[int, int, str]]:
-    """Find code blocks that contain markdown links to HTTP URLs.
+    """Find code blocks WITHOUT language specifiers that contain markdown links.
+
+    Only matches code blocks that start with ``` followed by optional whitespace
+    and a newline (no language identifier). Blocks with language specifiers like
+    ```python or ```csharp are intentional code samples and are skipped.
 
     Returns:
         List of (start, end, block_content) tuples for blocks that need fixing.
     """
-    # Pattern for code blocks without language specifier
-    # Matches: ``` with any content before newline, followed by content and closing ```
-    # Uses [^\n]* to handle optional whitespace/language specifiers on the opening fence
-    pattern = re.compile(r"```[^\n]*\n(.*?)```", re.DOTALL)
+    # Pattern for code blocks WITHOUT language specifier only
+    # Matches: ``` followed by optional whitespace, then newline, content, closing ```
+    # Does NOT match ```python, ```csharp, etc.
+    # Note: Uses custom regex instead of shared find_code_fence_ranges() because
+    # we specifically need to identify blocks WITHOUT language specifiers.
+    pattern = re.compile(r"^```\s*\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)
 
     # Pattern for markdown links with HTTP URLs
     link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^)]+)\)")
@@ -66,8 +72,10 @@ def fix_code_blocks(content: str, verbose: bool = False) -> tuple[str, int]:
 
         if verbose:
             # Show first line of block for context
-            first_line = block_content.strip().split("\n")[0][:60]
-            print(f"  Fixing code block: {first_line}...")
+            first_line = block_content.strip().split("\n")[0]
+            if len(first_line) > 60:
+                first_line = first_line[:60] + "..."
+            print(f"  Fixing code block: {first_line}")
 
         result = result[:start] + fixed_block + result[end:]
         fixes += 1

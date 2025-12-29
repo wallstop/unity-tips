@@ -4,8 +4,8 @@
 When markdown links like [text](https://...) are inside code fences (```...```),
 they are rendered as plain text instead of clickable HTML links.
 
-This script identifies such issues and warns about them, as they may be
-intentional (showing example syntax) or errors (should be clickable links).
+This script identifies such issues and warns about them. All links inside code
+blocks are flagged, as they will not be clickable in the rendered output.
 """
 
 from __future__ import annotations
@@ -15,43 +15,15 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
-
-def find_code_block_ranges(content: str) -> list[tuple[int, int]]:
-    """Find the character ranges of all code blocks.
-
-    Returns:
-        List of (start, end) tuples for each code block.
-        If a code block is unclosed, the range extends to end of content.
-    """
-    ranges = []
-    # Match opening/closing ``` with optional language specifier
-    # Supports: lowercase (python), uppercase (Python), mixed (C#), special chars (c++, f#)
-    pattern = re.compile(r"^```[a-zA-Z0-9#+-]*\s*$", re.MULTILINE)
-
-    in_block = False
-    block_start = 0
-
-    for match in pattern.finditer(content):
-        if not in_block:
-            block_start = match.start()
-            in_block = True
-        else:
-            ranges.append((block_start, match.end()))
-            in_block = False
-
-    # Handle unclosed code block - treat rest of file as code
-    if in_block:
-        ranges.append((block_start, len(content)))
-
-    return ranges
+# Import shared link utilities for consistent code block detection
+from link_utils import find_code_fence_ranges, in_ranges
 
 
-def in_code_block(pos: int, ranges: list[tuple[int, int]]) -> bool:
-    """Check if a position is inside any code block range."""
-    for start, end in ranges:
-        if start <= pos < end:
-            return True
-    return False
+def truncate_with_ellipsis(text: str, max_len: int) -> str:
+    """Truncate text and add ellipsis only if it exceeds max_len."""
+    if len(text) > max_len:
+        return text[:max_len] + "..."
+    return text
 
 
 def check_file(file_path: Path, verbose: bool = False) -> list[str]:
@@ -66,22 +38,20 @@ def check_file(file_path: Path, verbose: bool = False) -> list[str]:
         return [f"Error reading {file_path}: {e}"]
 
     warnings = []
-    code_ranges = find_code_block_ranges(content)
+    code_ranges = find_code_fence_ranges(content)
 
-    # Find all markdown links with HTTP URLs
+    # Find markdown links with HTTP URLs
     link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^)]+)\)")
 
     for match in link_pattern.finditer(content):
-        if in_code_block(match.start(), code_ranges):
+        if in_ranges(match.start(), code_ranges):
             line_num = content[: match.start()].count("\n") + 1
-            link_text = match.group(1)[:40]
-            url = match.group(2)[:50]
+            link_text = truncate_with_ellipsis(match.group(1), 40)
+            url = truncate_with_ellipsis(match.group(2), 50)
 
-            # Only warn about links that look like they should be clickable
-            # (not code examples showing syntax)
             warnings.append(
                 f"{file_path}:{line_num}: Link in code block won't be clickable: "
-                f"[{link_text}...]({url}...)"
+                f"[{link_text}]({url})"
             )
 
     return warnings
