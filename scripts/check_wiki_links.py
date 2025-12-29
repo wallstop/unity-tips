@@ -57,6 +57,9 @@ REQUIRED_HOME_LINKS = [
 def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
     """Extract wiki-style links from content, skipping code blocks.
 
+    GitHub Wiki link format is [[DisplayText|PageName]] or [[PageName]].
+    Note: This is opposite of MediaWiki's [[PageName|DisplayText]] format.
+
     Returns:
         List of (page_name, anchor, line_number) tuples.
         anchor is empty string if no anchor present.
@@ -67,17 +70,36 @@ def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
     skip_ranges = code_ranges + inline_code_ranges
 
     links = []
-    # Match [[PageName|text]] or [[PageName#anchor|text]] or [[PageName]]
-    pattern = re.compile(r"\[\[([^\]|#]+)(#[^\]|]*)?\|?[^\]]*\]\]")
+    # Match [[...]] content
+    pattern = re.compile(r"\[\[([^\]]+)\]\]")
 
     for match in pattern.finditer(content):
         if in_ranges(match.start(), skip_ranges):
             continue
-        page_name = match.group(1).strip()
-        anchor = match.group(2) or ""
-        # Calculate line number
+
+        inner = match.group(1).strip()
         line_num = content[: match.start()].count("\n") + 1
-        links.append((page_name, anchor, line_num))
+
+        # Parse the inner content
+        # Format: [[DisplayText|PageName#anchor]] or [[PageName#anchor]] or [[PageName]]
+        # Note: DisplayText may contain | characters, so split on the LAST pipe
+        if "|" in inner:
+            # Has display text: [[DisplayText|PageName#anchor]]
+            # rsplit with maxsplit=1 splits from the right
+            _, page_part = inner.rsplit("|", 1)
+        else:
+            # No display text: [[PageName#anchor]]
+            page_part = inner
+
+        # Extract anchor if present
+        if "#" in page_part:
+            page_name, anchor = page_part.split("#", 1)
+            anchor = "#" + anchor
+        else:
+            page_name = page_part
+            anchor = ""
+
+        links.append((page_name.strip(), anchor, line_num))
 
     return links
 
@@ -168,6 +190,9 @@ def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
 def validate_home_links(wiki_pages: Set[str]) -> List[str]:
     """Validate that Home.md contains required navigation links.
 
+    GitHub Wiki link format is [[DisplayText|PageName]] or [[PageName]].
+    Note: This is opposite of MediaWiki's [[PageName|DisplayText]] format.
+
     Returns:
         List of error messages for missing required links.
     """
@@ -183,10 +208,9 @@ def validate_home_links(wiki_pages: Set[str]) -> List[str]:
 
     for page_name, expected_display_text in REQUIRED_HOME_LINKS:
         # Check if there's a link to this page
-        # Pattern matches [[PageName|text]] or [[PageName#anchor|text]]
-        # Note: Inside a character class [], the pipe | is literal (not OR operator),
-        # so [^|\]] matches any char except pipe or closing bracket.
-        pattern = rf"\[\[{re.escape(page_name)}(?:#[^|\]]*)?\|([^\]]*)\]\]"
+        # GitHub Wiki format: [[DisplayText|PageName]] or [[DisplayText|PageName#anchor]]
+        # We look for the page name after the pipe
+        pattern = rf"\[\[([^\]|]+)\|{re.escape(page_name)}(?:#[^\]]+)?\]\]"
         matches = re.findall(pattern, content)
 
         if not matches:
