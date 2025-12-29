@@ -17,6 +17,7 @@ import re
 import sys
 from pathlib import Path
 from typing import Optional, Sequence
+from urllib.parse import unquote
 
 from link_utils import extract_links
 
@@ -28,6 +29,7 @@ def transform_links(content: str) -> str:
     handles escaped brackets, nested brackets, and other edge cases.
     """
     # Pattern to detect docs/ prefix in hrefs
+    # Matches: ./docs/path or docs/path (with optional ./ prefix)
     docs_prefix_pattern = re.compile(r"^(\./)?docs/(.+)$")
 
     # Extract all links using the robust link_utils parser
@@ -39,14 +41,23 @@ def transform_links(content: str) -> str:
         if link.kind != "inline":
             continue
 
-        match = docs_prefix_pattern.match(link.href)
+        # URL-decode href for pattern matching (handles %20, etc.)
+        href_decoded = unquote(link.href)
+        match = docs_prefix_pattern.match(href_decoded)
         if not match:
             continue
 
-        # Transform the href by removing the docs/ prefix
-        dot_slash = match.group(1) or ""
-        path = match.group(2)
-        new_href = f"{dot_slash}{path}"
+        # Transform the ORIGINAL href by removing the docs/ prefix
+        # This preserves URL encoding in the path portion
+        # The original href has the same structure: optional "./" + "docs/" + path
+        original_href = link.href
+        if original_href.startswith("./docs/"):
+            new_href = "./" + original_href[7:]  # Remove "./docs/" keep "./"
+        elif original_href.startswith("docs/"):
+            new_href = original_href[5:]  # Remove "docs/"
+        else:
+            # Shouldn't happen if pattern matched, but handle gracefully
+            continue
 
         # Reconstruct the link with the new href
         # Original segment format: [text](href) or [text]( href "title" )

@@ -12,6 +12,7 @@ name: Sync Documentation to Wiki
       - ".github/workflows/wiki.yml"
       - "scripts/sync-wiki.py"
       - "scripts/link_utils.py"
+      - "scripts/check_wiki_links.py"
   workflow_dispatch:
 
 permissions:
@@ -91,6 +92,11 @@ jobs:
         env:
           PYTHONPATH: scripts
         run: python scripts/sync-wiki.py
+
+      - name: Validate wiki links
+        env:
+          PYTHONPATH: scripts
+        run: python scripts/check_wiki_links.py
 
       - name: Push changes to wiki
         env:

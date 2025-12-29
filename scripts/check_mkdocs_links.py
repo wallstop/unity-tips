@@ -15,6 +15,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, List, Optional, Sequence, Set
+from urllib.parse import unquote
 
 import yaml
 
@@ -201,6 +202,9 @@ def check_github_pages_compatibility(
     if href.startswith(("http://", "https://", "mailto:", "tel:", "#")):
         return None
 
+    # URL-decode for proper pattern matching
+    href_decoded = unquote(href)
+
     # Files that are transformed during build have their docs/ prefix fixed
     if transformed_files is None:
         transformed_files = {"README.md", "CHANGELOG.md"}
@@ -212,9 +216,10 @@ def check_github_pages_compatibility(
     # Check for docs/ prefix in links (breaks on GitHub Pages)
     # This applies to files that will be copied to site-docs
     if is_in_docs:
-        # Check for ./docs/ or docs/ prefix
-        docs_prefix_pattern = r"^\.?/?docs/"
-        if re.match(docs_prefix_pattern, href):
+        # Check for ./docs/ or docs/ prefix (but not .docs/ or /docs/)
+        # Pattern: optional "./" followed by "docs/"
+        docs_prefix_pattern = r"^(?:\./)?docs/"
+        if re.match(docs_prefix_pattern, href_decoded):
             return ValidationIssue(
                 file_path=file_path,
                 line=link.line,
@@ -241,8 +246,11 @@ def check_mkdocs_link_format(
     if href.startswith(("http://", "https://", "mailto:", "tel:", "#")):
         return None
 
+    # URL-decode for proper checking
+    href_decoded = unquote(href)
+
     # Warn about absolute paths starting with / (may not work as expected)
-    if href.startswith("/") and not href.startswith("//"):
+    if href_decoded.startswith("/") and not href_decoded.startswith("//"):
         return ValidationIssue(
             file_path=file_path,
             line=link.line,

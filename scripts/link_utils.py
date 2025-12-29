@@ -278,7 +278,16 @@ def overlaps_any(start: int, end: int, ranges: Iterable[Tuple[int, int]]) -> boo
 
 
 def split_anchor(href: str) -> Tuple[str, str | None]:
+    """Split a URL into path and anchor parts, URL-decoding both.
+
+    Args:
+        href: The URL/path to split (e.g., "path/to/file.md#section")
+
+    Returns:
+        Tuple of (path, anchor) where anchor is None if not present.
+        Both path and anchor are URL-decoded.
+    """
     if "#" not in href:
-        return href, None
+        return unquote(href), None
     path, anchor = href.split("#", 1)
-    return path, unquote(anchor)
+    return unquote(path), unquote(anchor)
