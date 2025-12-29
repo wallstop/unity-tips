@@ -12,15 +12,15 @@ issues in production builds, Graphy makes performance visible.
 
 ## 🚀 Quick Start (30 Seconds)
 
-```
-1. Install Graphy from [Unity Asset Store](https://assetstore.unity.com/packages/tools/gui/graphy-ultimate-fps-counter-stats-monitor-debugger-105778) (FREE)
+1. Install Graphy from
+   [Unity Asset Store](https://assetstore.unity.com/packages/tools/gui/graphy-ultimate-fps-counter-stats-monitor-debugger-105778)
+   (FREE)
 2. Add to scene: GameObject → Graphy → Graphy (Complete)
 3. Enter Play Mode
 4. See real-time stats:
-   ✅ FPS (graph + text)
-   ✅ Memory usage (graph + text)
-   ✅ Audio (graph + text)
-```
+   - ✅ FPS (graph + text)
+   - ✅ Memory usage (graph + text)
+   - ✅ Audio (graph + text)
 
 **That's it.** Graphy works out-of-the-box with sensible defaults.
 
@@ -182,29 +182,32 @@ a problem.
 
 ### Basic Usage: Add Graphy to Your Scene
 
-```
-Step 1: Install Graphy
-   [Unity Asset Store](https://assetstore.unity.com/packages/tools/gui/graphy-ultimate-fps-counter-stats-monitor-debugger-105778) → Search "Graphy"
-   → Download (FREE)
-   → Import into project
+**Step 1: Install Graphy**
 
-Step 2: Add to scene
-   Method A: GameObject → Graphy → Graphy (Complete)
-   Method B: Drag "Graphy" prefab from Project into scene
+- [Unity Asset Store](https://assetstore.unity.com/packages/tools/gui/graphy-ultimate-fps-counter-stats-monitor-debugger-105778)
+  → Search "Graphy"
+- Download (FREE)
+- Import into project
 
-Step 3: Configure (optional)
-   - Select Graphy GameObject in Hierarchy
-   - Inspector shows Graphy Manager
-   - Adjust settings (or use defaults)
+**Step 2: Add to scene**
 
-Step 4: Enter Play Mode
-   - FPS graph appears in corner
-   - Memory graph below it
-   - Audio graph below that
-   - Advanced device info at bottom (optional)
+- Method A: GameObject → Graphy → Graphy (Complete)
+- Method B: Drag "Graphy" prefab from Project into scene
 
-Step 5: Test your game with full visibility
-```
+**Step 3: Configure (optional)**
+
+- Select Graphy GameObject in Hierarchy
+- Inspector shows Graphy Manager
+- Adjust settings (or use defaults)
+
+**Step 4: Enter Play Mode**
+
+- FPS graph appears in corner
+- Memory graph below it
+- Audio graph below that
+- Advanced device info at bottom (optional)
+
+**Step 5: Test your game with full visibility**
 
 ### Basic Usage: Customizing the Display
 

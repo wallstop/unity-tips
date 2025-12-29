@@ -8,6 +8,25 @@ from dataclasses import dataclass
 from typing import Iterable, List, Sequence, Tuple
 from urllib.parse import unquote
 
+# =============================================================================
+# Shared Constants
+# =============================================================================
+
+# Critical wiki pages that MUST exist (these have historically caused issues)
+CRITICAL_PAGES = ["Best-Practices", "Development-Tooling", "Home", "_Sidebar"]
+
+# Minimum content length for a page to be considered non-trivial (in characters)
+MIN_PAGE_CONTENT_LENGTH = 100
+
+# Maximum lengths for display truncation
+MAX_DISPLAY_LINE_LENGTH = 60  # For verbose output of code block first lines
+MAX_LINK_TEXT_LENGTH = 40  # For truncating link text in warnings
+MAX_URL_LENGTH = 50  # For truncating URLs in warnings
+
+# =============================================================================
+# Data Classes
+# =============================================================================
+
 
 @dataclass
 class LinkMatch:
