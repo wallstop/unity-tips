@@ -259,6 +259,18 @@ class CSharpFormatter:
 
         return code
 
+    # Patterns indicating a code block is a "before" example that should stay unformatted
+    BEFORE_EXAMPLE_PATTERNS = (
+        "let CSharpier fix it",
+        "CSharpier formats automatically",
+        "After save",
+        "Don't waste time manually formatting",
+        "CSharpier does this",
+        "formats automatically",
+        "Input: messy code",
+        "Output: CSharpier",
+    )
+
     def _should_skip_block(self, code: str) -> bool:
         """Check if this code block should be skipped."""
         # Skip if it's a shell command or config
@@ -272,6 +284,11 @@ class CSharpFormatter:
 
         # Skip very short code blocks (usually fragments)
         if len(lines) <= 1 and len(code.strip()) < 40:
+            return True
+
+        # Skip "before" example blocks that demonstrate unformatted code
+        # These are used in docs to show what messy code looks like before CSharpier
+        if any(pattern in code for pattern in self.BEFORE_EXAMPLE_PATTERNS):
             return True
 
         return False
@@ -348,39 +365,40 @@ class CSharpFormatter:
     def _format_operators_in_line(self, content: str) -> str:
         """Add spaces around assignment, comparison, and arithmetic operators."""
         # Add spaces around compound and comparison operators first (before single-char ops)
+        # Each tuple is (pattern, replacement) - patterns use \S to match non-whitespace
         operators = [
-            ("==", r"(\S)==(\S)", r"\1 == \2"),
-            ("!=", r"(\S)!=(\S)", r"\1 != \2"),
-            ("<=", r"(\S)<=(\S)", r"\1 <= \2"),
-            (">=", r"(\S)>=(\S)", r"\1 >= \2"),
-            ("+=", r"(\S)\+=(\S)", r"\1 += \2"),
-            ("-=", r"(\S)-=(\S)", r"\1 -= \2"),
-            ("*=", r"(\S)\*=(\S)", r"\1 *= \2"),
-            ("/=", r"(\S)/=(\S)", r"\1 /= \2"),
-            ("&&", r"(\S)&&(\S)", r"\1 && \2"),
-            ("||", r"(\S)\|\|(\S)", r"\1 || \2"),
-            ("??", r"(\S)\?\?(\S)", r"\1 ?? \2"),
-            ("=>", r"(\S)=>(\S)", r"\1 => \2"),
+            (r"(\S)==(\S)", r"\1 == \2"),
+            (r"(\S)!=(\S)", r"\1 != \2"),
+            (r"(\S)<=(\S)", r"\1 <= \2"),
+            (r"(\S)>=(\S)", r"\1 >= \2"),
+            (r"(\S)\+=(\S)", r"\1 += \2"),
+            (r"(\S)-=(\S)", r"\1 -= \2"),
+            (r"(\S)\*=(\S)", r"\1 *= \2"),
+            (r"(\S)/=(\S)", r"\1 /= \2"),
+            (r"(\S)&&(\S)", r"\1 && \2"),
+            (r"(\S)\|\|(\S)", r"\1 || \2"),
+            (r"(\S)\?\?(\S)", r"\1 ?? \2"),
+            (r"(\S)=>(\S)", r"\1 => \2"),
         ]
 
-        for _, pattern, replacement in operators:
+        for pattern, replacement in operators:
             content = re.sub(pattern, replacement, content)
 
-        # Handle single = but not ==, !=, <=, >=, +=, etc.
-        # Only if it's clearly an assignment (not in generics, attributes, etc.)
-        if "=" in content and not any(
-            op in content
-            for op in ["==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "=>"]
-        ):
-            # Simple assignment spacing - word followed by = followed by non-space
-            # This handles both `x=5` and `s="hello"` (masked as `s=\x00STR0\x00`)
-            content = re.sub(r"(\w)=([^\s=])", r"\1 = \2", content)
+        # Handle single = assignment: word=value -> word = value
+        # Use negative lookbehind/lookahead to avoid matching compound operators
+        # This handles cases like `x=5` and `s="hello"` but not `x==y` or `x+=1`
+        content = re.sub(
+            r"(\w)(?<![=!<>+\-*/])=(?![=>])([^\s=])",
+            r"\1 = \2",
+            content,
+        )
 
-        # Handle binary arithmetic operators (+, -)
-        # Only when surrounded by word characters to avoid unary operators
-        # e.g., "a+b" -> "a + b" but "-5" stays as "-5"
+        # Handle binary arithmetic operators
+        # + is safe between any word characters
         content = re.sub(r"(\w)\+(\w)", r"\1 + \2", content)
-        # Only format - when between lowercase identifiers (avoid "Read-only" etc.)
+        # - only between lowercase identifiers to avoid hyphenated words like:
+        # "Read-only", "Null-conditional", "per-instance", "one-time", "1-2"
+        # Uppercase letters often indicate compound words or proper names
         content = re.sub(r"([a-z0-9])-([a-z])", r"\1 - \2", content)
         # * and % are safe - they're not used in paths/identifiers
         content = re.sub(r"(\w)\*(\w)", r"\1 * \2", content)
