@@ -242,8 +242,9 @@ def convert_links(content: str, source_file: str) -> str:
         if wiki_name is not None:
             # Use wiki page name as fallback if link text is empty
             display_text = link_text if link_text.strip() else wiki_name
-            # Replace with wiki link format
-            new_link = f"[[{wiki_name}{anchor}|{display_text}]]"
+            # Replace with wiki link format: [[DisplayText|PageName]]
+            # Note: GitHub Wiki format is opposite of MediaWiki
+            new_link = f"[[{display_text}|{wiki_name}{anchor}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
         else:
             # Track unmapped internal links for warning
@@ -299,18 +300,22 @@ def process_file(src_path: Path, wiki_name: str) -> bool:
 
 
 def generate_sidebar() -> str:
-    """Generate the wiki sidebar navigation."""
+    """Generate the wiki sidebar navigation.
+
+    Note: GitHub Wiki link format is [[DisplayText|PageName]], which is
+    the opposite of MediaWiki's [[PageName|DisplayText]] format.
+    """
     return """# Unity Tips & Tools
 
 **[[Home]]**
 
 ## Getting Started
-- [[Home|Overview]]
+- [[Overview|Home]]
 - [[Contributing]]
 - [[Changelog]]
 
 ## Best Practices
-- [[Best-Practices|Overview]]
+- [[Overview|Best-Practices]]
 - [[Lifecycle-Methods]]
 - [[Null-Checks]]
 - [[Component-Access]]
@@ -345,7 +350,7 @@ def generate_sidebar() -> str:
 - [[DxMessaging]]
 
 ## Development Tooling
-- [[Development-Tooling|Overview]]
+- [[Overview|Development-Tooling]]
 - [[CSharpier]]
 - [[EditorConfig]]
 - [[NuGet-for-Unity]]
@@ -376,8 +381,8 @@ Welcome to the Unity Tips & Tools wiki!
 
 ## Quick Navigation
 
-- [[Best-Practices|Best Practices]] - Prevent 80% of Unity bugs
-- [[Development-Tooling|Development Tooling]] - Auto-format code, catch allocations
+- [[Best Practices|Best-Practices]] - Prevent 80% of Unity bugs
+- [[Development Tooling|Development-Tooling]] - Auto-format code, catch allocations
 - [[Animancer]] - Code-driven animation
 - [[Graphy]] - Monitor FPS/memory
 
