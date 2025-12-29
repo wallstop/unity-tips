@@ -18,8 +18,10 @@ DxMessaging provides a clean, observable, and safe way for game systems to talk 
 [DxAutoConstructor]
 public readonly partial struct Heal { public readonly int amount; }
 
-public class Player : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Player : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 
@@ -86,25 +88,32 @@ public class Door : MonoBehaviour {
 // Define a message (type-safe!)
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct OpenDoor {
+public readonly partial struct OpenDoor
+{
     public readonly int doorId;
 }
 
 // Listen for messages (auto-cleanup!)
-public class Door : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Door : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<OpenDoor>(this, OnOpen);
     }  // Token automatically unsubscribes when component is destroyed
 
-    void OnOpen(ref OpenDoor msg) {
+    void OnOpen(ref OpenDoor msg)
+    {
         Debug.Log($"Door {msg.doorId} opened");
     }
 }
 
 // Send from anywhere (decoupled!)
-public class Key : MonoBehaviour {
-    void OnTriggerEnter(Collider other) {
-        if (other.TryGetComponent<Door>(out var door)) {
+public class Key : MonoBehaviour
+{
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent<Door>(out var door))
+        {
             new OpenDoor(doorId).EmitComponentTargeted(door);
         }
     }
@@ -147,7 +156,8 @@ using DxMessaging;
 // Use attributes to auto-generate constructor and registration code
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct TakeDamage {
+public readonly partial struct TakeDamage
+{
     public readonly int amount;
     public readonly GameObject source;
 }
@@ -162,19 +172,23 @@ public readonly partial struct TakeDamage {
 using UnityEngine;
 using DxMessaging;
 
-public class Player : MessageAwareComponent {
+public class Player : MessageAwareComponent
+{
     [SerializeField] private int health = 100;
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         // Register handler - Token automatically unsubscribes when destroyed!
         _ = Token.RegisterComponentTargeted<TakeDamage>(this, OnTakeDamage);
     }
 
-    void OnTakeDamage(ref TakeDamage msg) {
+    void OnTakeDamage(ref TakeDamage msg)
+    {
         health -= msg.amount;
         Debug.Log($"Player took {msg.amount} damage from {msg.source.name}");
 
-        if (health <= 0) {
+        if (health <= 0)
+        {
             Die();
         }
     }
@@ -193,12 +207,15 @@ public class Player : MessageAwareComponent {
 using UnityEngine;
 using DxMessaging;
 
-public class Spike : MonoBehaviour {
+public class Spike : MonoBehaviour
+{
     [SerializeField] private int damage = 25;
 
-    void OnTriggerEnter(Collider other) {
+    void OnTriggerEnter(Collider other)
+    {
         // Check if the collider has a Player component
-        if (other.TryGetComponent<Player>(out var player)) {
+        if (other.TryGetComponent<Player>(out var player))
+        {
             // Send a damage message to the player
             var damageMsg = new TakeDamage(damage, gameObject);
             damageMsg.EmitComponentTargeted(player);
@@ -224,17 +241,21 @@ Global broadcasts that any listener can receive.
 ```csharp
 [DxUntargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct GameOver {
+public readonly partial struct GameOver
+{
     public readonly int finalScore;
 }
 
 // Listen anywhere
-public class UIManager : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class UIManager : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<GameOver>(OnGameOver);
     }
 
-    void OnGameOver(ref GameOver msg) {
+    void OnGameOver(ref GameOver msg)
+    {
         ShowGameOverScreen(msg.finalScore);
     }
 }
@@ -256,25 +277,32 @@ Messages sent to a specific component or GameObject.
 ```csharp
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct Heal {
+public readonly partial struct Heal
+{
     public readonly int amount;
 }
 
 // Listen on specific component
-public class HealthSystem : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class HealthSystem : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 
-    void OnHeal(ref Heal msg) {
+    void OnHeal(ref Heal msg)
+    {
         currentHealth = Mathf.Min(currentHealth + msg.amount, maxHealth);
     }
 }
 
 // Send to specific component
-public class HealthPotion : MonoBehaviour {
-    void OnTriggerEnter(Collider other) {
-        if (other.TryGetComponent<HealthSystem>(out var health)) {
+public class HealthPotion : MonoBehaviour
+{
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent<HealthSystem>(out var health))
+        {
             new Heal(50).EmitComponentTargeted(health);
             Destroy(gameObject);
         }
@@ -295,16 +323,19 @@ Messages that notify observers about state changes.
 ```csharp
 [DxBroadcastMessage]
 [DxAutoConstructor]
-public readonly partial struct HealthChanged {
+public readonly partial struct HealthChanged
+{
     public readonly int newHealth;
     public readonly int maxHealth;
 }
 
 // Broadcaster
-public class Player : MessageAwareComponent {
+public class Player : MessageAwareComponent
+{
     private int health;
 
-    void TakeDamage(int amount) {
+    void TakeDamage(int amount)
+    {
         health -= amount;
         // Broadcast the state change
         new HealthChanged(health, maxHealth).EmitBroadcast(this);
@@ -312,13 +343,16 @@ public class Player : MessageAwareComponent {
 }
 
 // Observers
-public class HealthUI : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class HealthUI : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         var player = FindObjectOfType<Player>();
         _ = Token.RegisterBroadcast<HealthChanged>(player, OnHealthChanged);
     }
 
-    void OnHealthChanged(ref HealthChanged msg) {
+    void OnHealthChanged(ref HealthChanged msg)
+    {
         healthBar.fillAmount = (float)msg.newHealth / msg.maxHealth;
     }
 }
@@ -376,8 +410,10 @@ graph TB
 
 ```csharp
 // ✅ CORRECT - Automatic lifecycle management
-public class Player : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Player : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 }
@@ -407,7 +443,8 @@ public class Player : MonoBehaviour {
 // ✅ CORRECT - Immutable, zero-allocation
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct Attack {
+public readonly partial struct Attack
+{
     public readonly int damage;
     public readonly Vector3 direction;
 }
@@ -456,7 +493,8 @@ public readonly partial struct DoorEvent {
 
 ```csharp
 // ✅ CORRECT - Targeted message for specific entity
-void HealPlayer(Player player) {
+void HealPlayer(Player player)
+{
     new Heal(50).EmitComponentTargeted(player);
 }
 ```
@@ -482,69 +520,82 @@ void HealPlayer(Player player) {
 // Message definitions
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct TakeDamage {
+public readonly partial struct TakeDamage
+{
     public readonly int amount;
     public readonly GameObject attacker;
 }
 
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct Heal {
+public readonly partial struct Heal
+{
     public readonly int amount;
 }
 
 [DxBroadcastMessage]
 [DxAutoConstructor]
-public readonly partial struct HealthChanged {
+public readonly partial struct HealthChanged
+{
     public readonly int current;
     public readonly int max;
 }
 
 [DxBroadcastMessage]
 [DxAutoConstructor]
-public readonly partial struct Died {
+public readonly partial struct Died
+{
     public readonly GameObject killer;
 }
 
 // Health component
-public class HealthComponent : MessageAwareComponent {
+public class HealthComponent : MessageAwareComponent
+{
     [SerializeField] private int maxHealth = 100;
     private int currentHealth;
 
-    void Awake() {
+    void Awake()
+    {
         currentHealth = maxHealth;
     }
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<TakeDamage>(this, OnTakeDamage);
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 
-    void OnTakeDamage(ref TakeDamage msg) {
+    void OnTakeDamage(ref TakeDamage msg)
+    {
         currentHealth -= msg.amount;
         new HealthChanged(currentHealth, maxHealth).EmitBroadcast(this);
 
-        if (currentHealth <= 0) {
+        if (currentHealth <= 0)
+        {
             new Died(msg.attacker).EmitBroadcast(this);
         }
     }
 
-    void OnHeal(ref Heal msg) {
+    void OnHeal(ref Heal msg)
+    {
         currentHealth = Mathf.Min(currentHealth + msg.amount, maxHealth);
         new HealthChanged(currentHealth, maxHealth).EmitBroadcast(this);
     }
 }
 
 // UI Observer
-public class HealthBarUI : MessageAwareComponent {
+public class HealthBarUI : MessageAwareComponent
+{
     [SerializeField] private HealthComponent playerHealth;
     [SerializeField] private Image fillImage;
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterBroadcast<HealthChanged>(playerHealth, OnHealthChanged);
     }
 
-    void OnHealthChanged(ref HealthChanged msg) {
+    void OnHealthChanged(ref HealthChanged msg)
+    {
         fillImage.fillAmount = (float)msg.current / msg.max;
     }
 }
@@ -568,47 +619,58 @@ public readonly partial struct GameResumed { }
 
 [DxUntargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct GameOver {
+public readonly partial struct GameOver
+{
     public readonly int finalScore;
 }
 
 // Game manager
-public class GameManager : MessageAwareComponent {
+public class GameManager : MessageAwareComponent
+{
     private bool isPaused;
 
-    public void StartGame() {
+    public void StartGame()
+    {
         new GameStarted().EmitUntargeted();
     }
 
-    public void TogglePause() {
+    public void TogglePause()
+    {
         isPaused = !isPaused;
-        if (isPaused) {
+        if (isPaused)
+        {
             Time.timeScale = 0f;
             new GamePaused().EmitUntargeted();
-        } else {
+        } else
+        {
             Time.timeScale = 1f;
             new GameResumed().EmitUntargeted();
         }
     }
 
-    public void EndGame(int score) {
+    public void EndGame(int score)
+    {
         new GameOver(score).EmitUntargeted();
     }
 }
 
 // Any system can react to game states
-public class Enemy : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Enemy : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<GamePaused>(OnGamePaused);
         _ = Token.RegisterUntargeted<GameResumed>(OnGameResumed);
     }
 
-    void OnGamePaused(ref GamePaused msg) {
+    void OnGamePaused(ref GamePaused msg)
+    {
         // Disable AI
         enabled = false;
     }
 
-    void OnGameResumed(ref GameResumed msg) {
+    void OnGameResumed(ref GameResumed msg)
+    {
         // Re-enable AI
         enabled = true;
     }
@@ -621,36 +683,43 @@ public class Enemy : MessageAwareComponent {
 // Inventory messages
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct AddItem {
+public readonly partial struct AddItem
+{
     public readonly string itemId;
     public readonly int quantity;
 }
 
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct RemoveItem {
+public readonly partial struct RemoveItem
+{
     public readonly string itemId;
     public readonly int quantity;
 }
 
 [DxBroadcastMessage]
 [DxAutoConstructor]
-public readonly partial struct InventoryChanged {
+public readonly partial struct InventoryChanged
+{
     public readonly string itemId;
     public readonly int newQuantity;
 }
 
 // Inventory component
-public class Inventory : MessageAwareComponent {
+public class Inventory : MessageAwareComponent
+{
     private Dictionary<string, int> items = new();
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<AddItem>(this, OnAddItem);
         _ = Token.RegisterComponentTargeted<RemoveItem>(this, OnRemoveItem);
     }
 
-    void OnAddItem(ref AddItem msg) {
-        if (!items.ContainsKey(msg.itemId)) {
+    void OnAddItem(ref AddItem msg)
+    {
+        if (!items.ContainsKey(msg.itemId))
+        {
             items[msg.itemId] = 0;
         }
         items[msg.itemId] += msg.quantity;
@@ -658,10 +727,13 @@ public class Inventory : MessageAwareComponent {
         new InventoryChanged(msg.itemId, items[msg.itemId]).EmitBroadcast(this);
     }
 
-    void OnRemoveItem(ref RemoveItem msg) {
-        if (items.ContainsKey(msg.itemId)) {
+    void OnRemoveItem(ref RemoveItem msg)
+    {
+        if (items.ContainsKey(msg.itemId))
+        {
             items[msg.itemId] -= msg.quantity;
-            if (items[msg.itemId] <= 0) {
+            if (items[msg.itemId] <= 0)
+            {
                 items.Remove(msg.itemId);
             }
 
@@ -672,12 +744,15 @@ public class Inventory : MessageAwareComponent {
 }
 
 // Item pickup
-public class ItemPickup : MonoBehaviour {
+public class ItemPickup : MonoBehaviour
+{
     [SerializeField] private string itemId;
     [SerializeField] private int quantity = 1;
 
-    void OnTriggerEnter(Collider other) {
-        if (other.TryGetComponent<Inventory>(out var inventory)) {
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent<Inventory>(out var inventory))
+        {
             new AddItem(itemId, quantity).EmitComponentTargeted(inventory);
             Destroy(gameObject);
         }
@@ -867,7 +942,8 @@ public class Player : MessageAwareComponent { }
 **Additional Debugging:**
 
 ```csharp
-void OnHeal(ref Heal msg) {
+void OnHeal(ref Heal msg)
+{
     Debug.Log($"[{gameObject.name}] Received Heal: {msg.amount}");
 }
 ```

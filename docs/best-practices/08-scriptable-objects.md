@@ -11,7 +11,8 @@ Designers can't balance the game without programmer help.
 **Without ScriptableObjects (The Painful Way):**
 
 ```csharp
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour
+{
     public int health = 50;      // Duplicated in every enemy prefab
     public int damage = 10;      // Change requires updating all prefabs
     public float speed = 5f;     // 50 prefabs = 50 places to edit
@@ -29,13 +30,15 @@ public class Enemy : MonoBehaviour {
 
 ```csharp
 [CreateAssetMenu]
-public class EnemyData : ScriptableObject {
+public class EnemyData : ScriptableObject
+{
     public int health = 50;
     public int damage = 10;
     public float speed = 5f;
 }
 
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour
+{
     public EnemyData data;      // Reference ONE asset
     // All goblins reference "GoblinData" asset
 }

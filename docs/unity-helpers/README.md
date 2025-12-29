@@ -18,9 +18,11 @@ reinventing the wheel.
 ```csharp
 // Before Unity Helpers: Boilerplate everywhere
 private SpriteRenderer sprite;
-void Awake() {
+void Awake()
+{
     sprite = GetComponentInChildren<SpriteRenderer>();
-    if (sprite == null) {
+    if (sprite == null)
+    {
         sprite = GetComponentInParent<SpriteRenderer>();
     }
 }
@@ -90,7 +92,8 @@ public class BulletPool : MonoBehaviour {
 
 ```csharp
 // ✅ Solution 1: Automatic Component Wiring
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     [SelfComponent] private Rigidbody rb;
     [SelfComponent] private Animator animator;
     [ChildComponent] private SpriteRenderer sprite;
@@ -98,7 +101,8 @@ public class Player : MonoBehaviour {
 }
 
 // ✅ Solution 2: Unity-Aware Serialization
-public class SaveData {
+public class SaveData
+{
     public string playerName;
     public int level;
     public Vector3 position;      // Just works!
@@ -113,7 +117,8 @@ using var lease = Buffers<Bullet>.List.Get(out List<Bullet> pool);
 
 // ✅ Solution 4: Data-Driven Effects System
 [CreateAssetMenu]
-public class HasteEffect : Effect {
+public class HasteEffect : Effect
+{
     public float speedMultiplier = 1.5f;
     public float duration = 5f;
 }
@@ -158,18 +163,22 @@ openupm add com.wallstop-studios.unity-helpers
 #### Before Unity Helpers: 10 Lines of Code
 
 ```csharp
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour
+{
     private Rigidbody rb;
     private Animator animator;
 
-    void Awake() {
+    void Awake()
+    {
         rb = GetComponent<Rigidbody>();
-        if (rb == null) {
+        if (rb == null)
+        {
             Debug.LogError($"{gameObject.name} is missing Rigidbody!");
         }
 
         animator = GetComponentInChildren<Animator>();
-        if (animator == null) {
+        if (animator == null)
+        {
             Debug.LogError($"{gameObject.name} is missing Animator!");
         }
     }
@@ -179,7 +188,8 @@ public class Enemy : MonoBehaviour {
 #### After Unity Helpers: 3 Lines of Code
 
 ```csharp
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour
+{
     [SelfComponent] private Rigidbody rb;
     [ChildComponent] private Animator animator;
     // Done! Auto-wired with error checking in Awake()
@@ -199,7 +209,8 @@ Automatically find and cache components using attributes. No more boilerplate.
 #### Available Attributes
 
 ```csharp
-public class ComponentExample : MonoBehaviour {
+public class ComponentExample : MonoBehaviour
+{
     // Find on same GameObject
     [SelfComponent] private Rigidbody rb;
 
@@ -219,7 +230,8 @@ public class ComponentExample : MonoBehaviour {
 #### Advanced Options
 
 ```csharp
-public class AdvancedExample : MonoBehaviour {
+public class AdvancedExample : MonoBehaviour
+{
     // Optional - no error if not found
     [SelfComponent(required: false)]
     private AudioSource optionalAudio;
@@ -275,17 +287,22 @@ data-driven and reusable.
 using UnityHelpers;
 
 [CreateAssetMenu(menuName = "Effects/Haste")]
-public class HasteEffect : Effect {
+public class HasteEffect : Effect
+{
     public float speedMultiplier = 1.5f;
 
-    public override void OnApplied(GameObject target) {
-        if (target.TryGetComponent<PlayerMovement>(out var movement)) {
+    public override void OnApplied(GameObject target)
+    {
+        if (target.TryGetComponent<PlayerMovement>(out var movement))
+        {
             movement.Speed *= speedMultiplier;
         }
     }
 
-    public override void OnRemoved(GameObject target) {
-        if (target.TryGetComponent<PlayerMovement>(out var movement)) {
+    public override void OnRemoved(GameObject target)
+    {
+        if (target.TryGetComponent<PlayerMovement>(out var movement))
+        {
             movement.Speed /= speedMultiplier;
         }
     }
@@ -295,11 +312,14 @@ public class HasteEffect : Effect {
 #### Applying Effects
 
 ```csharp
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     [SerializeField] private EffectManager effectManager;
 
-    void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.TryGetComponent<EffectPickup>(out var pickup)) {
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent<EffectPickup>(out var pickup))
+        {
             // Apply effect - automatic duration management!
             effectManager.ApplyEffect(pickup.effect, duration: 5f);
         }
@@ -317,7 +337,8 @@ public class Player : MonoBehaviour {
 
 ```csharp
 // Check for specific effect
-if (effectManager.HasEffect<HasteEffect>()) {
+if (effectManager.HasEffect<HasteEffect>())
+{
     Debug.Log("Player is hasted!");
 }
 
@@ -325,7 +346,8 @@ if (effectManager.HasEffect<HasteEffect>()) {
 effectManager.RemoveEffectsWithTag("debuff");
 
 // Get all active effects
-foreach (var effect in effectManager.ActiveEffects) {
+foreach (var effect in effectManager.ActiveEffects)
+{
     Debug.Log($"Active: {effect.Name}");
 }
 ```
@@ -343,7 +365,8 @@ Schema evolution support prevents data loss.
 using UnityHelpers;
 
 [System.Serializable]
-public class PlayerSaveData {
+public class PlayerSaveData
+{
     public string playerName;
     public int level;
     public Vector3 position;          // Unity type - just works!
@@ -366,7 +389,8 @@ Debug.Log($"Loaded {loaded.playerName} at position {loaded.position}");
 #### Supported Unity Types
 
 ```csharp
-public class UnityTypeExample {
+public class UnityTypeExample
+{
     // Primitives
     public Vector2 position2D;
     public Vector3 position3D;
@@ -399,14 +423,16 @@ save data changes gracefully.
 ```csharp
 // Version 1
 [System.Serializable]
-public class PlayerData {
+public class PlayerData
+{
     public string name;
     public int level;
 }
 
 // Version 2 - Add new field with default
 [System.Serializable]
-public class PlayerData {
+public class PlayerData
+{
     public string name;
     public int level;
 
@@ -428,8 +454,10 @@ Zero-allocation buffer management. Eliminates garbage collection spikes.
 ```csharp
 using UnityHelpers;
 
-public class BulletSpawner : MonoBehaviour {
-    void FireBullet() {
+public class BulletSpawner : MonoBehaviour
+{
+    void FireBullet()
+    {
         // Get a pooled list - zero allocations!
         using var lease = Buffers<Bullet>.List.Get(out List<Bullet> bullets);
 
@@ -594,7 +622,8 @@ public class HasteEffect : Effect {
 ```csharp
 // ✅ CORRECT - Serializable reference
 [System.Serializable]
-public class WeaponData {
+public class WeaponData
+{
     public GameObjectRef weaponPrefab;  // Works!
 }
 ```
@@ -615,7 +644,8 @@ public class WeaponData {
 
 ```csharp
 // ✅ CORRECT - Automatic cleanup
-void ProcessEnemies() {
+void ProcessEnemies()
+{
     using var lease = Buffers<Enemy>.List.Get(out List<Enemy> enemies);
     // Use enemies
 } // Automatically returned to pool
@@ -642,7 +672,8 @@ void ProcessEnemies() {
 using UnityEngine;
 using UnityHelpers;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
     // Components automatically wired
     [SelfComponent] private Rigidbody rb;
     [SelfComponent] private Animator animator;
@@ -652,12 +683,14 @@ public class PlayerController : MonoBehaviour {
     [Header("Movement")]
     [SerializeField] private float baseSpeed = 5f;
 
-    void Update() {
+    void Update()
+    {
         // All components ready to use!
         float speed = baseSpeed;
 
         // Check for haste effect
-        if (effectManager.HasEffect<HasteEffect>()) {
+        if (effectManager.HasEffect<HasteEffect>())
+        {
             speed *= 1.5f;
         }
 
@@ -677,7 +710,8 @@ using UnityHelpers;
 using System.IO;
 
 [System.Serializable]
-public class GameSaveData {
+public class GameSaveData
+{
     public string playerName;
     public int level;
     public Vector3 playerPosition;
@@ -686,18 +720,22 @@ public class GameSaveData {
     public GameObjectRef currentWeapon;
 }
 
-public class SaveManager : MonoBehaviour {
+public class SaveManager : MonoBehaviour
+{
     private const string SavePath = "save.dat";
 
-    public void SaveGame(GameSaveData data) {
+    public void SaveGame(GameSaveData data)
+    {
         // Serialize to JSON
         byte[] jsonData = SaveSystem.SerializeJson(data);
         File.WriteAllBytes(SavePath, jsonData);
         Debug.Log("Game saved!");
     }
 
-    public GameSaveData LoadGame() {
-        if (!File.Exists(SavePath)) {
+    public GameSaveData LoadGame()
+    {
+        if (!File.Exists(SavePath))
+        {
             Debug.LogWarning("No save file found");
             return new GameSaveData();
         }
@@ -709,12 +747,14 @@ public class SaveManager : MonoBehaviour {
     }
 
     // Alternative: Binary serialization for smaller file size
-    public void SaveGameBinary(GameSaveData data) {
+    public void SaveGameBinary(GameSaveData data)
+    {
         byte[] binaryData = SaveSystem.SerializeBinary(data);
         File.WriteAllBytes(SavePath, binaryData);
     }
 
-    public GameSaveData LoadGameBinary() {
+    public GameSaveData LoadGameBinary()
+    {
         byte[] binaryData = File.ReadAllBytes(SavePath);
         return SaveSystem.DeserializeBinary<GameSaveData>(binaryData);
     }
@@ -729,36 +769,45 @@ using UnityHelpers;
 
 // Define effects as ScriptableObjects
 [CreateAssetMenu(menuName = "Effects/Haste")]
-public class HasteEffect : Effect {
+public class HasteEffect : Effect
+{
     public float speedMultiplier = 1.5f;
 
-    public override void OnApplied(GameObject target) {
+    public override void OnApplied(GameObject target)
+    {
         Debug.Log($"{target.name} is hasted!");
     }
 
-    public override void OnRemoved(GameObject target) {
+    public override void OnRemoved(GameObject target)
+    {
         Debug.Log($"{target.name} is no longer hasted");
     }
 }
 
 [CreateAssetMenu(menuName = "Effects/Poison")]
-public class PoisonEffect : Effect {
+public class PoisonEffect : Effect
+{
     public int damagePerSecond = 5;
 
-    public override void OnUpdate(GameObject target, float deltaTime) {
-        if (target.TryGetComponent<Health>(out var health)) {
+    public override void OnUpdate(GameObject target, float deltaTime)
+    {
+        if (target.TryGetComponent<Health>(out var health))
+        {
             health.TakeDamage(damagePerSecond * deltaTime);
         }
     }
 }
 
 // Apply effects
-public class EffectPickup : MonoBehaviour {
+public class EffectPickup : MonoBehaviour
+{
     [SerializeField] private Effect effect;
     [SerializeField] private float duration = 5f;
 
-    void OnTriggerEnter(Collider other) {
-        if (other.TryGetComponent<EffectManager>(out var manager)) {
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent<EffectManager>(out var manager))
+        {
             manager.ApplyEffect(effect, duration);
             Destroy(gameObject);
         }
@@ -766,17 +815,21 @@ public class EffectPickup : MonoBehaviour {
 }
 
 // Query effects
-public class PlayerUI : MonoBehaviour {
+public class PlayerUI : MonoBehaviour
+{
     [SelfComponent] private EffectManager effectManager;
 
-    void Update() {
+    void Update()
+    {
         // Show active effects
-        foreach (var effect in effectManager.ActiveEffects) {
+        foreach (var effect in effectManager.ActiveEffects)
+        {
             Debug.Log($"Active: {effect.Name} ({effect.RemainingDuration:F1}s)");
         }
 
         // Check for specific effect
-        if (effectManager.HasEffect<PoisonEffect>()) {
+        if (effectManager.HasEffect<PoisonEffect>())
+        {
             ShowPoisonWarning();
         }
     }
@@ -789,48 +842,58 @@ public class PlayerUI : MonoBehaviour {
 using UnityEngine;
 using UnityHelpers;
 
-public class EnemyAI : MonoBehaviour {
+public class EnemyAI : MonoBehaviour
+{
     [SelfComponent] private Rigidbody rb;
     [SerializeField] private float detectionRange = 10f;
 
-    void Update() {
+    void Update()
+    {
         FindNearbyPlayers();
     }
 
-    void FindNearbyPlayers() {
+    void FindNearbyPlayers()
+    {
         // Use pooled list - zero allocations!
         using var lease = Buffers<Player>.List.Get(out List<Player> nearbyPlayers);
 
         // Find all players
         var allPlayers = FindObjectsOfType<Player>();
-        foreach (var player in allPlayers) {
+        foreach (var player in allPlayers)
+        {
             float distance = Vector3.Distance(transform.position, player.transform.position);
-            if (distance <= detectionRange) {
+            if (distance <= detectionRange)
+            {
                 nearbyPlayers.Add(player);
             }
         }
 
         // Process nearby players
-        if (nearbyPlayers.Count > 0) {
+        if (nearbyPlayers.Count > 0)
+        {
             ChaseNearestPlayer(nearbyPlayers);
         }
 
         // List automatically returned to pool here
     }
 
-    void ChaseNearestPlayer(List<Player> players) {
+    void ChaseNearestPlayer(List<Player> players)
+    {
         Player nearest = null;
         float minDistance = float.MaxValue;
 
-        foreach (var player in players) {
+        foreach (var player in players)
+        {
             float distance = Vector3.Distance(transform.position, player.transform.position);
-            if (distance < minDistance) {
+            if (distance < minDistance)
+            {
                 minDistance = distance;
                 nearest = player;
             }
         }
 
-        if (nearest != null) {
+        if (nearest != null)
+        {
             Vector3 direction = (nearest.transform.position - transform.position).normalized;
             rb.velocity = direction * 3f;
         }
@@ -1021,13 +1084,15 @@ using var lease = Buffers<Enemy>.List.Get(out List<Enemy> enemies, clearOnGet: t
 
 ```csharp
 // Verify effect is assigned
-if (effectToApply == null) {
+if (effectToApply == null)
+{
     Debug.LogError("Effect is not assigned!");
     return;
 }
 
 // Verify EffectManager exists
-if (!target.TryGetComponent<EffectManager>(out var manager)) {
+if (!target.TryGetComponent<EffectManager>(out var manager))
+{
     Debug.LogError("Target missing EffectManager!");
     return;
 }
@@ -1076,7 +1141,8 @@ manager.ApplyEffect(effectToApply, duration);
 ```csharp
 // Define effect
 [CreateAssetMenu]
-public class MyEffect : Effect {
+public class MyEffect : Effect
+{
     public override void OnApplied(GameObject target) { }
     public override void OnRemoved(GameObject target) { }
     public override void OnUpdate(GameObject target, float dt) { }
@@ -1108,7 +1174,7 @@ MyClass obj = SaveSystem.DeserializeBinary<MyClass>(data);
 // Get pooled buffer
 using var lease = Buffers<T>.List.Get(out List<T> list);
 using var lease = Buffers<T>.HashSet.Get(out HashSet<T> set);
-using var lease = Buffers<K,V>.Dictionary.Get(out Dictionary<K,V> dict);
+using var lease = Buffers<K, V>.Dictionary.Get(out Dictionary<K, V> dict);
 // Auto-disposed when out of scope
 ```
 

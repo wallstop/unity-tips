@@ -721,7 +721,7 @@ private string _configPath;
 [SerializeField]
 private string _dataFolder;
 
-[FilePath(Extensions = "txt,json")]
+[FilePath(Extensions = "txt, json")]
 [SerializeField]
 private string _dataFilePath;
 ```

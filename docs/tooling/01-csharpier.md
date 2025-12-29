@@ -110,7 +110,7 @@ pre-commit install
 ```csharp
 // ✅ Write code naturally, let CSharpier fix it
 public void Attack(Enemy target){
-int damage=baseDamage+critBonus;
+int damage = baseDamage+critBonus;
 target.TakeDamage(damage);
 Debug.Log("Attacked "+target.name);}
 
@@ -126,8 +126,10 @@ public void Attack(Enemy target)
 ```csharp
 // ✅ Let team members use their own brace style while typing
 // Everyone gets the same output after save
-public class PlayerController : MonoBehaviour {
-    void Update() {
+public class PlayerController : MonoBehaviour
+{
+    void Update()
+    {
         // Code here
     }
 }

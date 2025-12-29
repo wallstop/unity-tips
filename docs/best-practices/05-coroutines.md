@@ -11,10 +11,13 @@ Using `Update()` with timers is messy and error-prone.
 private float timer = 0f;
 private bool isWaiting = false;
 
-void Update() {
-    if (isWaiting) {
+void Update()
+{
+    if (isWaiting)
+    {
         timer += Time.deltaTime;
-        if (timer >= 3f) {
+        if (timer >= 3f)
+        {
             SpawnEnemy();
             isWaiting = false;
             timer = 0f;
@@ -22,7 +25,8 @@ void Update() {
     }
 }
 
-void StartSpawnSequence() {
+void StartSpawnSequence()
+{
     isWaiting = true;
     timer = 0f;
 }
@@ -31,7 +35,8 @@ void StartSpawnSequence() {
 **With Coroutines (The Clean Way):**
 
 ```csharp
-IEnumerator Start() {
+IEnumerator Start()
+{
     yield return new WaitForSeconds(3f);
     SpawnEnemy();
 }
