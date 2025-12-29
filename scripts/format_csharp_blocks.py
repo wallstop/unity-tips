@@ -66,8 +66,18 @@ class CSharpFormatter:
     # Keywords that should have space after them before (
     # Note: nameof, typeof, sizeof, default do NOT get spaces in C#
     KEYWORDS_WITH_SPACE = {
-        "if", "for", "foreach", "while", "do", "switch",
-        "catch", "using", "lock", "fixed", "checked", "unchecked",
+        "if",
+        "for",
+        "foreach",
+        "while",
+        "do",
+        "switch",
+        "catch",
+        "using",
+        "lock",
+        "fixed",
+        "checked",
+        "unchecked",
     }
 
     def __init__(self):
@@ -129,7 +139,11 @@ class CSharpFormatter:
         content = line.strip()
 
         # Skip comment lines entirely
-        if content.startswith("//") or content.startswith("/*") or content.startswith("*"):
+        if (
+            content.startswith("//")
+            or content.startswith("/*")
+            or content.startswith("*")
+        ):
             return line
 
         # Apply formatting transformations
@@ -177,7 +191,10 @@ class CSharpFormatter:
 
         # Handle single = but not ==, !=, <=, >=, +=, etc.
         # Only if it's clearly an assignment (not in generics, attributes, etc.)
-        if "=" in content and not any(op in content for op in ["==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "=>"]):
+        if "=" in content and not any(
+            op in content
+            for op in ["==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "=>"]
+        ):
             # Simple assignment spacing
             content = re.sub(r"(\w)=(\w)", r"\1 = \2", content)
 
@@ -216,7 +233,11 @@ class CSharpFormatter:
             indent_str = " " * indent
 
             # Check for K&R style: something { at end of line (not just "{")
-            if stripped.endswith(" {") and stripped != "{" and not stripped.endswith("= {"):
+            if (
+                stripped.endswith(" {")
+                and stripped != "{"
+                and not stripped.endswith("= {")
+            ):
                 # Skip inline initializers like `new List<int> {` or lambda `=> {`
                 if " = new " in stripped or "=> {" in stripped or "= new(" in stripped:
                     result.append(line)
@@ -257,7 +278,15 @@ class CSharpFormatter:
 
             # Add blank line after } if next line is a member declaration
             if prev_line == "}" and curr_line:
-                member_keywords = ["public ", "private ", "protected ", "internal ", "static ", "void ", "async "]
+                member_keywords = [
+                    "public ",
+                    "private ",
+                    "protected ",
+                    "internal ",
+                    "static ",
+                    "void ",
+                    "async ",
+                ]
                 if any(curr_line.startswith(kw) for kw in member_keywords):
                     # Check if there's already a blank line
                     if result and result[-1].strip() != "":
