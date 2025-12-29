@@ -72,6 +72,12 @@ repos:
         entry: scripts/check_csharp_syntax.py
         language: python
         types: [markdown]
+      - id: check-links-in-code-blocks
+        name: Check for HTTP links in code blocks
+        entry: scripts/check_links_in_code_blocks.py
+        language: python
+        types: [markdown]
+        args: ["--strict"]
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.13.0
     hooks:
