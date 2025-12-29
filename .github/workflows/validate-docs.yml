@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload wiki artifacts for debugging
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wiki-debug
           path: wiki/
@@ -180,7 +180,7 @@ jobs:
 
       - name: Upload built site for debugging
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: site-debug
           path: _site/
