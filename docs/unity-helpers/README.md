@@ -42,12 +42,14 @@ Every Unity project has the same tedious patterns:
 
 ```csharp
 // ❌ Problem 1: Component Lookup Boilerplate
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     private Rigidbody rb;
     private Animator animator;
     private SpriteRenderer sprite;
 
-    void Awake() {
+    void Awake()
+    {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
@@ -60,7 +62,8 @@ public class Player : MonoBehaviour {
 
 // ❌ Problem 2: Serialization Headaches
 [System.Serializable]
-public class SaveData {
+public class SaveData
+{
     public string playerName;
     public int level;
     // Want to save a Vector3? Good luck with JSON.NET!
@@ -68,15 +71,18 @@ public class SaveData {
 }
 
 // ❌ Problem 3: Manual Object Pooling
-public class BulletPool : MonoBehaviour {
+public class BulletPool : MonoBehaviour
+{
     private Queue<Bullet> pool = new Queue<Bullet>();
 
-    public Bullet Get() {
+    public Bullet Get()
+    {
         if (pool.Count > 0) return pool.Dequeue();
         return Instantiate(bulletPrefab);
     }
 
-    public void Release(Bullet bullet) {
+    public void Release(Bullet bullet)
+    {
         bullet.gameObject.SetActive(false);
         pool.Enqueue(bullet);
     }
@@ -254,7 +260,8 @@ private Rigidbody rb;
 private SpriteRenderer sprite;
 private AudioSource audio;
 
-void Awake() {
+void Awake()
+{
     rb = GetComponent<Rigidbody>();
     sprite = GetComponentInChildren<SpriteRenderer>();
     audio = GetComponentInChildren<AudioSource>();
@@ -492,10 +499,13 @@ using var arrayLease = Buffers<Transform>.Array.Get(100, out Transform[] transfo
 
 ```csharp
 // ❌ Before - Allocates every frame!
-void Update() {
+void Update()
+{
     List<Enemy> nearbyEnemies = new List<Enemy>();  // Allocation!
-    foreach (var enemy in allEnemies) {
-        if (Vector3.Distance(transform.position, enemy.position) < range) {
+    foreach (var enemy in allEnemies)
+    {
+        if (Vector3.Distance(transform.position, enemy.position) < range)
+        {
             nearbyEnemies.Add(enemy);
         }
     }
@@ -503,10 +513,13 @@ void Update() {
 }
 
 // ✅ After - Zero allocations
-void Update() {
+void Update()
+{
     using var lease = Buffers<Enemy>.List.Get(out List<Enemy> nearbyEnemies);
-    foreach (var enemy in allEnemies) {
-        if (Vector3.Distance(transform.position, enemy.position) < range) {
+    foreach (var enemy in allEnemies)
+    {
+        if (Vector3.Distance(transform.position, enemy.position) < range)
+        {
             nearbyEnemies.Add(enemy);
         }
     }
@@ -584,7 +597,8 @@ window or Sprite Packer. They are not script APIs to be called from your game co
 // ❌ WRONG - Defeats the purpose!
 [SelfComponent] private Rigidbody rb;
 
-void Awake() {
+void Awake()
+{
     rb = GetComponent<Rigidbody>();  // Redundant!
 }
 ```
@@ -604,12 +618,14 @@ public class HasteEffect : Effect { }
 ```csharp
 // ❌ WRONG - All instances share this!
 [CreateAssetMenu]
-public class HasteEffect : Effect {
+public class HasteEffect : Effect
+{
     public float remainingDuration;  // BAD! Shared state!
 }
 
 // ✅ CORRECT - State in component
-public class HasteEffect : Effect {
+public class HasteEffect : Effect
+{
     public float baseDuration;  // Config only
 }
 // EffectManager tracks duration per-instance
@@ -633,7 +649,8 @@ public class WeaponData
 ```csharp
 // ❌ WRONG - Can't serialize directly
 [System.Serializable]
-public class WeaponData {
+public class WeaponData
+{
     public GameObject weaponPrefab;  // Won't serialize!
 }
 ```
@@ -655,7 +672,8 @@ void ProcessEnemies()
 
 ```csharp
 // ❌ WRONG - Memory leak!
-void ProcessEnemies() {
+void ProcessEnemies()
+{
     var lease = Buffers<Enemy>.List.Get(out List<Enemy> enemies);
     // Use enemies
     // Missing lease.Dispose()!
@@ -909,14 +927,16 @@ public class EnemyAI : MonoBehaviour
 
 ```csharp
 // ❌ WRONG - Memory leak!
-void Update() {
+void Update()
+{
     var lease = Buffers<Enemy>.List.Get(out List<Enemy> enemies);
     // Do work...
     // Forgot to dispose! Buffer never returned to pool
 }
 
 // ✅ CORRECT
-void Update() {
+void Update()
+{
     using var lease = Buffers<Enemy>.List.Get(out List<Enemy> enemies);
     // Do work...
 } // Automatically disposed
@@ -945,16 +965,19 @@ public Rigidbody Rigidbody => rb;  // Public accessor if needed
 ```csharp
 // ❌ WRONG - ScriptableObjects are shared!
 [CreateAssetMenu]
-public class DamageOverTimeEffect : Effect {
+public class DamageOverTimeEffect : Effect
+{
     public float damageDealt = 0f;  // BAD! All instances share this!
 }
 
 // ✅ CORRECT - State managed by EffectManager
 [CreateAssetMenu]
-public class DamageOverTimeEffect : Effect {
+public class DamageOverTimeEffect : Effect
+{
     public float damagePerSecond = 5f;  // Config only
 
-    public override void OnUpdate(GameObject target, float deltaTime) {
+    public override void OnUpdate(GameObject target, float deltaTime)
+    {
         // Use local variable for state
         float damage = damagePerSecond * deltaTime;
         // Apply damage...
@@ -971,7 +994,8 @@ public class DamageOverTimeEffect : Effect {
 [SelfComponent(required: false)]
 private AudioSource audio;
 
-void PlaySound() {
+void PlaySound()
+{
     audio.Play();  // NullReferenceException if not found!
 }
 
@@ -979,14 +1003,17 @@ void PlaySound() {
 [SelfComponent(required: false)]
 private AudioSource audio;
 
-void PlaySound() {
-    if (audio != null) {
+void PlaySound()
+{
+    if (audio != null)
+    {
         audio.Play();
     }
 }
 
 // ❌ UNSAFE - ?. bypasses Unity's null check (see best-practices/10-null-conditional-operators.md)
-// void PlaySound() {
+// void PlaySound()
+{
 //     audio?.Play();
 // }
 ```
@@ -1012,12 +1039,14 @@ void PlaySound() {
 
 ```csharp
 // ❌ WRONG - Accessing in Awake before wiring
-void Awake() {
+void Awake()
+{
     rb.velocity = Vector3.zero;  // rb is null!
 }
 
 // ✅ CORRECT - Access in Start or later
-void Start() {
+void Start()
+{
     rb.velocity = Vector3.zero;  // rb is wired now
 }
 ```
@@ -1036,13 +1065,15 @@ void Start() {
 
 ```csharp
 // ❌ WRONG - Missing attribute
-public class CustomData {
+public class CustomData
+{
     public string name;
 }
 
 // ✅ CORRECT
 [System.Serializable]
-public class CustomData {
+public class CustomData
+{
     public string name;
 }
 ```

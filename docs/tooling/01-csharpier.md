@@ -15,9 +15,9 @@ and zero time spent manually reformatting files.
 
 ```csharp
 // Input: messy code you just typed
-public class Player:MonoBehaviour{
-private int health=100;public void TakeDamage(int amount){health-=amount;
-if(health<=0)Die();}}
+public class Player : MonoBehaviour{
+private int health=100;public void TakeDamage(int amount){health -= amount;
+if (health <= 0)Die();}}
 
 // Output: CSharpier's consistent formatting
 public class Player : MonoBehaviour

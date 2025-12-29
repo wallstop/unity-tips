@@ -10,12 +10,14 @@ without creating tight coupling and memory leaks?
 
 ```csharp
 // ❌ Tight coupling - every system knows about every other system
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     public UIManager uiManager;
     public SoundManager soundManager;
     public AchievementManager achievementManager;
 
-    void Die() {
+    void Die()
+    {
         uiManager.ShowGameOver();      // Direct references everywhere
         soundManager.PlayDeathSound(); // Hard to maintain
         achievementManager.CheckDeaths(); // Can't test in isolation
@@ -1016,21 +1018,25 @@ public readonly partial struct TakeDamage
 ```csharp
 // ❌ WRONG: Using ScriptableObjects in code-driven pattern
 [CreateAssetMenu]
-public class GameEvent : ScriptableObject {
+public class GameEvent : ScriptableObject
+{
     private event System.Action OnEventRaised;
     public void Raise() => OnEventRaised?.Invoke();
     public void Register(System.Action listener) => OnEventRaised += listener;
     public void Unregister(System.Action listener) => OnEventRaised -= listener;
 }
 
-public class Listener : MonoBehaviour {
+public class Listener : MonoBehaviour
+{
     [SerializeField] private GameEvent gameEvent;
 
-    void OnEnable() {
+    void OnEnable()
+    {
         gameEvent.Register(HandleEvent);  // Code registration
     }
 
-    void OnDisable() {
+    void OnDisable()
+    {
         gameEvent.Unregister(HandleEvent);  // Easy to forget!
     }
 }
@@ -1051,7 +1057,8 @@ to event bus for code-driven pattern
 ```csharp
 // ❌ PROBLEM: Listeners can accumulate between Play Mode sessions within Editor
 [CreateAssetMenu]
-public class GameEvent : ScriptableObject {
+public class GameEvent : ScriptableObject
+{
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
 
     // Missing OnEnable() clear!
@@ -1059,10 +1066,12 @@ public class GameEvent : ScriptableObject {
 
 // ✅ SOLUTION: Always clear in OnEnable
 [CreateAssetMenu]
-public class GameEvent : ScriptableObject {
+public class GameEvent : ScriptableObject
+{
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
 
-    private void OnEnable() {
+    private void OnEnable()
+    {
         listeners.Clear();  // Clear stale references
     }
 }
@@ -1080,14 +1089,17 @@ public class GameEvent : ScriptableObject {
 
 ```csharp
 // ❌ PROBLEM: No compile-time safety
-public class ScoreUI : MonoBehaviour {
+public class ScoreUI : MonoBehaviour
+{
     [SerializeField] private IntEvent onScoreChanged;  // IntEvent
 
-    void OnEnable() {
+    void OnEnable()
+    {
         onScoreChanged.Register(UpdateDisplay);
     }
 
-    void UpdateDisplay(int newScore) {
+    void UpdateDisplay(int newScore)
+    {
         scoreText.text = newScore.ToString();
     }
 }
@@ -1114,14 +1126,17 @@ public class ScoreUI : MessageAwareComponent
 ```csharp
 // ❌ BAD: 60 damage events per second
 [CreateAssetMenu]
-public class IntEvent : ScriptableObject {
+public class IntEvent : ScriptableObject
+{
     private event System.Action<int> OnEventRaised;
-    public void Raise(int value) {
+    public void Raise(int value)
+    {
         OnEventRaised?.Invoke(value);  // UnityEvent allocates garbage
     }
 }
 
-void Update() {
+void Update()
+{
     // Fire damage every frame
     onDamageEvent.Raise(10);  // GC pressure!
 }
@@ -1157,8 +1172,10 @@ manages listener storage and invocation.
 
 ```csharp
 // ❌ WRONG: Manual registration without automatic cleanup
-public class Listener : MonoBehaviour {
-    void OnEnable() {
+public class Listener : MonoBehaviour
+{
+    void OnEnable()
+    {
         MessageBus.Subscribe<PlayerDied>(HandleEvent);
     }
 
@@ -1166,8 +1183,10 @@ public class Listener : MonoBehaviour {
 }
 
 // ✅ CORRECT: Use lifecycle-aware base class
-public class Listener : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Listener : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<PlayerDied>(HandleEvent);
         // Token automatically unsubscribes when destroyed
     }
@@ -1185,7 +1204,8 @@ public readonly partial struct DamageDealt { }
 
 // ✅ GOOD: Use targeted messages
 [DxTargetedMessage]
-public readonly partial struct TakeDamage {
+public readonly partial struct TakeDamage
+{
     public readonly int amount;
 }
 

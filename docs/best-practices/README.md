@@ -194,12 +194,14 @@ void OnDisable() { GameEvents.OnDeath -= HandleDeath; }
 ```csharp
 // ❌ WRONG - All enemies share same health!
 [CreateAssetMenu]
-public class EnemyState : ScriptableObject {
+public class EnemyState : ScriptableObject
+{
     public int currentHealth; // BAD!
 }
 
 // ✓ CORRECT - Instance data in MonoBehaviour
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour
+{
     [SerializeField] private EnemyData data; // Shared config
     private int currentHealth; // Instance state
 }

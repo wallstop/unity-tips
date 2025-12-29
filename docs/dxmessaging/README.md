@@ -42,30 +42,36 @@ Without a proper messaging system, game communication typically looks like this:
 
 ```csharp
 // ❌ Problem 1: Memory Leaks from Forgotten Unsubscribes
-public class Enemy : MonoBehaviour {
-    void Start() {
+public class Enemy : MonoBehaviour
+{
+    void Start()
+    {
         GameEvents.OnPlayerDeath += HandlePlayerDeath;
     }
     // Oops! Forgot OnDestroy() - enemy is destroyed but handler still subscribed!
 }
 
 // ❌ Problem 2: Tight Coupling
-public class HealthUI : MonoBehaviour {
+public class HealthUI : MonoBehaviour
+{
     [SerializeField] private Player player;  // Direct reference required
 
-    void Update() {
+    void Update()
+    {
         healthText.text = player.Health.ToString();  // Constant polling
     }
 }
 
 // ❌ Problem 3: No Visibility
-public static class GameEvents {
+public static class GameEvents
+{
     public static event Action OnGameOver;
     // Who's subscribed? When did it fire? Can't tell without debugging!
 }
 
 // ❌ Problem 4: UnityEvent Boilerplate
-public class Door : MonoBehaviour {
+public class Door : MonoBehaviour
+{
     public UnityEvent onOpen;  // Not type-safe
     public UnityEvent onClose; // Lots of inspector wiring
     public UnityEvent onLock;  // Gets messy fast
@@ -426,12 +432,15 @@ component is destroyed. Zero memory leaks!
 
 ```csharp
 // ❌ WRONG - Manual subscription management
-public class Player : MonoBehaviour {
-    void Start() {
+public class Player : MonoBehaviour
+{
+    void Start()
+    {
         MessageBus.Subscribe<Heal>(OnHeal);  // Who unsubscribes?
     }
 
-    void OnDestroy() {
+    void OnDestroy()
+    {
         MessageBus.Unsubscribe<Heal>(OnHeal);  // Easy to forget!
     }
 }
@@ -483,7 +492,8 @@ public readonly partial struct CloseDoor { public readonly int doorId; }
 // ❌ WRONG - Unclear intent, harder to maintain
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct DoorEvent {
+public readonly partial struct DoorEvent
+{
     public readonly int doorId;
     public readonly string action;  // "open", "close", "lock"?
 }
@@ -503,7 +513,8 @@ void HealPlayer(Player player)
 
 ```csharp
 // ❌ WRONG - All Players would receive this!
-void HealPlayer(Player player) {
+void HealPlayer(Player player)
+{
     new Heal(50).EmitUntargeted();  // Every Player gets healed!
 }
 ```
@@ -768,16 +779,20 @@ public class ItemPickup : MonoBehaviour
 
 ```csharp
 // ❌ WRONG - Can't register message handlers!
-public class Player : MonoBehaviour {
-    void Start() {
+public class Player : MonoBehaviour
+{
+    void Start()
+    {
         // Token doesn't exist!
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);  // Error!
     }
 }
 
 // ✅ CORRECT
-public class Player : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Player : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 }
@@ -789,22 +804,28 @@ public class Player : MessageAwareComponent {
 
 ```csharp
 // ❌ PROBLEM - Message sent before listener is ready
-public class GameManager : MonoBehaviour {
-    void Start() {
+public class GameManager : MonoBehaviour
+{
+    void Start()
+    {
         new GameStarted().EmitUntargeted();  // UI might not be listening yet!
     }
 }
 
-public class UIManager : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class UIManager : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<GameStarted>(OnGameStarted);
     }
     // If this registers AFTER GameManager.Start(), message is missed!
 }
 
 // ✅ SOLUTION - Use script execution order or delay
-public class GameManager : MonoBehaviour {
-    IEnumerator Start() {
+public class GameManager : MonoBehaviour
+{
+    IEnumerator Start()
+    {
         yield return null;  // Wait one frame for all handlers to register
         new GameStarted().EmitUntargeted();
     }
@@ -819,18 +840,21 @@ public class GameManager : MonoBehaviour {
 ```csharp
 // ❌ WRONG - Mutable fields can cause bugs
 [DxTargetedMessage]
-public readonly partial struct Attack {
+public readonly partial struct Attack
+{
     public int damage;  // Missing 'readonly'!
 }
 
-void ProcessAttack(ref Attack msg) {
+void ProcessAttack(ref Attack msg)
+{
     msg.damage *= 2;  // Modifying the message - bad practice!
 }
 
 // ✅ CORRECT - Immutable messages
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct Attack {
+public readonly partial struct Attack
+{
     public readonly int damage;
 }
 ```
@@ -841,8 +865,10 @@ public readonly partial struct Attack {
 
 ```csharp
 // ❌ WRONG - Manual registration
-public class Player : MessageAwareComponent {
-    void Start() {
+public class Player : MessageAwareComponent
+{
+    void Start()
+    {
         Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 
@@ -850,8 +876,10 @@ public class Player : MessageAwareComponent {
 }
 
 // ✅ CORRECT - Use the override
-public class Player : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Player : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<Heal>(this, OnHeal);
     }
 }

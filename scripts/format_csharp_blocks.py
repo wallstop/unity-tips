@@ -101,26 +101,7 @@ class CSharpFormatter:
         return code
 
     def _should_skip_block(self, code: str) -> bool:
-        """Check if this code block should be skipped (intentional bad examples)."""
-        lower = code.lower()
-
-        # Skip blocks marked as intentionally wrong/bad
-        wrong_markers = [
-            "// ❌",
-            "//❌",
-            "// input:",
-            "// bad",
-            "// wrong",
-            "// don't",
-            "// avoid",
-            "// anti-pattern",
-            "// before:",
-            "// messy",
-        ]
-        for marker in wrong_markers:
-            if marker in lower:
-                return True
-
+        """Check if this code block should be skipped."""
         # Skip if it's a shell command or config
         lines = [l.strip() for l in code.strip().split("\n") if l.strip()]
         if not lines:
