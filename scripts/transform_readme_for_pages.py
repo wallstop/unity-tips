@@ -47,10 +47,17 @@ def transform_links(content: str) -> str:
         if not match:
             continue
 
-        # Transform the href by removing the docs/ prefix
-        dot_slash = match.group(1) or ""
-        path = match.group(2)
-        new_href = f"{dot_slash}{path}"
+        # Transform the ORIGINAL href by removing the docs/ prefix
+        # This preserves URL encoding in the path portion
+        # The original href has the same structure: optional "./" + "docs/" + path
+        original_href = link.href
+        if original_href.startswith("./docs/"):
+            new_href = "./" + original_href[7:]  # Remove "./docs/" keep "./"
+        elif original_href.startswith("docs/"):
+            new_href = original_href[5:]  # Remove "docs/"
+        else:
+            # Shouldn't happen if pattern matched, but handle gracefully
+            continue
 
         # Reconstruct the link with the new href
         # Original segment format: [text](href) or [text]( href "title" )
