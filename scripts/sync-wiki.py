@@ -221,6 +221,10 @@ def convert_links(content: str, source_file: str) -> str:
         if resolved_without_ext.startswith("docs/"):
             resolved_without_ext = resolved_without_ext[5:]  # Remove "docs/" prefix
 
+        # Handle trailing slashes (e.g., "./directory/" -> "directory/README")
+        if resolved_without_ext.endswith("/"):
+            resolved_without_ext = resolved_without_ext.rstrip("/") + "/README"
+
         # Look up wiki page name with exact matching
         wiki_name = None
         for src_path, name in WIKI_STRUCTURE.items():
