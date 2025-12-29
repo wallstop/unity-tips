@@ -389,6 +389,20 @@ For the best reading experience with search and navigation, visit the
 """
 
 
+def validate_wiki_structure() -> list[str]:
+    """Validate that all source files in WIKI_STRUCTURE exist.
+
+    Returns:
+        List of error messages for missing source files.
+    """
+    errors = []
+    for src_rel, wiki_name in WIKI_STRUCTURE.items():
+        src_path = DOCS_DIR / src_rel
+        if not src_path.exists():
+            errors.append(f"Missing source file: {src_path} (mapped to {wiki_name})")
+    return errors
+
+
 def main() -> int:
     """Main entry point. Returns 0 on success, 1 on failure."""
     print("Syncing documentation to GitHub Wiki...")
@@ -396,6 +410,17 @@ def main() -> int:
 
     # Clear unmapped links tracking
     _unmapped_links.clear()
+
+    # Pre-validate WIKI_STRUCTURE
+    print("\nValidating WIKI_STRUCTURE mappings...")
+    structure_errors = validate_wiki_structure()
+    if structure_errors:
+        print("  ERRORS found in WIKI_STRUCTURE:")
+        for err in structure_errors:
+            print(f"    ❌ {err}")
+        errors += len(structure_errors)
+    else:
+        print(f"  ✓ All {len(WIKI_STRUCTURE)} source files exist")
 
     # Ensure wiki directory exists
     WIKI_DIR.mkdir(parents=True, exist_ok=True)
@@ -419,7 +444,7 @@ def main() -> int:
             if not process_file(src_path, wiki_name):
                 errors += 1
         else:
-            print(f"  Warning: {src_path} not found")
+            print(f"  ❌ MISSING: {src_path} (would generate {wiki_name}.md)")
 
     # Process root files
     print("\nProcessing root files:")
@@ -453,6 +478,18 @@ def main() -> int:
         print(
             "  These links will not work in the wiki and may need to be added to WIKI_STRUCTURE."
         )
+
+    # Final verification: Check critical pages were generated
+    print("\nVerifying critical pages...")
+    critical_pages = ["Best-Practices", "Development-Tooling", "Home", "_Sidebar"]
+    for page_name in critical_pages:
+        page_path = WIKI_DIR / f"{page_name}.md"
+        if page_path.exists():
+            size = page_path.stat().st_size
+            print(f"  ✓ {page_name}.md generated ({size} bytes)")
+        else:
+            print(f"  ❌ {page_name}.md NOT GENERATED")
+            errors += 1
 
     if errors > 0:
         print(f"\nWiki sync completed with {errors} error(s)!")

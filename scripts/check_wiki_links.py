@@ -4,6 +4,12 @@
 This script checks that all wiki-style links ([[PageName|text]]) in the wiki/
 directory point to existing wiki pages, and that no markdown-style links
 remain outside of code blocks.
+
+Additional validations:
+- Validates sidebar references only existing pages
+- Validates all WIKI_STRUCTURE source files exist
+- Validates critical pages (Best-Practices, Development-Tooling) are present
+- Validates Home.md contains expected navigation links
 """
 
 from __future__ import annotations
@@ -17,6 +23,21 @@ from typing import Set, Tuple, List
 from link_utils import find_code_fence_ranges, find_inline_code_ranges, in_ranges
 
 WIKI_DIR = Path("wiki")
+DOCS_DIR = Path("docs")
+
+# Critical wiki pages that MUST exist (these have historically caused issues)
+CRITICAL_PAGES = [
+    "Best-Practices",
+    "Development-Tooling",
+    "Home",
+    "_Sidebar",
+]
+
+# Required navigation links in Home.md (page_name, display_text_contains)
+REQUIRED_HOME_LINKS = [
+    ("Best-Practices", "Best Practices"),
+    ("Development-Tooling", "Development Tooling"),
+]
 
 
 def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
@@ -85,6 +106,87 @@ def get_wiki_pages() -> Set[str]:
     return pages
 
 
+def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
+    """Validate that all critical pages exist.
+
+    Returns:
+        List of error messages for missing critical pages.
+    """
+    errors = []
+    for page_name in CRITICAL_PAGES:
+        if page_name not in wiki_pages:
+            errors.append(f"CRITICAL: Missing required page '{page_name}.md'")
+        else:
+            # Verify the file has content
+            page_path = WIKI_DIR / f"{page_name}.md"
+            if page_path.exists():
+                content = page_path.read_text(encoding="utf-8").strip()
+                if not content:
+                    errors.append(f"CRITICAL: Page '{page_name}.md' exists but is empty")
+                elif len(content) < 100:
+                    errors.append(
+                        f"WARNING: Page '{page_name}.md' has very little content "
+                        f"({len(content)} chars)"
+                    )
+    return errors
+
+
+def validate_home_links(wiki_pages: Set[str]) -> List[str]:
+    """Validate that Home.md contains required navigation links.
+
+    Returns:
+        List of error messages for missing required links.
+    """
+    errors = []
+    home_path = WIKI_DIR / "Home.md"
+    if not home_path.exists():
+        return ["CRITICAL: Home.md does not exist"]
+
+    content = home_path.read_text(encoding="utf-8")
+
+    for page_name, display_text in REQUIRED_HOME_LINKS:
+        # Check if there's a link to this page
+        pattern = rf"\[\[{re.escape(page_name)}(?:#[^\]|]*)?\|([^\]]*)\]\]"
+        matches = re.findall(pattern, content)
+
+        if not matches:
+            errors.append(
+                f"CRITICAL: Home.md missing link to '{page_name}' page"
+            )
+        else:
+            # Check if the page exists
+            if page_name not in wiki_pages:
+                errors.append(
+                    f"CRITICAL: Home.md links to '{page_name}' but page doesn't exist"
+                )
+
+    return errors
+
+
+def validate_sidebar_links(wiki_pages: Set[str]) -> List[str]:
+    """Validate that all sidebar links point to existing pages.
+
+    Returns:
+        List of error messages for invalid sidebar links.
+    """
+    errors = []
+    sidebar_path = WIKI_DIR / "_Sidebar.md"
+    if not sidebar_path.exists():
+        return ["CRITICAL: _Sidebar.md does not exist"]
+
+    content = sidebar_path.read_text(encoding="utf-8")
+    wiki_links = extract_wiki_links(content)
+
+    for page_name, anchor, line_num in wiki_links:
+        if page_name not in wiki_pages:
+            errors.append(
+                f"CRITICAL: _Sidebar.md:{line_num}: Links to non-existent "
+                f"page '[[{page_name}]]'"
+            )
+
+    return errors
+
+
 def validate_wiki(verbose: bool = False) -> int:
     """Validate all wiki links.
 
@@ -105,6 +207,19 @@ def validate_wiki(verbose: bool = False) -> int:
     warnings = []
     total_links = 0
 
+    # Phase 1: Validate critical pages exist and have content
+    critical_errors = validate_critical_pages(wiki_pages)
+    errors.extend(critical_errors)
+
+    # Phase 2: Validate Home.md has required navigation links
+    home_errors = validate_home_links(wiki_pages)
+    errors.extend(home_errors)
+
+    # Phase 3: Validate sidebar links
+    sidebar_errors = validate_sidebar_links(wiki_pages)
+    errors.extend(sidebar_errors)
+
+    # Phase 4: Validate all wiki links in all files
     for md_file in sorted(WIKI_DIR.glob("*.md")):
         content = md_file.read_text(encoding="utf-8")
 
@@ -127,12 +242,22 @@ def validate_wiki(verbose: bool = False) -> int:
             )
 
     # Report results
-    if verbose or errors or warnings:
-        print(f"\nWiki Link Validation Report")
-        print(f"{'=' * 40}")
-        print(f"Wiki pages found: {len(wiki_pages)}")
-        print(f"Total wiki links checked: {total_links}")
-        print()
+    print(f"\nWiki Link Validation Report")
+    print(f"{'=' * 40}")
+    print(f"Wiki pages found: {len(wiki_pages)}")
+    print(f"Total wiki links checked: {total_links}")
+    print()
+
+    # Show critical pages status
+    print("Critical Pages Status:")
+    for page_name in CRITICAL_PAGES:
+        page_path = WIKI_DIR / f"{page_name}.md"
+        if page_path.exists():
+            size = page_path.stat().st_size
+            print(f"  ✓ {page_name}.md ({size} bytes)")
+        else:
+            print(f"  ❌ {page_name}.md (MISSING)")
+    print()
 
     if errors:
         print(f"ERRORS ({len(errors)}):")
