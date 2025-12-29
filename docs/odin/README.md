@@ -123,7 +123,7 @@ budgets, **Tri-Inspector** is excellent.
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 
-public class PlayerInventory : SerializedMonoBehaviour  // Step 1: Inherit SerializedMonoBehaviour
+public class PlayerInventory : SerializedMonoBehaviour  // Step 1 : Inherit SerializedMonoBehaviour
 {
     // ✨ DICTIONARY SERIALIZATION - Unity can't do this!
     [OdinSerialize]

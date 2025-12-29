@@ -5,9 +5,9 @@ This script extracts C# code blocks from markdown files and applies CSharpier-li
 formatting rules:
 - Allman-style braces (opening brace on its own line)
 - 4 spaces indentation
-- Spaces around operators
+- Spaces around operators (outside of string literals)
 - Space after keywords (if, for, while, etc.)
-- Space after commas
+- Space after commas (outside of string literals)
 """
 
 from __future__ import annotations
@@ -60,6 +60,154 @@ def extract_csharp_blocks(file: Path) -> List[CodeBlock]:
     return blocks
 
 
+class StringLiteralMasker:
+    """Masks string literals to prevent formatting inside them."""
+
+    def __init__(self):
+        self.literals: List[str] = []
+        # Use a unique placeholder that won't appear in real C# code
+        self.placeholder_prefix = "\x00\x01STRLIT"
+        self.placeholder_suffix = "\x01\x00"
+
+    def mask(self, content: str) -> str:
+        """Replace string literals with placeholders."""
+        self.literals = []
+        result = []
+        i = 0
+
+        while i < len(content):
+            # Check for verbatim interpolated string $@"..." or @$"..."
+            if i < len(content) - 2 and (
+                (content[i] == "$" and content[i + 1] == "@" and content[i + 2] == '"')
+                or (
+                    content[i] == "@"
+                    and content[i + 1] == "$"
+                    and content[i + 2] == '"'
+                )
+            ):
+                start = i
+                i += 3  # Skip $@" or @$"
+                brace_depth = 0
+                while i < len(content):
+                    if content[i] == "{":
+                        if i + 1 < len(content) and content[i + 1] == "{":
+                            i += 2  # Escaped brace
+                            continue
+                        brace_depth += 1
+                    elif content[i] == "}":
+                        if i + 1 < len(content) and content[i + 1] == "}":
+                            i += 2  # Escaped brace
+                            continue
+                        brace_depth -= 1
+                    elif content[i] == '"' and brace_depth == 0:
+                        # Check for escaped quote "" in verbatim string
+                        if i + 1 < len(content) and content[i + 1] == '"':
+                            i += 2
+                            continue
+                        i += 1  # Include closing quote
+                        break
+                    i += 1
+                literal = content[start:i]
+                placeholder = f"{self.placeholder_prefix}{len(self.literals)}{self.placeholder_suffix}"
+                self.literals.append(literal)
+                result.append(placeholder)
+                continue
+
+            # Check for verbatim string @"..."
+            if i < len(content) - 1 and content[i] == "@" and content[i + 1] == '"':
+                start = i
+                i += 2  # Skip @"
+                while i < len(content):
+                    if content[i] == '"':
+                        # Check for escaped quote ""
+                        if i + 1 < len(content) and content[i + 1] == '"':
+                            i += 2
+                            continue
+                        i += 1  # Include closing quote
+                        break
+                    i += 1
+                literal = content[start:i]
+                placeholder = f"{self.placeholder_prefix}{len(self.literals)}{self.placeholder_suffix}"
+                self.literals.append(literal)
+                result.append(placeholder)
+                continue
+
+            # Check for interpolated string $"..."
+            if i < len(content) - 1 and content[i] == "$" and content[i + 1] == '"':
+                start = i
+                i += 2  # Skip $"
+                brace_depth = 0
+                while i < len(content):
+                    if content[i] == "{":
+                        if i + 1 < len(content) and content[i + 1] == "{":
+                            i += 2  # Escaped brace
+                            continue
+                        brace_depth += 1
+                    elif content[i] == "}":
+                        if i + 1 < len(content) and content[i + 1] == "}":
+                            i += 2  # Escaped brace
+                            continue
+                        brace_depth -= 1
+                    elif content[i] == '"' and brace_depth == 0:
+                        i += 1  # Include closing quote
+                        break
+                    elif content[i] == "\\" and i + 1 < len(content):
+                        i += 2  # Skip escaped char
+                        continue
+                    i += 1
+                literal = content[start:i]
+                placeholder = f"{self.placeholder_prefix}{len(self.literals)}{self.placeholder_suffix}"
+                self.literals.append(literal)
+                result.append(placeholder)
+                continue
+
+            # Check for regular string "..."
+            if content[i] == '"':
+                start = i
+                i += 1  # Skip opening quote
+                while i < len(content):
+                    if content[i] == '"':
+                        i += 1  # Include closing quote
+                        break
+                    elif content[i] == "\\" and i + 1 < len(content):
+                        i += 2  # Skip escaped char
+                        continue
+                    i += 1
+                literal = content[start:i]
+                placeholder = f"{self.placeholder_prefix}{len(self.literals)}{self.placeholder_suffix}"
+                self.literals.append(literal)
+                result.append(placeholder)
+                continue
+
+            # Check for character literal '.'
+            if content[i] == "'":
+                start = i
+                i += 1
+                if i < len(content) and content[i] == "\\":
+                    i += 2  # Skip escaped char
+                elif i < len(content):
+                    i += 1  # Skip char
+                if i < len(content) and content[i] == "'":
+                    i += 1  # Include closing quote
+                literal = content[start:i]
+                placeholder = f"{self.placeholder_prefix}{len(self.literals)}{self.placeholder_suffix}"
+                self.literals.append(literal)
+                result.append(placeholder)
+                continue
+
+            result.append(content[i])
+            i += 1
+
+        return "".join(result)
+
+    def unmask(self, content: str) -> str:
+        """Restore string literals from placeholders."""
+        for idx, literal in enumerate(self.literals):
+            placeholder = f"{self.placeholder_prefix}{idx}{self.placeholder_suffix}"
+            content = content.replace(placeholder, literal)
+        return content
+
+
 class CSharpFormatter:
     """A simplified CSharpier-like formatter for C# code."""
 
@@ -82,6 +230,7 @@ class CSharpFormatter:
 
     def __init__(self):
         self.indent_size = 4
+        self.masker = StringLiteralMasker()
 
     def format_code(self, code: str) -> str:
         """Format C# code using CSharpier-like rules."""
@@ -146,12 +295,19 @@ class CSharpFormatter:
         ):
             return line
 
-        # Apply formatting transformations
-        content = self._format_keywords_in_line(content)
-        content = self._format_operators_in_line(content)
-        content = self._format_commas_in_line(content)
-        content = self._format_inheritance_colon(content)
-        content = self._remove_space_before_semicolon(content)
+        # Mask string literals before formatting
+        self.masker = StringLiteralMasker()
+        masked_content = self.masker.mask(content)
+
+        # Apply formatting transformations on masked content
+        masked_content = self._format_keywords_in_line(masked_content)
+        masked_content = self._format_operators_in_line(masked_content)
+        masked_content = self._format_commas_in_line(masked_content)
+        masked_content = self._format_inheritance_colon(masked_content)
+        masked_content = self._remove_space_before_semicolon(masked_content)
+
+        # Restore string literals
+        content = self.masker.unmask(masked_content)
 
         return indent_str + content
 
@@ -166,10 +322,6 @@ class CSharpFormatter:
 
     def _format_operators_in_line(self, content: str) -> str:
         """Add spaces around assignment and comparison operators."""
-        # Skip if line contains strings (simple heuristic)
-        if '"' in content:
-            return content
-
         # Add spaces around these operators if they don't have them
         operators = [
             ("==", r"(\S)==(\S)", r"\1 == \2"),
@@ -195,13 +347,14 @@ class CSharpFormatter:
             op in content
             for op in ["==", "!=", "<=", ">=", "+=", "-=", "*=", "/=", "=>"]
         ):
-            # Simple assignment spacing
-            content = re.sub(r"(\w)=(\w)", r"\1 = \2", content)
+            # Simple assignment spacing - word followed by = followed by non-space
+            # This handles both `x=5` and `s="hello"` (masked as `s=\x00STR0\x00`)
+            content = re.sub(r"(\w)=([^\s=])", r"\1 = \2", content)
 
         return content
 
     def _format_commas_in_line(self, content: str) -> str:
-        """Ensure space after commas."""
+        """Ensure space after commas in code (not in strings - those are masked)."""
         # Add space after comma if not followed by space
         content = re.sub(r",(\S)", r", \1", content)
         # Remove space before comma
@@ -209,11 +362,29 @@ class CSharpFormatter:
         return content
 
     def _format_inheritance_colon(self, content: str) -> str:
-        """Format colons in class inheritance."""
-        # class Foo:Bar -> class Foo : Bar
-        if any(kw in content for kw in ["class ", "interface ", "struct "]):
-            # Match word:word pattern after class/interface/struct name
-            content = re.sub(r"(\w):(\w)", r"\1 : \2", content)
+        """Format colons in class/interface/struct inheritance declarations only.
+
+        This is intentionally conservative to avoid breaking:
+        - Case labels (case 1:)
+        - Ternary operators (a ? b : c)
+        - Dictionary initializers (["key"]: value)
+        - Generic constraints (where T : class)
+        """
+        # Only format if line contains a type declaration keyword
+        # Match patterns like: class Foo:Bar, class Foo<T>:Bar<T>, struct Foo:IFoo
+        if re.match(
+            r"^\s*(public\s+|private\s+|internal\s+|protected\s+|abstract\s+|"
+            r"sealed\s+|static\s+|partial\s+|readonly\s+)*"
+            r"(class|interface|struct|record)\s+\w+",
+            content,
+        ):
+            # Match TypeName:BaseType or TypeName<T>:BaseType<T> pattern
+            # Handle generic types in both the class name and base type
+            content = re.sub(
+                r"(\w+(?:<[^>]+>)?)\s*:\s*(\w+)",
+                r"\1 : \2",
+                content,
+            )
         return content
 
     def _remove_space_before_semicolon(self, content: str) -> str:
@@ -232,14 +403,32 @@ class CSharpFormatter:
             indent = len(line) - len(line.lstrip())
             indent_str = " " * indent
 
+            # Skip comment lines entirely
+            if stripped.startswith("//") or stripped.startswith("/*"):
+                result.append(line)
+                i += 1
+                continue
+
             # Check for K&R style: something { at end of line (not just "{")
             if (
                 stripped.endswith(" {")
                 and stripped != "{"
                 and not stripped.endswith("= {")
             ):
-                # Skip inline initializers like `new List<int> {` or lambda `=> {`
-                if " = new " in stripped or "=> {" in stripped or "= new(" in stripped:
+                # Skip inline initializers and collection expressions
+                skip_patterns = [
+                    " = new ",  # Object initializer: var x = new Foo {
+                    "=> {",  # Lambda with block body
+                    "= new(",  # Target-typed new
+                    "new[] {",  # Array initializer
+                    "new[",  # Array initializer
+                    "new {",  # Anonymous type
+                    "new() {",  # Target-typed new with initializer
+                    "with {",  # With expressions (C# 9+)
+                    "] {",  # After indexer
+                    "return new ",  # Return new object
+                ]
+                if any(pattern in stripped for pattern in skip_patterns):
                     result.append(line)
                     i += 1
                     continue
