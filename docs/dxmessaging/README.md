@@ -652,7 +652,8 @@ public class GameManager : MessageAwareComponent
         {
             Time.timeScale = 0f;
             new GamePaused().EmitUntargeted();
-        } else
+        }
+        else
         {
             Time.timeScale = 1f;
             new GameResumed().EmitUntargeted();

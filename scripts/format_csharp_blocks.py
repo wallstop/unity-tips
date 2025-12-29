@@ -424,6 +424,26 @@ class CSharpFormatter:
                 i += 1
                 continue
 
+            # Check for } else or } else if patterns FIRST (before general { check)
+            # This handles: } else {, } else if (x) {, } else, etc.
+            if re.match(r"^\}\s*(else|else\s+if)", stripped):
+                # Split into } and else/else if parts
+                match = re.match(
+                    r"^(\})\s*(else\s+if\s*\(.*\)|else\s+if.*|else)\s*(\{)?$", stripped
+                )
+                if match:
+                    result.append(indent_str + "}")
+                    else_part = match.group(2)
+                    has_brace = match.group(3) == "{"
+                    result.append(indent_str + else_part)
+                    if has_brace:
+                        result.append(indent_str + "{")
+                else:
+                    # Fallback: just append as-is if regex doesn't match expected pattern
+                    result.append(line)
+                i += 1
+                continue
+
             # Check for K&R style: something { at end of line (not just "{")
             if (
                 stripped.endswith(" {")

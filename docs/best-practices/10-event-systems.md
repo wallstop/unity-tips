@@ -361,7 +361,7 @@ public class Player : MessageAwareComponent
     public void TakeDamage(int amount)
     {
         health -= amount;
-        var healthChanged = new HealthChanged(health, maxHealth)
+        var healthChanged = new HealthChanged(health, maxHealth);
         healthChanged.EmitUntargeted();
     }
 }
