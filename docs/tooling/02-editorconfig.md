@@ -97,7 +97,7 @@ if (health < 0)
 
 ```csharp
 // IDE shows warnings for all convention violations:
-public interface PlayerController { }  // Warning : Interface must start with 'I'
+public interface PlayerController { }  // Warning: Interface must start with 'I'
 public event Action Click;              // Warning: Event must start with 'On'
 private int Health;                     // Warning: Private field must start with '_'
 public int player_speed;                // Warning: Public field must be camelCase

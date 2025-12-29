@@ -361,6 +361,17 @@ class CSharpFormatter:
         content = re.sub(r"\s+,", ",", content)
         return content
 
+    def _split_code_and_comment(self, content: str) -> tuple:
+        """Split a line into code and comment parts.
+
+        Returns (code_part, comment_part) where comment_part includes the //.
+        """
+        # Find // that's not inside a string (strings are already masked)
+        idx = content.find("//")
+        if idx == -1:
+            return content, ""
+        return content[:idx], content[idx:]
+
     def _format_inheritance_colon(self, content: str) -> str:
         """Format colons in class/interface/struct inheritance declarations only.
 
@@ -369,23 +380,27 @@ class CSharpFormatter:
         - Ternary operators (a ? b : c)
         - Dictionary initializers (["key"]: value)
         - Generic constraints (where T : class)
+        - Comments (// Step 1: Do something)
         """
+        # Split into code and comment parts - don't format comments
+        code_part, comment_part = self._split_code_and_comment(content)
+
         # Only format if line contains a type declaration keyword
         # Match patterns like: class Foo:Bar, class Foo<T>:Bar<T>, struct Foo:IFoo
         if re.match(
             r"^\s*(public\s+|private\s+|internal\s+|protected\s+|abstract\s+|"
             r"sealed\s+|static\s+|partial\s+|readonly\s+)*"
             r"(class|interface|struct|record)\s+\w+",
-            content,
+            code_part,
         ):
             # Match TypeName:BaseType or TypeName<T>:BaseType<T> pattern
             # Handle generic types in both the class name and base type
-            content = re.sub(
+            code_part = re.sub(
                 r"(\w+(?:<[^>]+>)?)\s*:\s*(\w+)",
                 r"\1 : \2",
-                content,
+                code_part,
             )
-        return content
+        return code_part + comment_part
 
     def _remove_space_before_semicolon(self, content: str) -> str:
         """Remove space before semicolon."""
