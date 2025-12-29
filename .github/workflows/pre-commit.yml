@@ -19,33 +19,11 @@ jobs:
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     permissions:
-      actions: write
-      contents: write
-      pull-requests: write
+      contents: read
 
     steps:
-      - name: Check out PR branch
-        if:
-          github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
-          github.repository
+      - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: Check out repository (forked PR)
-        if:
-          github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name !=
-          github.repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Check out push ref
-        if: github.event_name != 'pull_request'
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -63,87 +41,18 @@ jobs:
       - name: Install pre-commit
         run: pip install --upgrade pip pre-commit
 
-      - name: Run pre-commit (initial)
-        id: run_precommit
-        continue-on-error: true
+      - name: Run pre-commit
         env:
           # Treat network errors as warnings since CI may have restricted network access
           LINK_CHECK_WARN_ON_NETWORK_ERROR: "true"
         run: pre-commit run --all-files
 
-      - name: Check for auto-fixable changes
-        id: check_changes
-        if: steps.run_precommit.outcome == 'failure'
+      - name: Show fix instructions on failure
+        if: failure()
         run: |
-          if git diff --quiet; then
-            echo "has_fixes=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_fixes=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Apply and push automatic fixes
-        id: apply_fixes
-        if: |
-          steps.run_precommit.outcome == 'failure' &&
-          steps.check_changes.outputs.has_fixes == 'true' &&
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          set -eo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "chore: auto-apply pre-commit fixes"
-          git push
-          echo "pushed=true" >> "$GITHUB_OUTPUT"
-          # GitHub automatically triggers a new workflow run on the pushed commit
-
-      - name: Re-run pre-commit to validate fixes
-        id: rerun_precommit
-        if: steps.apply_fixes.outputs.pushed == 'true'
-        env:
-          LINK_CHECK_WARN_ON_NETWORK_ERROR: "true"
-        run: |
-          echo "Validating auto-applied fixes..."
-          pre-commit run --all-files
-
-      - name: Report success after auto-fix
-        if: steps.apply_fixes.outputs.pushed == 'true' && steps.rerun_precommit.outcome == 'success'
-        run: |
-          echo "Auto-fixes applied and validated successfully!"
-          echo "::notice::Pre-commit fixes were automatically applied and pushed."
-
-      - name: Fail if initial check failed with no auto-fixes available
-        if: |
-          steps.run_precommit.outcome == 'failure' &&
-          steps.check_changes.outputs.has_fixes == 'false'
-        run: |
-          echo "::error::Pre-commit checks failed with no auto-fixable changes."
-          echo "Please run 'pre-commit run --all-files' locally to see the issues."
-          exit 1
-
-      - name: Fail for forked pull requests
-        if: |
-          steps.run_precommit.outcome == 'failure' &&
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name != github.repository
-        run: |
-          echo "::error::Pre-commit checks failed. Auto-fix cannot push to forked repositories."
-          echo "Please run 'pre-commit run --all-files' locally and push the fixes."
-          exit 1
-
-      - name: Fail for push events (non-PR)
-        if: |
-          steps.run_precommit.outcome == 'failure' &&
-          github.event_name != 'pull_request'
-        run: |
-          echo "::error::Pre-commit checks failed on push."
-          echo "Please run 'pre-commit run --all-files' locally."
-          exit 1
-
-      - name: Fail if re-validation failed after auto-fix
-        if: steps.rerun_precommit.outcome == 'failure'
-        run: |
-          echo "::error::Pre-commit still failing after auto-fixes."
-          echo "Some issues require manual intervention."
-          exit 1
+          echo "::error::Pre-commit checks failed."
+          echo ""
+          echo "To fix locally, run:"
+          echo "  pre-commit run --all-files"
+          echo ""
+          echo "Then commit and push the fixes."
