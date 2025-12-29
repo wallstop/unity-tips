@@ -166,6 +166,37 @@ def resolve_relative_path(source_file: str, link: str) -> str | None:
     return str(PurePosixPath(*parts)) if parts else "."
 
 
+def is_in_table_row(content: str, position: int) -> bool:
+    """Check if a position in the content is inside a Markdown table row.
+
+    A table row starts with | and contains | as column separators.
+    We detect this by finding the start of the current line and checking
+    if it begins with |.
+    """
+    # Find the start of the line containing this position
+    line_start = content.rfind("\n", 0, position) + 1
+
+    # Find the end of the line
+    line_end = content.find("\n", position)
+    if line_end == -1:
+        line_end = len(content)
+
+    line = content[line_start:line_end]
+
+    # A table row starts with | (possibly with leading whitespace)
+    # and is not a separator row (those contain only |, -, :, and spaces)
+    stripped = line.strip()
+    if not stripped.startswith("|"):
+        return False
+
+    # Check it's not a separator row like | --- | --- |
+    separator_chars = set("|-: ")
+    if all(c in separator_chars for c in stripped):
+        return False
+
+    return True
+
+
 def convert_links(content: str, source_file: str) -> str:
     """Convert relative markdown links to wiki links, skipping code blocks."""
     # Get code ranges to skip
@@ -242,9 +273,22 @@ def convert_links(content: str, source_file: str) -> str:
         if wiki_name is not None:
             # Use wiki page name as fallback if link text is empty
             display_text = link_text if link_text.strip() else wiki_name
+
+            # Check if this link is inside a table row
+            # If so, we need to escape the pipe character to prevent it from
+            # being interpreted as a table column separator
+            in_table = is_in_table_row(result, link_match.start)
+
+            if in_table:
+                # In tables, use escaped pipe: [[Display\|Page]]
+                # GitHub Wiki interprets \| correctly inside tables
+                separator = "\\|"
+            else:
+                separator = "|"
+
             # Replace with wiki link format: [[DisplayText|PageName]]
             # Note: GitHub Wiki format is opposite of MediaWiki
-            new_link = f"[[{display_text}|{wiki_name}{anchor}]]"
+            new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
         else:
             # Track unmapped internal links for warning
