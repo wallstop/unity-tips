@@ -21,10 +21,12 @@ def find_code_block_ranges(content: str) -> list[tuple[int, int]]:
 
     Returns:
         List of (start, end) tuples for each code block.
+        If a code block is unclosed, the range extends to end of content.
     """
     ranges = []
-    # Match opening ``` with optional language specifier
-    pattern = re.compile(r"^```[a-z]*\s*$", re.MULTILINE)
+    # Match opening/closing ``` with optional language specifier
+    # Supports: lowercase (python), uppercase (Python), mixed (C#), special chars (c++, f#)
+    pattern = re.compile(r"^```[a-zA-Z0-9#+-]*\s*$", re.MULTILINE)
 
     in_block = False
     block_start = 0
@@ -36,6 +38,10 @@ def find_code_block_ranges(content: str) -> list[tuple[int, int]]:
         else:
             ranges.append((block_start, match.end()))
             in_block = False
+
+    # Handle unclosed code block - treat rest of file as code
+    if in_block:
+        ranges.append((block_start, len(content)))
 
     return ranges
 

@@ -26,6 +26,9 @@ from link_utils import (
 DOCS_DIR = Path("docs")
 WIKI_DIR = Path("wiki")
 
+# Critical pages that MUST be generated (these have historically caused issues)
+CRITICAL_PAGES = ["Best-Practices", "Development-Tooling", "Home", "_Sidebar"]
+
 # Mapping of source paths to wiki page names (always use forward slashes)
 WIKI_STRUCTURE = {
     # Best Practices
@@ -481,8 +484,7 @@ def main() -> int:
 
     # Final verification: Check critical pages were generated
     print("\nVerifying critical pages...")
-    critical_pages = ["Best-Practices", "Development-Tooling", "Home", "_Sidebar"]
-    for page_name in critical_pages:
+    for page_name in CRITICAL_PAGES:
         page_path = WIKI_DIR / f"{page_name}.md"
         if page_path.exists():
             size = page_path.stat().st_size

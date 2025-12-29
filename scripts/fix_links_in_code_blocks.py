@@ -27,8 +27,9 @@ def find_code_blocks_with_links(content: str) -> list[tuple[int, int, str]]:
         List of (start, end, block_content) tuples for blocks that need fixing.
     """
     # Pattern for code blocks without language specifier
-    # Matches: ``` (with optional whitespace) followed by content and closing ```
-    pattern = re.compile(r"```\s*\n(.*?)```", re.DOTALL)
+    # Matches: ``` with any content before newline, followed by content and closing ```
+    # Uses [^\n]* to handle optional whitespace/language specifiers on the opening fence
+    pattern = re.compile(r"```[^\n]*\n(.*?)```", re.DOTALL)
 
     # Pattern for markdown links with HTTP URLs
     link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^)]+)\)")
@@ -94,7 +95,11 @@ def process_file(
         return False, 0
 
     if in_place:
-        file_path.write_text(fixed_content, encoding="utf-8")
+        try:
+            file_path.write_text(fixed_content, encoding="utf-8")
+        except Exception as e:
+            print(f"Error writing {file_path}: {e}", file=sys.stderr)
+            return False, 0
         if verbose:
             print(f"  Fixed {fixes} code block(s) in {file_path}")
     else:

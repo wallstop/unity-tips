@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import Set, Tuple, List
 
@@ -24,6 +25,19 @@ from link_utils import find_code_fence_ranges, find_inline_code_ranges, in_range
 
 WIKI_DIR = Path("wiki")
 DOCS_DIR = Path("docs")
+
+
+class Severity(Enum):
+    """Severity levels for validation messages."""
+
+    CRITICAL = "CRITICAL"
+    WARNING = "WARNING"
+
+
+def format_message(severity: Severity, message: str) -> str:
+    """Format a validation message with consistent severity prefix."""
+    return f"{severity.value}: {message}"
+
 
 # Critical wiki pages that MUST exist (these have historically caused issues)
 CRITICAL_PAGES = [
@@ -115,7 +129,11 @@ def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
     errors = []
     for page_name in CRITICAL_PAGES:
         if page_name not in wiki_pages:
-            errors.append(f"CRITICAL: Missing required page '{page_name}.md'")
+            errors.append(
+                format_message(
+                    Severity.CRITICAL, f"Missing required page '{page_name}.md'"
+                )
+            )
         else:
             # Verify the file has content
             page_path = WIKI_DIR / f"{page_name}.md"
@@ -123,12 +141,18 @@ def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
                 content = page_path.read_text(encoding="utf-8").strip()
                 if not content:
                     errors.append(
-                        f"CRITICAL: Page '{page_name}.md' exists but is empty"
+                        format_message(
+                            Severity.CRITICAL,
+                            f"Page '{page_name}.md' exists but is empty",
+                        )
                     )
                 elif len(content) < 100:
                     errors.append(
-                        f"WARNING: Page '{page_name}.md' has very little content "
-                        f"({len(content)} chars)"
+                        format_message(
+                            Severity.WARNING,
+                            f"Page '{page_name}.md' has very little content "
+                            f"({len(content)} chars)",
+                        )
                     )
     return errors
 
@@ -142,22 +166,41 @@ def validate_home_links(wiki_pages: Set[str]) -> List[str]:
     errors = []
     home_path = WIKI_DIR / "Home.md"
     if not home_path.exists():
-        return ["CRITICAL: Home.md does not exist"]
+        return [format_message(Severity.CRITICAL, "Home.md does not exist")]
 
     content = home_path.read_text(encoding="utf-8")
 
-    for page_name, display_text in REQUIRED_HOME_LINKS:
+    for page_name, expected_display_text in REQUIRED_HOME_LINKS:
         # Check if there's a link to this page
         pattern = rf"\[\[{re.escape(page_name)}(?:#[^\]|]*)?\|([^\]]*)\]\]"
         matches = re.findall(pattern, content)
 
         if not matches:
-            errors.append(f"CRITICAL: Home.md missing link to '{page_name}' page")
+            errors.append(
+                format_message(
+                    Severity.CRITICAL, f"Home.md missing link to '{page_name}' page"
+                )
+            )
         else:
             # Check if the page exists
             if page_name not in wiki_pages:
                 errors.append(
-                    f"CRITICAL: Home.md links to '{page_name}' but page doesn't exist"
+                    format_message(
+                        Severity.CRITICAL,
+                        f"Home.md links to '{page_name}' but page doesn't exist",
+                    )
+                )
+            # Validate display text contains expected text
+            found_expected = any(
+                expected_display_text in display for display in matches
+            )
+            if not found_expected:
+                errors.append(
+                    format_message(
+                        Severity.WARNING,
+                        f"Home.md link to '{page_name}' has unexpected display text "
+                        f"(expected to contain '{expected_display_text}')",
+                    )
                 )
 
     return errors
@@ -172,7 +215,7 @@ def validate_sidebar_links(wiki_pages: Set[str]) -> List[str]:
     errors = []
     sidebar_path = WIKI_DIR / "_Sidebar.md"
     if not sidebar_path.exists():
-        return ["CRITICAL: _Sidebar.md does not exist"]
+        return [format_message(Severity.CRITICAL, "_Sidebar.md does not exist")]
 
     content = sidebar_path.read_text(encoding="utf-8")
     wiki_links = extract_wiki_links(content)
@@ -180,8 +223,11 @@ def validate_sidebar_links(wiki_pages: Set[str]) -> List[str]:
     for page_name, anchor, line_num in wiki_links:
         if page_name not in wiki_pages:
             errors.append(
-                f"CRITICAL: _Sidebar.md:{line_num}: Links to non-existent "
-                f"page '[[{page_name}]]'"
+                format_message(
+                    Severity.CRITICAL,
+                    f"_Sidebar.md:{line_num}: Links to non-existent "
+                    f"page '[[{page_name}]]'",
+                )
             )
 
     return errors
