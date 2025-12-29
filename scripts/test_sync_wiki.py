@@ -128,21 +128,24 @@ More text with [[Link3]] not in table.
         position2 = content2.rfind("| -- |")
         assert is_in_table_row(content2, position2) is True
 
-    def test_separator_row_requires_three_dashes(self) -> None:
-        """Separator rows must have at least 3 consecutive dashes to be valid."""
-        # Valid separator with 3 dashes
+    def test_separator_row_requires_three_dashes_in_each_cell(self) -> None:
+        """Per GFM spec, each cell in a separator row must have at least 3 consecutive dashes."""
+        # Valid separator - all cells have 3+ dashes
         assert _is_separator_row("| --- | --- |") is True
         assert _is_separator_row("|---|---|") is True
         assert _is_separator_row("| :---: | :--- |") is True
+        assert _is_separator_row("| ---- | ----- |") is True
 
-        # Invalid - less than 3 consecutive dashes
+        # Invalid - less than 3 consecutive dashes in any cell
         assert _is_separator_row("| -- | -- |") is False
         assert _is_separator_row("| - | - |") is False
         assert _is_separator_row("| : | : |") is False
 
-        # Mixed - at least one cell has 3+ dashes
-        assert _is_separator_row("| --- | - |") is True
-        assert _is_separator_row("| - | --- |") is True
+        # Invalid - mixed cells where at least one cell has < 3 dashes
+        # Per GFM spec, ALL cells must have 3+ dashes, not just one
+        assert _is_separator_row("| --- | - |") is False
+        assert _is_separator_row("| - | --- |") is False
+        assert _is_separator_row("| --- | -- |") is False
 
 
 class TestConvertLinksTableIntegration:
@@ -240,8 +243,8 @@ def run_tests() -> int:
             "table_row_with_separator_chars_as_content",
         ),
         (
-            test_instance.test_separator_row_requires_three_dashes,
-            "separator_row_requires_three_dashes",
+            test_instance.test_separator_row_requires_three_dashes_in_each_cell,
+            "separator_row_requires_three_dashes_in_each_cell",
         ),
         # TestConvertLinksTableIntegration tests
         (

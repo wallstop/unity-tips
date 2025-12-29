@@ -174,8 +174,9 @@ def is_in_table_row(content: str, position: int) -> bool:
     if it begins with |.
 
     Note: Separator rows (e.g., | --- | --- |) are excluded from detection
-    since they don't contain content that needs link conversion. A separator
-    row is identified by containing at least one cell with 3+ dashes.
+    since they don't contain content that needs link conversion. Per the
+    GitHub Flavored Markdown specification (section 4.10), a valid separator
+    row requires each cell to contain at least 3 consecutive dashes.
     """
     # Find the start of the line containing this position
     line_start = content.rfind("\n", 0, position) + 1
@@ -193,7 +194,7 @@ def is_in_table_row(content: str, position: int) -> bool:
         return False
 
     # Check it's not a separator row like | --- | --- |
-    # A separator row must have at least one cell with 3+ consecutive dashes
+    # Per GFM spec, each cell must have at least 3 consecutive dashes
     # This avoids false positives for rows with content like | - | : |
     if _is_separator_row(stripped):
         return False
@@ -204,9 +205,21 @@ def is_in_table_row(content: str, position: int) -> bool:
 def _is_separator_row(line: str) -> bool:
     """Check if a line is a Markdown table separator row.
 
-    A separator row consists of cells containing only dashes, colons, and spaces,
-    with at least one cell having 3 or more consecutive dashes.
-    Examples: | --- | --- |, |:---:|:---|, | :--: | --- |
+    Per the GitHub Flavored Markdown specification (section 4.10), a separator
+    row consists of cells where each cell contains only:
+    - At least 3 consecutive hyphens (---)
+    - Optional leading/trailing colons for alignment (:)
+    - Optional surrounding whitespace
+
+    Examples of valid separator rows:
+        | --- | --- |
+        |:---:|:---|
+        | :--: | --- |
+
+    Examples of invalid separator rows (treated as content):
+        | -- | -- |    (cells have only 2 dashes)
+        | - | - |      (cells have only 1 dash)
+        | --- | - |    (second cell has only 1 dash)
     """
     # Split by | and check each cell
     # First and last elements may be empty due to leading/trailing |
@@ -219,27 +232,27 @@ def _is_separator_row(line: str) -> bool:
         return False
 
     # Each cell must contain only dashes, colons, and spaces
+    # AND each cell must have at least 3 consecutive dashes (GFM requirement)
     separator_chars = set("-: ")
     for cell in cells:
+        # Check cell contains only valid separator characters
         if not all(c in separator_chars for c in cell):
             return False
 
-    # At least one cell must have 3+ consecutive dashes (GFM requirement)
-    has_valid_separator = False
-    for cell in cells:
-        dash_count = 0
+        # Check cell has at least 3 consecutive dashes
+        max_consecutive_dashes = 0
+        current_dash_count = 0
         for c in cell:
             if c == "-":
-                dash_count += 1
-                if dash_count >= 3:
-                    has_valid_separator = True
-                    break
+                current_dash_count += 1
+                max_consecutive_dashes = max(max_consecutive_dashes, current_dash_count)
             else:
-                dash_count = 0
-        if has_valid_separator:
-            break
+                current_dash_count = 0
 
-    return has_valid_separator
+        if max_consecutive_dashes < 3:
+            return False
+
+    return True
 
 
 def convert_links(content: str, source_file: str) -> str:
