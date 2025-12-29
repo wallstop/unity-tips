@@ -385,13 +385,14 @@ class CSharpFormatter:
             content = re.sub(pattern, replacement, content)
 
         # Handle single = assignment: word=value -> word = value
-        # Use negative lookbehind/lookahead to avoid matching compound operators
-        # This handles cases like `x=5` and `s="hello"` but not `x==y` or `x+=1`
-        content = re.sub(
-            r"(\w)(?<![=!<>+\-*/])=(?![=>])([^\s=])",
-            r"\1 = \2",
-            content,
-        )
+        # Compound operators (+=, ==, etc.) are already handled above.
+        # The lookahead (?![=>]) avoids matching == or => if they weren't
+        # caught by the compound patterns (e.g., edge cases with existing spaces).
+        # Note: \w only matches [a-zA-Z0-9_], so no lookbehind needed for operators.
+        # Loop to handle chained assignments like a=b=c=0 (needs multiple passes).
+        assignment_pattern = re.compile(r"(\w)=(?![=>])([^\s=])")
+        while assignment_pattern.search(content):
+            content = assignment_pattern.sub(r"\1 = \2", content)
 
         # Handle binary arithmetic operators
         # + is safe between any word characters
