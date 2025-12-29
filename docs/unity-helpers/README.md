@@ -1013,7 +1013,7 @@ void PlaySound()
 
 // ❌ UNSAFE - ?. bypasses Unity's null check (see best-practices/10-null-conditional-operators.md)
 // void PlaySound()
-{
+// {
 //     audio?.Play();
 // }
 ```
