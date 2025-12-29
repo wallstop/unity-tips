@@ -149,39 +149,39 @@ def check_internal_link(
         elif not href.startswith("/"):
             href = "/" + href
 
+    # URL-decode before normalizing to handle encoded path separators
+    href = unquote(href)
+
     # Normalize the path
     target = normalize_path(href, source_path)
     if not target:
         return None
 
-    # Check if target exists
-    target_decoded = unquote(target)
-
     # Try exact match
-    if target_decoded in site_index:
+    if target in site_index:
         return None
 
     # Try with trailing slash
-    if f"{target_decoded}/" in site_index:
+    if f"{target}/" in site_index:
         return None
 
     # Try with /index.html
-    if f"{target_decoded}/index.html" in site_index:
+    if f"{target}/index.html" in site_index:
         return None
 
     # Try removing trailing slash
-    if target_decoded.endswith("/") and target_decoded[:-1] in site_index:
+    if target.endswith("/") and target[:-1] in site_index:
         return None
 
     # Handle .md extension - MkDocs converts foo.md to foo/index.html
-    if target_decoded.endswith(".md"):
-        base_path = target_decoded[:-3]
+    if target.endswith(".md"):
+        base_path = target[:-3]
         if f"{base_path}/index.html" in site_index:
             return None
         if f"{base_path}/" in site_index:
             return None
 
-    return f"Target not found: {target_decoded}"
+    return f"Target not found: {target}"
 
 
 def validate_html_file(

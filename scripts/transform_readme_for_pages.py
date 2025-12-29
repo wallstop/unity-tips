@@ -17,6 +17,7 @@ import re
 import sys
 from pathlib import Path
 from typing import Optional, Sequence
+from urllib.parse import unquote
 
 from link_utils import extract_links
 
@@ -28,6 +29,7 @@ def transform_links(content: str) -> str:
     handles escaped brackets, nested brackets, and other edge cases.
     """
     # Pattern to detect docs/ prefix in hrefs
+    # Matches: ./docs/path or docs/path (with optional ./ prefix)
     docs_prefix_pattern = re.compile(r"^(\./)?docs/(.+)$")
 
     # Extract all links using the robust link_utils parser
@@ -39,7 +41,9 @@ def transform_links(content: str) -> str:
         if link.kind != "inline":
             continue
 
-        match = docs_prefix_pattern.match(link.href)
+        # URL-decode href for pattern matching (handles %20, etc.)
+        href_decoded = unquote(link.href)
+        match = docs_prefix_pattern.match(href_decoded)
         if not match:
             continue
 
