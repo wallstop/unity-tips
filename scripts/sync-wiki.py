@@ -277,7 +277,9 @@ def convert_links(content: str, source_file: str) -> str:
             # Check if this link is inside a table row
             # If so, we need to escape the pipe character to prevent it from
             # being interpreted as a table column separator
-            in_table = is_in_table_row(result, link_match.start)
+            # Note: Use original content for position check since link_match.start
+            # refers to positions in the original content, not the modified result
+            in_table = is_in_table_row(content, link_match.start)
 
             if in_table:
                 # In tables, use escaped pipe: [[Display\|Page]]
