@@ -1,5 +1,8 @@
 # Unity Tips & Tools
 
+<a href="https://wallstop.github.io/unity-tips/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=for-the-badge" alt="Documentation"></a>
+<a href="https://github.com/wallstop/unity-tips/wiki"><img src="https://img.shields.io/badge/wiki-GitHub%20Wiki-green?style=for-the-badge" alt="Wiki"></a>
+
 > Battle-tested practices and tools to build better Unity games faster. From beginner to expert.
 
 **[View the full documentation site](https://wallstop.github.io/unity-tips)** - Best viewed on

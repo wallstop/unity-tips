@@ -38,7 +38,9 @@ def extract_links(text: str) -> List[LinkMatch]:
     matches: List[LinkMatch] = []
     code_ranges = find_code_fence_ranges(text)
     inline_code_ranges = find_inline_code_ranges(text)
-    skip_ranges = code_ranges + inline_code_ranges
+    html_tag_ranges = find_html_tag_ranges(text)
+    # Skip code blocks, inline code, and HTML tags when detecting links
+    skip_ranges = code_ranges + inline_code_ranges + html_tag_ranges
     line_offsets = build_line_offsets(text)
 
     for inline in find_inline_links(text):
@@ -204,6 +206,21 @@ def index_to_line_column(offsets: Sequence[int], index: int) -> Tuple[int, int]:
     line = bisect_right(offsets, index) - 1
     column = index - offsets[line] + 1
     return line + 1, column
+
+
+def find_html_tag_ranges(text: str) -> List[Tuple[int, int]]:
+    """Find ranges of HTML tags to skip when looking for bare URLs.
+
+    This prevents URLs inside HTML attributes (like href="..." or src="...")
+    from being treated as bare markdown links.
+    """
+    ranges: List[Tuple[int, int]] = []
+    # Match HTML tags including their attributes
+    # This handles <a href="...">...</a>, <img src="...">, etc.
+    tag_pattern = re.compile(r"<[a-zA-Z][^>]*>")
+    for match in tag_pattern.finditer(text):
+        ranges.append((match.start(), match.end()))
+    return ranges
 
 
 def find_code_fence_ranges(text: str) -> List[Tuple[int, int]]:
