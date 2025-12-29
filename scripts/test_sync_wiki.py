@@ -17,6 +17,8 @@ sys.modules["sync_wiki"] = sync_wiki
 spec.loader.exec_module(sync_wiki)
 
 is_in_table_row = sync_wiki.is_in_table_row
+_is_separator_row = sync_wiki._is_separator_row
+convert_links = sync_wiki.convert_links
 
 
 class TestIsInTableRow:
@@ -110,11 +112,115 @@ More text with [[Link3]] not in table.
         position = content.find("\n\n") + 1
         assert is_in_table_row(content, position) is False
 
+    def test_table_row_with_separator_chars_as_content(self) -> None:
+        """Table rows with separator chars as content should be detected as table rows.
+
+        This tests the edge case where a cell contains only characters that could
+        appear in a separator row (-, :, space) but is actually content.
+        """
+        # Row with single dash and colon as content - should be detected as table row
+        content = "| Header | Type |\n| --- | --- |\n| - | : |"
+        position = content.rfind("| - |")
+        assert is_in_table_row(content, position) is True
+
+        # Row with just dashes but less than 3 consecutive - should be table row
+        content2 = "| A | B |\n| --- | --- |\n| -- | - |"
+        position2 = content2.rfind("| -- |")
+        assert is_in_table_row(content2, position2) is True
+
+    def test_separator_row_requires_three_dashes(self) -> None:
+        """Separator rows must have at least 3 consecutive dashes to be valid."""
+        # Valid separator with 3 dashes
+        assert _is_separator_row("| --- | --- |") is True
+        assert _is_separator_row("|---|---|") is True
+        assert _is_separator_row("| :---: | :--- |") is True
+
+        # Invalid - less than 3 consecutive dashes
+        assert _is_separator_row("| -- | -- |") is False
+        assert _is_separator_row("| - | - |") is False
+        assert _is_separator_row("| : | : |") is False
+
+        # Mixed - at least one cell has 3+ dashes
+        assert _is_separator_row("| --- | - |") is True
+        assert _is_separator_row("| - | --- |") is True
+
+
+class TestConvertLinksTableIntegration:
+    """Integration tests for convert_links with table detection."""
+
+    def test_link_in_table_gets_escaped_pipe(self) -> None:
+        """Links inside tables should have escaped pipes in wiki format."""
+        # Link from README.md to docs/tool.md resolves to "tool" after stripping docs/ prefix
+        content = "| [Tool](./docs/tool.md) | Description |\n| --- | --- |"
+        # Mock the WIKI_STRUCTURE for this test
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            # Key is "tool.md" because path resolves to "docs/tool.md",
+            # then docs/ is stripped, leaving "tool.md"
+            sync_wiki.WIKI_STRUCTURE["tool.md"] = "Tool-Page"
+            result = convert_links(content, "README.md")
+            # Should have escaped pipe in table
+            assert "[[Tool\\|Tool-Page]]" in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_link_outside_table_gets_normal_pipe(self) -> None:
+        """Links outside tables should have normal pipes in wiki format."""
+        content = "Check out [Tool](./docs/tool.md) for more info."
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["tool.md"] = "Tool-Page"
+            result = convert_links(content, "README.md")
+            # Should have normal pipe outside table
+            assert "[[Tool|Tool-Page]]" in result
+            assert "\\|" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_mixed_table_and_non_table_links(self) -> None:
+        """Document with both table and non-table links should handle both correctly."""
+        content = """# Guide
+
+See [Overview](./docs/overview.md) for details.
+
+| Tool | Link |
+| --- | --- |
+| First | [Tool1](./docs/tool1.md) |
+| Second | [Tool2](./docs/tool2.md) |
+
+More info at [Tool1](./docs/tool1.md).
+"""
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["overview.md"] = "Overview"
+            sync_wiki.WIKI_STRUCTURE["tool1.md"] = "Tool1-Page"
+            sync_wiki.WIKI_STRUCTURE["tool2.md"] = "Tool2-Page"
+            result = convert_links(content, "README.md")
+
+            # Non-table links should have normal pipes
+            assert "[[Overview|Overview]]" in result
+
+            # Table links should have escaped pipes
+            assert "[[Tool1\\|Tool1-Page]]" in result
+            assert "[[Tool2\\|Tool2-Page]]" in result
+
+            # The final non-table link to Tool1 should have normal pipe
+            # Count occurrences - should be 1 escaped (in table) and 1 normal (outside)
+            assert result.count("[[Tool1\\|Tool1-Page]]") == 1
+            assert result.count("[[Tool1|Tool1-Page]]") == 1
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
 
 def run_tests() -> int:
     """Run all tests and return exit code."""
     test_instance = TestIsInTableRow()
+    integration_instance = TestConvertLinksTableIntegration()
     tests = [
+        # TestIsInTableRow tests
         (test_instance.test_normal_table_row, "normal_table_row"),
         (test_instance.test_header_row, "header_row"),
         (test_instance.test_separator_row_excluded, "separator_row_excluded"),
@@ -129,6 +235,27 @@ def run_tests() -> int:
             "separator_row_with_alignment",
         ),
         (test_instance.test_empty_line, "empty_line"),
+        (
+            test_instance.test_table_row_with_separator_chars_as_content,
+            "table_row_with_separator_chars_as_content",
+        ),
+        (
+            test_instance.test_separator_row_requires_three_dashes,
+            "separator_row_requires_three_dashes",
+        ),
+        # TestConvertLinksTableIntegration tests
+        (
+            integration_instance.test_link_in_table_gets_escaped_pipe,
+            "integration_link_in_table_escaped",
+        ),
+        (
+            integration_instance.test_link_outside_table_gets_normal_pipe,
+            "integration_link_outside_table_normal",
+        ),
+        (
+            integration_instance.test_mixed_table_and_non_table_links,
+            "integration_mixed_table_and_non_table",
+        ),
     ]
 
     passed = 0
