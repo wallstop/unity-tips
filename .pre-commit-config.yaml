@@ -62,7 +62,9 @@ repos:
         additional_dependencies: ["pyyaml>=6.0"]
       - id: validate-wiki-links
         name: Sync and validate wiki links
-        entry: bash -c 'PYTHONPATH=scripts python3 scripts/sync-wiki.py && PYTHONPATH=scripts python3 scripts/check_wiki_links.py'
+        entry:
+          bash -c 'PYTHONPATH=scripts python3 scripts/sync-wiki.py && PYTHONPATH=scripts python3
+          scripts/check_wiki_links.py'
         language: system
         types: [markdown]
         pass_filenames: false
