@@ -41,7 +41,7 @@ def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
         page_name = match.group(1).strip()
         anchor = match.group(2) or ""
         # Calculate line number
-        line_num = content[:match.start()].count("\n") + 1
+        line_num = content[: match.start()].count("\n") + 1
         links.append((page_name, anchor, line_num))
 
     return links
@@ -69,7 +69,7 @@ def find_unconverted_links(content: str, file_path: Path) -> List[Tuple[str, int
         # Skip external links
         if href.startswith(("http://", "https://", "mailto:")):
             continue
-        line_num = content[:match.start()].count("\n") + 1
+        line_num = content[: match.start()].count("\n") + 1
         unconverted.append((href, line_num))
 
     return unconverted
