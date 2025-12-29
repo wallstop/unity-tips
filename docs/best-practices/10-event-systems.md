@@ -1141,7 +1141,7 @@ UnityEvent's overhead is usually acceptable. Always profile your specific use ca
 
 [^1]:
     Jackson Dunstan,
-    ["Event Performance: C# vs. UnityEvent"](https://www.jacksondunstan.com/articles/3335) -
+    ["Event Performance: C# vs. UnityEvent"](https://web.archive.org/web/20231205031705/https://www.jacksondunstan.com/articles/3335) -
     Benchmarks show UnityEvent is 8-13x slower than C# events (tested on Unity 5.3.1f1, 10M
     iterations with 2 listeners). UnityEvent allocates 136 bytes on first dispatch, zero on
     subsequent dispatches. These benchmarks are from 2015 and may not reflect current Unity
