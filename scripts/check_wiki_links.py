@@ -122,7 +122,9 @@ def validate_critical_pages(wiki_pages: Set[str]) -> List[str]:
             if page_path.exists():
                 content = page_path.read_text(encoding="utf-8").strip()
                 if not content:
-                    errors.append(f"CRITICAL: Page '{page_name}.md' exists but is empty")
+                    errors.append(
+                        f"CRITICAL: Page '{page_name}.md' exists but is empty"
+                    )
                 elif len(content) < 100:
                     errors.append(
                         f"WARNING: Page '{page_name}.md' has very little content "
@@ -150,9 +152,7 @@ def validate_home_links(wiki_pages: Set[str]) -> List[str]:
         matches = re.findall(pattern, content)
 
         if not matches:
-            errors.append(
-                f"CRITICAL: Home.md missing link to '{page_name}' page"
-            )
+            errors.append(f"CRITICAL: Home.md missing link to '{page_name}' page")
         else:
             # Check if the page exists
             if page_name not in wiki_pages:
