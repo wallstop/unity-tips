@@ -20,6 +20,12 @@ is_in_table_row = sync_wiki.is_in_table_row
 _is_separator_row = sync_wiki._is_separator_row
 convert_links = sync_wiki.convert_links
 
+# Import check_wiki_links functions for testing
+import check_wiki_links
+
+_split_wiki_link_on_pipe = check_wiki_links._split_wiki_link_on_pipe
+extract_wiki_links = check_wiki_links.extract_wiki_links
+
 
 class TestIsInTableRow:
     """Tests for the is_in_table_row function."""
@@ -278,11 +284,98 @@ More info at [Tool1](./docs/tool1.md).
             sync_wiki.WIKI_STRUCTURE.update(original_structure)
 
 
+class TestSplitWikiLinkOnPipe:
+    """Tests for the _split_wiki_link_on_pipe helper function."""
+
+    def test_no_pipe(self) -> None:
+        """Links without pipe should return empty display text."""
+        display, page = _split_wiki_link_on_pipe("PageName")
+        assert display == ""
+        assert page == "PageName"
+
+    def test_simple_pipe(self) -> None:
+        """Links with simple pipe should split correctly."""
+        display, page = _split_wiki_link_on_pipe("Display Text|PageName")
+        assert display == "Display Text"
+        assert page == "PageName"
+
+    def test_escaped_pipe(self) -> None:
+        """Escaped pipes in table context should be handled correctly."""
+        display, page = _split_wiki_link_on_pipe("Display Text\\|PageName")
+        assert display == "Display Text"
+        assert page == "PageName"
+
+    def test_escaped_pipe_with_anchor(self) -> None:
+        """Escaped pipes with anchors should work correctly."""
+        display, page = _split_wiki_link_on_pipe("Display\\|PageName#anchor")
+        assert display == "Display"
+        assert page == "PageName#anchor"
+
+    def test_multiple_pipes_uses_last(self) -> None:
+        """Multiple pipes should split on the last one."""
+        display, page = _split_wiki_link_on_pipe("Text|With|Pipes|PageName")
+        assert display == "Text|With|Pipes"
+        assert page == "PageName"
+
+    def test_page_name_only_with_anchor(self) -> None:
+        """Page name with anchor but no display text."""
+        display, page = _split_wiki_link_on_pipe("PageName#section")
+        assert display == ""
+        assert page == "PageName#section"
+
+
+class TestExtractWikiLinksEscapedPipes:
+    """Tests for extract_wiki_links handling of escaped pipes."""
+
+    def test_normal_link_extraction(self) -> None:
+        """Normal links should be extracted correctly."""
+        content = "See [[PageName]] for details."
+        links = extract_wiki_links(content)
+        assert len(links) == 1
+        assert links[0].page_name == "PageName"
+        assert links[0].anchor == ""
+
+    def test_link_with_display_text(self) -> None:
+        """Links with display text should be extracted correctly."""
+        content = "See [[Display Text|PageName]] for details."
+        links = extract_wiki_links(content, include_display_text=True)
+        assert len(links) == 1
+        assert links[0].display_text == "Display Text"
+        assert links[0].page_name == "PageName"
+
+    def test_escaped_pipe_link(self) -> None:
+        """Links with escaped pipes should be extracted correctly."""
+        content = "| [[Display\\|PageName]] | Description |"
+        links = extract_wiki_links(content, include_display_text=True)
+        assert len(links) == 1
+        assert links[0].display_text == "Display"
+        assert links[0].page_name == "PageName"
+
+    def test_link_with_anchor(self) -> None:
+        """Links with anchors should be extracted correctly."""
+        content = "See [[PageName#section]] for details."
+        links = extract_wiki_links(content)
+        assert len(links) == 1
+        assert links[0].page_name == "PageName"
+        assert links[0].anchor == "#section"
+
+    def test_escaped_pipe_with_anchor(self) -> None:
+        """Escaped pipe links with anchors should work correctly."""
+        content = "| [[Display\\|PageName#anchor]] | Info |"
+        links = extract_wiki_links(content, include_display_text=True)
+        assert len(links) == 1
+        assert links[0].display_text == "Display"
+        assert links[0].page_name == "PageName"
+        assert links[0].anchor == "#anchor"
+
+
 def run_tests() -> int:
     """Run all tests and return exit code."""
     test_instance = TestIsInTableRow()
     short_format_instance = TestConvertLinksShortFormat()
     integration_instance = TestConvertLinksTableIntegration()
+    split_pipe_instance = TestSplitWikiLinkOnPipe()
+    escaped_pipes_instance = TestExtractWikiLinksEscapedPipes()
     tests = [
         # TestIsInTableRow tests
         (test_instance.test_normal_table_row, "normal_table_row"),
@@ -337,6 +430,19 @@ def run_tests() -> int:
             integration_instance.test_mixed_table_and_non_table_links,
             "integration_mixed_table_and_non_table",
         ),
+        # TestSplitWikiLinkOnPipe tests
+        (split_pipe_instance.test_no_pipe, "split_pipe_no_pipe"),
+        (split_pipe_instance.test_simple_pipe, "split_pipe_simple"),
+        (split_pipe_instance.test_escaped_pipe, "split_pipe_escaped"),
+        (split_pipe_instance.test_escaped_pipe_with_anchor, "split_pipe_escaped_anchor"),
+        (split_pipe_instance.test_multiple_pipes_uses_last, "split_pipe_multiple"),
+        (split_pipe_instance.test_page_name_only_with_anchor, "split_pipe_anchor_only"),
+        # TestExtractWikiLinksEscapedPipes tests
+        (escaped_pipes_instance.test_normal_link_extraction, "escaped_pipes_normal"),
+        (escaped_pipes_instance.test_link_with_display_text, "escaped_pipes_display"),
+        (escaped_pipes_instance.test_escaped_pipe_link, "escaped_pipes_escaped"),
+        (escaped_pipes_instance.test_link_with_anchor, "escaped_pipes_anchor"),
+        (escaped_pipes_instance.test_escaped_pipe_with_anchor, "escaped_pipes_both"),
     ]
 
     passed = 0
