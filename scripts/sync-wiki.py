@@ -11,6 +11,7 @@ This script:
 
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path, PurePosixPath
 
@@ -178,9 +179,8 @@ def strip_markdown_formatting(text: str) -> str:
         "__bold__" -> "bold"
         "_italic_" -> "italic"
         "**bold** and *italic*" -> "bold and italic"
+        "snake_case_var" -> "snake_case_var"  (preserved)
     """
-    import re
-
     # Remove bold: **text** or __text__
     text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
     text = re.sub(r"__(.+?)__", r"\1", text)

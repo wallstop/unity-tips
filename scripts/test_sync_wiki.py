@@ -318,6 +318,18 @@ class TestStripMarkdownFormatting:
         """Plain text should be unchanged."""
         assert strip_markdown_formatting("plain text") == "plain text"
 
+    def test_nested_formatting(self) -> None:
+        """Nested bold and italic should be fully stripped."""
+        assert strip_markdown_formatting("**_bold italic_**") == "bold italic"
+        assert strip_markdown_formatting("*__italic bold__*") == "italic bold"
+
+    def test_multiple_occurrences(self) -> None:
+        """Multiple formatted sections should all be stripped."""
+        assert (
+            strip_markdown_formatting("**bold1** and **bold2**") == "bold1 and bold2"
+        )
+        assert strip_markdown_formatting("*a* *b* *c*") == "a b c"
+
 
 class TestConvertLinksStripsFormatting:
     """Tests for convert_links stripping markdown formatting from links."""
@@ -529,6 +541,14 @@ def run_tests() -> int:
         (
             strip_formatting_instance.test_no_formatting,
             "strip_formatting_plain_text",
+        ),
+        (
+            strip_formatting_instance.test_nested_formatting,
+            "strip_formatting_nested",
+        ),
+        (
+            strip_formatting_instance.test_multiple_occurrences,
+            "strip_formatting_multiple",
         ),
         # TestConvertLinksStripsFormatting tests
         (
