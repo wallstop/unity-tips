@@ -61,7 +61,19 @@ def extract_csharp_blocks(file: Path) -> List[CodeBlock]:
 
 
 class StringLiteralMasker:
-    """Masks string literals to prevent formatting inside them."""
+    """Masks string literals to prevent formatting inside them.
+
+    Supports:
+    - Regular strings: "hello"
+    - Verbatim strings: @"hello"
+    - Interpolated strings: $"hello {name}"
+    - Verbatim interpolated: $@"hello" or @$"hello"
+    - Character literals: 'a', '\\n'
+
+    Limitations:
+    - Does not support C# 11 raw string literals (triple quotes: \"\"\"..\"\"\")
+      If documentation uses raw strings, their content may be incorrectly formatted.
+    """
 
     def __init__(self):
         self.literals: List[str] = []
@@ -180,13 +192,19 @@ class StringLiteralMasker:
                 continue
 
             # Check for character literal '.'
+            # Handle: 'a', '\n', '\x00', empty '' (invalid but don't crash)
             if content[i] == "'":
                 start = i
                 i += 1
+                # Handle escaped characters like '\n', '\t', '\x00'
                 if i < len(content) and content[i] == "\\":
-                    i += 2  # Skip escaped char
-                elif i < len(content):
+                    i += 1  # Skip backslash
+                    if i < len(content):
+                        i += 1  # Skip escaped char
+                # Handle regular single character
+                elif i < len(content) and content[i] != "'":
                     i += 1  # Skip char
+                # Check for closing quote (handles empty '' case too)
                 if i < len(content) and content[i] == "'":
                     i += 1  # Include closing quote
                 literal = content[start:i]
@@ -386,11 +404,11 @@ class CSharpFormatter:
 
         # Handle single = assignment: word=value -> word = value
         # Compound operators (+=, ==, etc.) are already handled above.
-        # The lookahead (?![=>]) avoids matching == or => if they weren't
-        # caught by the compound patterns (e.g., edge cases with existing spaces).
+        # The lookahead (?![=><!]) defensively avoids matching ==, =>, <=, != even if
+        # the compound patterns didn't match (e.g., due to unusual spacing).
         # Note: \w only matches [a-zA-Z0-9_], so no lookbehind needed for operators.
         # Loop to handle chained assignments like a=b=c=0 (needs multiple passes).
-        assignment_pattern = re.compile(r"(\w)=(?![=>])([^\s=])")
+        assignment_pattern = re.compile(r"(\w)=(?![=><!])([^\s=])")
         while assignment_pattern.search(content):
             content = assignment_pattern.sub(r"\1 = \2", content)
 
@@ -399,8 +417,9 @@ class CSharpFormatter:
         content = re.sub(r"(\w)\+(\w)", r"\1 + \2", content)
         # - only between lowercase identifiers to avoid hyphenated words like:
         # "Read-only", "Null-conditional", "per-instance", "one-time", "1-2"
-        # Uppercase letters often indicate compound words or proper names
-        content = re.sub(r"([a-z0-9])-([a-z])", r"\1 - \2", content)
+        # Using [a-z0-9] on both sides for consistency - uppercase often indicates
+        # compound words or proper names that shouldn't have spaces added
+        content = re.sub(r"([a-z0-9])-([a-z0-9])", r"\1 - \2", content)
         # * and % are safe - they're not used in paths/identifiers
         content = re.sub(r"(\w)\*(\w)", r"\1 * \2", content)
         content = re.sub(r"(\w)%(\w)", r"\1 % \2", content)
@@ -495,7 +514,10 @@ class CSharpFormatter:
                     if has_brace:
                         result.append(indent_str + "{")
                 else:
-                    # Fallback: just append as-is if regex doesn't match expected pattern
+                    # Fallback: append as-is if the detailed regex doesn't match.
+                    # This can happen with unusual patterns like "} else // comment"
+                    # or "} else if (complex && expression)" that span multiple lines.
+                    # The initial check matched "} else" but the full pattern didn't.
                     result.append(line)
                 i += 1
                 continue
