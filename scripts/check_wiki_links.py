@@ -54,15 +54,21 @@ REQUIRED_HOME_LINKS = [
 ]
 
 
-def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
+def extract_wiki_links(
+    content: str, include_display_text: bool = False
+) -> List[Tuple[str, str, int]] | List[Tuple[str, str, str, int]]:
     """Extract wiki-style links from content, skipping code blocks.
 
     GitHub Wiki link format is [[DisplayText|PageName]] or [[PageName]].
     Note: This is opposite of MediaWiki's [[PageName|DisplayText]] format.
 
+    Args:
+        content: The content to extract links from.
+        include_display_text: If True, returns (display_text, page_name, anchor, line_number).
+                              If False (default), returns (page_name, anchor, line_number).
+
     Returns:
-        List of (page_name, anchor, line_number) tuples.
-        anchor is empty string if no anchor present.
+        List of tuples with link information.
     """
     # Get code ranges to skip
     code_ranges = find_code_fence_ranges(content)
@@ -86,9 +92,10 @@ def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
         if "|" in inner:
             # Has display text: [[DisplayText|PageName#anchor]]
             # rsplit with maxsplit=1 splits from the right
-            _, page_part = inner.rsplit("|", 1)
+            display_text, page_part = inner.rsplit("|", 1)
         else:
             # No display text: [[PageName#anchor]]
+            display_text = ""
             page_part = inner
 
         # Extract anchor if present
@@ -99,9 +106,35 @@ def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
             page_name = page_part
             anchor = ""
 
-        links.append((page_name.strip(), anchor, line_num))
+        if include_display_text:
+            links.append((display_text.strip(), page_name.strip(), anchor, line_num))
+        else:
+            links.append((page_name.strip(), anchor, line_num))
 
     return links
+
+
+def find_redundant_links(content: str) -> List[Tuple[str, int]]:
+    """Find redundant wiki links where display text matches page name.
+
+    Links like [[Coroutines|Coroutines]] are redundant and should be [[Coroutines]].
+    This helps ensure the short format optimization is consistently applied.
+
+    Returns:
+        List of (page_name, line_number) tuples for redundant links.
+    """
+    # Get links with display text
+    links = extract_wiki_links(content, include_display_text=True)
+
+    redundant = []
+    for link_tuple in links:
+        # When include_display_text=True, tuple is (display_text, page_name, anchor, line_num)
+        display_text, page_name, anchor, line_num = link_tuple
+        # If display text is non-empty and matches page name exactly, it's redundant
+        if display_text and display_text == page_name:
+            redundant.append((page_name, line_num))
+
+    return redundant
 
 
 def find_unconverted_links(content: str, file_path: Path) -> List[Tuple[str, int]]:
@@ -339,6 +372,17 @@ def validate_wiki(verbose: bool = False) -> int:
                 format_message(
                     Severity.WARNING,
                     f"{md_file.name}:{line_num}: Unconverted markdown link: [{href}]",
+                )
+            )
+
+        # Check for redundant wiki links like [[X|X]] that should be [[X]]
+        redundant = find_redundant_links(content)
+        for page_name, line_num in redundant:
+            warnings.append(
+                format_message(
+                    Severity.WARNING,
+                    f"{md_file.name}:{line_num}: Redundant link format: "
+                    f"[[{page_name}|{page_name}]] should be [[{page_name}]]",
                 )
             )
 

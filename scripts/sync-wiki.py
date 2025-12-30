@@ -347,10 +347,15 @@ def convert_links(content: str, source_file: str) -> str:
                 separator = "|"
 
             # Replace with wiki link format:
-            # - Normal context: [[DisplayText|PageName]]
-            # - Table context:  [[DisplayText\|PageName]] (escaped pipe)
+            # - When display text matches page name: [[PageName]] (short format)
+            # - Normal context with different text: [[DisplayText|PageName]]
+            # - Table context with different text:  [[DisplayText\|PageName]] (escaped pipe)
             # Note: GitHub Wiki format is opposite of MediaWiki
-            new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
+            if display_text == wiki_name:
+                # Use short format when display text matches page name exactly
+                new_link = f"[[{wiki_name}{anchor}]]"
+            else:
+                new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
         else:
             # Track unmapped internal links for warning

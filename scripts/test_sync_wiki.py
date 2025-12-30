@@ -148,6 +148,66 @@ More text with [[Link3]] not in table.
         assert _is_separator_row("| --- | -- |") is False
 
 
+class TestConvertLinksShortFormat:
+    """Tests for short format optimization when display text matches page name."""
+
+    def test_matching_display_text_uses_short_format(self) -> None:
+        """When link text matches wiki page name, use short format [[PageName]]."""
+        content = "[Coroutines](./05-coroutines.md) - Time-based operations"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format since "Coroutines" == "Coroutines"
+            assert "[[Coroutines]]" in result
+            # Should NOT have redundant format
+            assert "[[Coroutines|Coroutines]]" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_different_display_text_uses_long_format(self) -> None:
+        """When link text differs from wiki page name, use long format."""
+        content = "[Performance & Memory](./07-performance-memory.md) - GC tips"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["07-performance-memory.md"] = "Performance-and-Memory"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use long format since display text differs
+            assert "[[Performance & Memory|Performance-and-Memory]]" in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_short_format_with_anchor(self) -> None:
+        """Short format should work correctly with anchors."""
+        content = "[Coroutines](./05-coroutines.md#starting-coroutines) - Start tips"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format with anchor
+            assert "[[Coroutines#starting-coroutines]]" in result
+            assert "[[Coroutines|Coroutines#" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_table_context_matching_text_uses_short_format(self) -> None:
+        """In tables, matching display text should still use short format (no pipe needed)."""
+        content = "| [Coroutines](./05-coroutines.md) | Description |\n| --- | --- |"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format even in tables since no pipe is needed
+            assert "[[Coroutines]]" in result
+            assert "[[Coroutines\\|Coroutines]]" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+
 class TestConvertLinksTableIntegration:
     """Integration tests for convert_links with table detection."""
 
@@ -202,8 +262,8 @@ More info at [Tool1](./docs/tool1.md).
             sync_wiki.WIKI_STRUCTURE["tool2.md"] = "Tool2-Page"
             result = convert_links(content, "README.md")
 
-            # Non-table links should have normal pipes
-            assert "[[Overview|Overview]]" in result
+            # Non-table links with matching display text use short format
+            assert "[[Overview]]" in result
 
             # Table links should have escaped pipes
             assert "[[Tool1\\|Tool1-Page]]" in result
@@ -221,6 +281,7 @@ More info at [Tool1](./docs/tool1.md).
 def run_tests() -> int:
     """Run all tests and return exit code."""
     test_instance = TestIsInTableRow()
+    short_format_instance = TestConvertLinksShortFormat()
     integration_instance = TestConvertLinksTableIntegration()
     tests = [
         # TestIsInTableRow tests
@@ -245,6 +306,23 @@ def run_tests() -> int:
         (
             test_instance.test_separator_row_requires_three_dashes_in_each_cell,
             "separator_row_requires_three_dashes_in_each_cell",
+        ),
+        # TestConvertLinksShortFormat tests
+        (
+            short_format_instance.test_matching_display_text_uses_short_format,
+            "short_format_matching_display_text",
+        ),
+        (
+            short_format_instance.test_different_display_text_uses_long_format,
+            "short_format_different_display_text",
+        ),
+        (
+            short_format_instance.test_short_format_with_anchor,
+            "short_format_with_anchor",
+        ),
+        (
+            short_format_instance.test_table_context_matching_text_uses_short_format,
+            "short_format_in_table_context",
         ),
         # TestConvertLinksTableIntegration tests
         (
