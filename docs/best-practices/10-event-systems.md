@@ -10,12 +10,14 @@ without creating tight coupling and memory leaks?
 
 ```csharp
 // ❌ Tight coupling - every system knows about every other system
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     public UIManager uiManager;
     public SoundManager soundManager;
     public AchievementManager achievementManager;
 
-    void Die() {
+    void Die()
+    {
         uiManager.ShowGameOver();      // Direct references everywhere
         soundManager.PlayDeathSound(); // Hard to maintain
         achievementManager.CheckDeaths(); // Can't test in isolation
@@ -121,22 +123,27 @@ The pattern uses generic base classes with Inspector-driven listener components:
 
 ```csharp
 // 1. Define generic base class (write once, reuse forever)
-public abstract class ScriptableEvent<T> : ScriptableObject {
+public abstract class ScriptableEvent<T> : ScriptableObject
+{
     private event System.Action<T> OnEventRaised;
 
-    public void Raise(T value) {
+    public void Raise(T value)
+    {
         OnEventRaised?.Invoke(value);
     }
 
-    public void Register(System.Action<T> listener) {
+    public void Register(System.Action<T> listener)
+    {
         OnEventRaised += listener;
     }
 
-    public void Unregister(System.Action<T> listener) {
+    public void Unregister(System.Action<T> listener)
+    {
         OnEventRaised -= listener;
     }
 
-    private void OnEnable() {
+    private void OnEnable()
+    {
         // Clear stale listeners from previous Play Mode session
         OnEventRaised = null;
     }
@@ -154,20 +161,24 @@ public class VoidEvent : ScriptableEvent<System.Object> { }
 
 // 3. Define listener component base class
 public abstract class ScriptableEventListener<T, E> : MonoBehaviour
-    where E : ScriptableEvent<T> {
+    where E : ScriptableEvent<T>
+    {
 
     [SerializeField] private E eventAsset;
     [SerializeField] private UnityEvent<T> response;
 
-    private void OnEnable() {
+    private void OnEnable()
+    {
         eventAsset?.Register(OnEventRaised);
     }
 
-    private void OnDisable() {
+    private void OnDisable()
+    {
         eventAsset?.Unregister(OnEventRaised);
     }
 
-    private void OnEventRaised(T value) {
+    private void OnEventRaised(T value)
+    {
         response?.Invoke(value);
     }
 }
@@ -203,17 +214,20 @@ each distinct channel needs its own asset.
 ### Raising Events from Code
 
 ```csharp
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     [SerializeField] private IntEvent onHealthChanged;
     [SerializeField] private VoidEvent onPlayerDied;
 
     private int health = 100;
 
-    public void TakeDamage(int amount) {
+    public void TakeDamage(int amount)
+    {
         health -= amount;
         onHealthChanged.Raise(health);
 
-        if (health <= 0) {
+        if (health <= 0)
+        {
             onPlayerDied.Raise(null);
         }
     }
@@ -332,44 +346,54 @@ DxMessaging is a modern Unity messaging system with automatic lifecycle manageme
 // 1. Define message (no asset needed!)
 [DxUntargetedMessage]  // Global broadcast
 [DxAutoConstructor]    // Generates constructor
-public readonly partial struct HealthChanged {
+public readonly partial struct HealthChanged
+{
     public readonly int currentHealth;
     public readonly int maxHealth;
 }
 
 // 2. Emit message from anywhere
-public class Player : MessageAwareComponent {
+public class Player : MessageAwareComponent
+{
     private int health = 100;
     private int maxHealth = 100;
 
-    public void TakeDamage(int amount) {
+    public void TakeDamage(int amount)
+    {
         health -= amount;
-        var healthChanged = new HealthChanged(health, maxHealth)
+        var healthChanged = new HealthChanged(health, maxHealth);
         healthChanged.EmitUntargeted();
     }
 }
 
 // 3. Listen for message (automatic cleanup!)
-public class HealthBar : MessageAwareComponent {
+public class HealthBar : MessageAwareComponent
+{
     [SerializeField] private Image fillImage;
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
         // Token automatically unsubscribes when destroyed - zero leaks!
     }
 
-    private void OnHealthChanged(ref HealthChanged msg) {
+    private void OnHealthChanged(ref HealthChanged msg)
+    {
         fillImage.fillAmount = (float)msg.currentHealth / msg.maxHealth;
     }
 }
 
-public class WarningUI : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class WarningUI : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
     }
 
-    private void OnHealthChanged(ref HealthChanged msg) {
-        if (msg.currentHealth < msg.maxHealth * 0.3f) {
+    private void OnHealthChanged(ref HealthChanged msg)
+    {
+        if (msg.currentHealth < msg.maxHealth * 0.3f)
+        {
             ShowLowHealthWarning();
         }
     }
@@ -521,7 +545,8 @@ excel at programmer productivity, performance, and scalability.
 
 ```csharp
 // === Programmer creates base classes (once) ===
-public abstract class ScriptableEvent<T> : ScriptableObject {
+public abstract class ScriptableEvent<T> : ScriptableObject
+{
     private event System.Action<T> OnEventRaised;
     public void Raise(T value) => OnEventRaised?.Invoke(value);
     public void Register(System.Action<T> listener) => OnEventRaised += listener;
@@ -535,10 +560,12 @@ public class VoidEvent : ScriptableEvent<System.Object> { }
 public class VoidEventListener : ScriptableEventListener<System.Object, VoidEvent> { }
 
 // === Programmer creates raiser ===
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     [SerializeField] private VoidEvent onPlayerDied;
 
-    void Die() {
+    void Die()
+    {
         onPlayerDied.Raise(null);
     }
 }
@@ -564,30 +591,38 @@ public class Player : MonoBehaviour {
 public readonly partial struct PlayerDied { }
 
 // === Programmer creates raiser ===
-public class Player : MonoBehaviour {
-    void Die() {
+public class Player : MonoBehaviour
+{
+    void Die()
+    {
         var playerDied = new PlayerDied();
         playerDied.EmitUntargeted();
     }
 }
 
 // === Programmer creates listeners ===
-public class UIManager : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class UIManager : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<PlayerDied>(OnPlayerDied);
     }
 
-    void OnPlayerDied(ref PlayerDied msg) {
+    void OnPlayerDied(ref PlayerDied msg)
+    {
         ShowGameOver();
     }
 }
 
-public class AchievementManager : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class AchievementManager : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<PlayerDied>(OnPlayerDied);
     }
 
-    void OnPlayerDied(ref PlayerDied msg) {
+    void OnPlayerDied(ref PlayerDied msg)
+    {
         CheckDeathAchievements();
     }
 }
@@ -609,11 +644,13 @@ public class IntEvent : ScriptableEvent<int> { }
 
 public class IntEventListener : ScriptableEventListener<int, IntEvent> { }
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     [SerializeField] private IntEvent onHealthChanged;
     private int health = 100;
 
-    public void TakeDamage(int damage) {
+    public void TakeDamage(int damage)
+    {
         health -= damage;
         onHealthChanged.Raise(health);
     }
@@ -636,41 +673,51 @@ current + max health, requires more complex event type or multiple events.
 // === Programmer implementation ===
 [DxUntargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct HealthChanged {
+public readonly partial struct HealthChanged
+{
     public readonly int current;
     public readonly int max;
 }
 
-public class Player : MessageAwareComponent {
+public class Player : MessageAwareComponent
+{
     private int health = 100;
     private int maxHealth = 100;
 
-    public void TakeDamage(int damage) {
+    public void TakeDamage(int damage)
+    {
         health -= damage;
         var healthChanged = new HealthChanged(health, maxHealth);
         healthChanged.EmitUntargeted();
     }
 }
 
-public class HealthBar : MessageAwareComponent {
+public class HealthBar : MessageAwareComponent
+{
     [SerializeField] private Image fillImage;
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
     }
 
-    void OnHealthChanged(ref HealthChanged msg) {
+    void OnHealthChanged(ref HealthChanged msg)
+    {
         fillImage.fillAmount = (float)msg.current / msg.max;
     }
 }
 
-public class WarningUI : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class WarningUI : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<HealthChanged>(OnHealthChanged);
     }
 
-    void OnHealthChanged(ref HealthChanged msg) {
-        if (msg.current < msg.max * 0.3f) {
+    void OnHealthChanged(ref HealthChanged msg)
+    {
+        if (msg.current < msg.max * 0.3f)
+        {
             ShowWarning();
         }
     }
@@ -695,10 +742,12 @@ public class DamageEventListener :
     ScriptableEventListener<(int, GameObject, DamageType), DamageEvent> { }
 
 // === Usage ===
-public class Weapon : MonoBehaviour {
+public class Weapon : MonoBehaviour
+{
     [SerializeField] private DamageEvent onDamageDealt;
 
-    void DealDamage(GameObject target, int amount, DamageType type) {
+    void DealDamage(GameObject target, int amount, DamageType type)
+    {
         onDamageDealt.Raise((amount, this.gameObject, type));
     }
 }
@@ -717,27 +766,34 @@ create wrapper methods.
 // === Programmer implementation ===
 [DxTargetedMessage]
 [DxAutoConstructor]
-public readonly partial struct TakeDamage {
+public readonly partial struct TakeDamage
+{
     public readonly int amount;
     public readonly GameObject attacker;
     public readonly DamageType type;
 }
 
-public class Weapon : MonoBehaviour {
-    void DealDamage(GameObject target, int amount, DamageType type) {
-        if (target.TryGetComponent<HealthComponent>(out var health)) {
+public class Weapon : MonoBehaviour
+{
+    void DealDamage(GameObject target, int amount, DamageType type)
+    {
+        if (target.TryGetComponent<HealthComponent>(out var health))
+        {
             var takeDamage = new TakeDamage(amount, gameObject, type);
             takeDamage.EmitComponentTargeted(health);
         }
     }
 }
 
-public class HealthComponent : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class HealthComponent : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterComponentTargeted<TakeDamage>(this, OnTakeDamage);
     }
 
-    void OnTakeDamage(ref TakeDamage msg) {
+    void OnTakeDamage(ref TakeDamage msg)
+    {
         // Handle damage with full type-safe access
         ApplyDamage(msg.amount, msg.type);
         LogAttacker(msg.attacker);
@@ -770,14 +826,16 @@ public class IntEvent : ScriptableEvent<int> { }
 //     OnPlayerManaChanged (IntEvent asset)
 //     ... (more assets as game grows)
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     [SerializeField] private IntEvent onPlayerHealthChanged;
     [SerializeField] private IntEvent onPlayerShieldChanged;
     [SerializeField] private IntEvent onPlayerManaChanged;
     // Designer must wire three different asset instances in Inspector
 }
 
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour
+{
     [SerializeField] private IntEvent onEnemyHealthChanged;
     // Each enemy prefab needs its own dedicated asset instance
     // Enemy1 can't share the same asset as Enemy2 if they need independent tracking
@@ -800,23 +858,27 @@ created, named, organized in folders, and manually wired in Inspector.
 // === Programmer defines message types (once per semantic concept) ===
 [DxBroadcastMessage]
 [DxAutoConstructor]
-public readonly partial struct HealthChanged {
+public readonly partial struct HealthChanged
+{
     public readonly int current;
     public readonly int max;
 }
 
 [DxBroadcastMessage]
 [DxAutoConstructor]
-public readonly partial struct ShieldChanged {
+public readonly partial struct ShieldChanged
+{
     public readonly int current;
     public readonly int max;
 }
 
 // === All entities use the same message type ===
-public class Player : MessageAwareComponent {
+public class Player : MessageAwareComponent
+{
     private int health = 100;
 
-    public void TakeDamage(int damage) {
+    public void TakeDamage(int damage)
+    {
         health -= damage;
         var healthChanged = new HealthChanged(health, 100);
         healthChanged.EmitGameObjectBroadcast(gameObject);
@@ -824,10 +886,12 @@ public class Player : MessageAwareComponent {
     }
 }
 
-public class Enemy : MessageAwareComponent {
+public class Enemy : MessageAwareComponent
+{
     private int health = 50;
 
-    public void TakeDamage(int damage) {
+    public void TakeDamage(int damage)
+    {
         health -= damage;
         var healthChanged = new HealthChanged(health, 50);
         healthChanged.EmitGameObjectBroadcast(gameObject);
@@ -835,13 +899,16 @@ public class Enemy : MessageAwareComponent {
     }
 }
 
-public class HealthBar : MessageAwareComponent {
+public class HealthBar : MessageAwareComponent
+{
 
-    protected override void RegisterMessageHandlers() {
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterGameObjectBroadcast<HealthChanged>(gameObject, OnHealthChanged);
     }
 
-    void OnHealthChanged(ref HealthChanged msg) {
+    void OnHealthChanged(ref HealthChanged msg)
+    {
         UpdateDisplay(msg.current, msg.max);
     }
 }
@@ -918,7 +985,8 @@ public class VoidEvent : ScriptableEvent<System.Object> { }
 
 // Code-driven: Combat system with high-frequency damage
 [DxTargetedMessage]
-public readonly partial struct TakeDamage {
+public readonly partial struct TakeDamage
+{
     public readonly int amount;
     public readonly DamageType type;
 }
@@ -950,21 +1018,25 @@ public readonly partial struct TakeDamage {
 ```csharp
 // ❌ WRONG: Using ScriptableObjects in code-driven pattern
 [CreateAssetMenu]
-public class GameEvent : ScriptableObject {
+public class GameEvent : ScriptableObject
+{
     private event System.Action OnEventRaised;
     public void Raise() => OnEventRaised?.Invoke();
     public void Register(System.Action listener) => OnEventRaised += listener;
     public void Unregister(System.Action listener) => OnEventRaised -= listener;
 }
 
-public class Listener : MonoBehaviour {
+public class Listener : MonoBehaviour
+{
     [SerializeField] private GameEvent gameEvent;
 
-    void OnEnable() {
+    void OnEnable()
+    {
         gameEvent.Register(HandleEvent);  // Code registration
     }
 
-    void OnDisable() {
+    void OnDisable()
+    {
         gameEvent.Unregister(HandleEvent);  // Easy to forget!
     }
 }
@@ -985,7 +1057,8 @@ to event bus for code-driven pattern
 ```csharp
 // ❌ PROBLEM: Listeners can accumulate between Play Mode sessions within Editor
 [CreateAssetMenu]
-public class GameEvent : ScriptableObject {
+public class GameEvent : ScriptableObject
+{
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
 
     // Missing OnEnable() clear!
@@ -993,10 +1066,12 @@ public class GameEvent : ScriptableObject {
 
 // ✅ SOLUTION: Always clear in OnEnable
 [CreateAssetMenu]
-public class GameEvent : ScriptableObject {
+public class GameEvent : ScriptableObject
+{
     private readonly List<GameEventListener> listeners = new List<GameEventListener>();
 
-    private void OnEnable() {
+    private void OnEnable()
+    {
         listeners.Clear();  // Clear stale references
     }
 }
@@ -1014,14 +1089,17 @@ public class GameEvent : ScriptableObject {
 
 ```csharp
 // ❌ PROBLEM: No compile-time safety
-public class ScoreUI : MonoBehaviour {
+public class ScoreUI : MonoBehaviour
+{
     [SerializeField] private IntEvent onScoreChanged;  // IntEvent
 
-    void OnEnable() {
+    void OnEnable()
+    {
         onScoreChanged.Register(UpdateDisplay);
     }
 
-    void UpdateDisplay(int newScore) {
+    void UpdateDisplay(int newScore)
+    {
         scoreText.text = newScore.ToString();
     }
 }
@@ -1033,8 +1111,10 @@ public class ScoreUI : MonoBehaviour {
 
 ```csharp
 // ✅ SOLUTION: Compiler enforces correct type
-public class ScoreUI : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class ScoreUI : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<ScoreChanged>(UpdateDisplay);
         // Compiler error if ScoreChanged doesn't exist or is wrong type
     }
@@ -1046,14 +1126,17 @@ public class ScoreUI : MessageAwareComponent {
 ```csharp
 // ❌ BAD: 60 damage events per second
 [CreateAssetMenu]
-public class IntEvent : ScriptableObject {
+public class IntEvent : ScriptableObject
+{
     private event System.Action<int> OnEventRaised;
-    public void Raise(int value) {
+    public void Raise(int value)
+    {
         OnEventRaised?.Invoke(value);  // UnityEvent allocates garbage
     }
 }
 
-void Update() {
+void Update()
+{
     // Fire damage every frame
     onDamageEvent.Raise(10);  // GC pressure!
 }
@@ -1070,11 +1153,13 @@ messages:
 ```csharp
 // ✅ BETTER: Lower allocations with structs
 [DxUntargetedMessage]
-public readonly partial struct DamageDealt {
+public readonly partial struct DamageDealt
+{
     public readonly int amount;
 }
 
-void Update() {
+void Update()
+{
     var damageDealt = new DamageDealt(10);
     damageDealt.EmitUntargeted();  // Minimal allocations (depends on implementation)
 }
@@ -1087,8 +1172,10 @@ manages listener storage and invocation.
 
 ```csharp
 // ❌ WRONG: Manual registration without automatic cleanup
-public class Listener : MonoBehaviour {
-    void OnEnable() {
+public class Listener : MonoBehaviour
+{
+    void OnEnable()
+    {
         MessageBus.Subscribe<PlayerDied>(HandleEvent);
     }
 
@@ -1096,8 +1183,10 @@ public class Listener : MonoBehaviour {
 }
 
 // ✅ CORRECT: Use lifecycle-aware base class
-public class Listener : MessageAwareComponent {
-    protected override void RegisterMessageHandlers() {
+public class Listener : MessageAwareComponent
+{
+    protected override void RegisterMessageHandlers()
+    {
         _ = Token.RegisterUntargeted<PlayerDied>(HandleEvent);
         // Token automatically unsubscribes when destroyed
     }
@@ -1115,7 +1204,8 @@ public readonly partial struct DamageDealt { }
 
 // ✅ GOOD: Use targeted messages
 [DxTargetedMessage]
-public readonly partial struct TakeDamage {
+public readonly partial struct TakeDamage
+{
     public readonly int amount;
 }
 

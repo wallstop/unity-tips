@@ -75,7 +75,7 @@ repos:
         stages: [pre-commit]
       - id: csharpier
         name: Run CSharpier on C# files
-        entry: dotnet csharpier
+        entry: dotnet csharpier format
         language: system
         types: [c#]
 YAML
@@ -90,7 +90,7 @@ pre-commit install
 - name: Check code formatting
   run: |
     dotnet tool restore
-    dotnet csharpier --check .
+    dotnet csharpier check .
 ```
 
 ### 4. Enable format-on-save in your editor
@@ -181,13 +181,13 @@ dotnet csharpier --version
 
 ```bash
 # Format one file at a time if nervous
-dotnet csharpier Assets/Scripts/Player/PlayerController.cs
+dotnet csharpier format Assets/Scripts/Player/PlayerController.cs
 
 # Review changes with git diff
 git diff Assets/Scripts/Player/PlayerController.cs
 
 # If good, format rest of project
-dotnet csharpier .
+dotnet csharpier format .
 ```
 
 **Pro tip:** Format the whole codebase in a dedicated "Add CSharpier formatting" commit so git blame
@@ -237,7 +237,7 @@ repos:
         pass_filenames: false
       - id: csharpier
         name: Format C# files
-        entry: dotnet csharpier
+        entry: dotnet csharpier format
         language: system
         types: [c#]
 ```
@@ -265,7 +265,7 @@ lose the zero-config benefit.
 git checkout -b formatting/add-csharpier
 
 # 2. Format everything
-dotnet csharpier .
+dotnet csharpier format .
 
 # 3. Commit with descriptive message
 git add .
@@ -290,7 +290,7 @@ git push origin formatting/add-csharpier
 # .pre-commit-config.yaml
 - id: csharpier
   name: Format modified C# files
-  entry: dotnet csharpier
+  entry: dotnet csharpier format
   language: system
   types: [c#]
   # Only formats files being committed

@@ -20,7 +20,8 @@ second, 3,600 per minute. Eventually, GC kicks in and freezes your game.
 
 ```csharp
 // ❌ This innocent-looking code creates 3600 allocations per minute
-void Update() {
+void Update()
+{
     string message = "Score: " + score;  // 60 allocations/sec
     healthText.text = message;
 }
@@ -126,7 +127,8 @@ private readonly Dictionary<int, string> _healthText = new();
 
 private void OnHealthChanged(int newHealth)
 {
-    if (!_healthText.TryGetValue(newHealth, out string cachedString)) {
+    if (!_healthText.TryGetValue(newHealth, out string cachedString))
+    {
         cachedString = $"Health: {newHealth}/{maxHealth}";
         _healthText[newHealth] = cachedString;
     }
