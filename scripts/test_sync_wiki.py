@@ -328,6 +328,21 @@ class TestStripMarkdownFormatting:
         assert strip_markdown_formatting("**bold1** and **bold2**") == "bold1 and bold2"
         assert strip_markdown_formatting("*a* *b* *c*") == "a b c"
 
+    def test_empty_formatting_markers(self) -> None:
+        """Empty or minimal formatting markers are handled correctly."""
+        # **** is matched by italic pattern as *(**)*  -> **
+        # ____ is matched by italic pattern as _(____)_ but only at word boundaries
+        # ** alone has no content so passes through unchanged
+        assert strip_markdown_formatting("****") == "**"
+        assert strip_markdown_formatting("____") == "__"
+        assert strip_markdown_formatting("**") == "**"
+
+    def test_whitespace_inside_formatting(self) -> None:
+        """Whitespace inside formatting should be preserved after stripping markers."""
+        # Note: The strip() call in convert_links handles final whitespace cleanup
+        assert strip_markdown_formatting("** Coroutines **") == " Coroutines "
+        assert strip_markdown_formatting("* italic *") == " italic "
+
 
 class TestConvertLinksStripsFormatting:
     """Tests for convert_links stripping markdown formatting from links."""
@@ -358,6 +373,22 @@ class TestConvertLinksStripsFormatting:
             assert "[[Lifecycle Methods|Lifecycle-Methods]]" in result
             # Should NOT have bold markers
             assert "**" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_whitespace_after_stripping_is_trimmed(self) -> None:
+        """Whitespace left after stripping formatting should be trimmed."""
+        content = "[** Coroutines **](./05-coroutines.md)"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format after trimming whitespace
+            assert "[[Coroutines]]" in result
+            # Should NOT have leading/trailing whitespace in link
+            assert "[[ Coroutines" not in result
+            assert "Coroutines ]]" not in result
         finally:
             sync_wiki.WIKI_STRUCTURE.clear()
             sync_wiki.WIKI_STRUCTURE.update(original_structure)
@@ -403,16 +434,17 @@ class TestSplitWikiLinkOnPipe:
         assert page == "PageName#section"
 
 
-class TestExtractWikiLinksEscapedPipes:
-    """Tests for extract_wiki_links handling of escaped pipes."""
+class TestExtractWikiLinks:
+    """Tests for extract_wiki_links function."""
 
     def test_normal_link_extraction(self) -> None:
-        """Normal links should be extracted correctly."""
+        """Normal links should be extracted correctly with line numbers."""
         content = "See [[PageName]] for details."
         links = extract_wiki_links(content)
         assert len(links) == 1
         assert links[0].page_name == "PageName"
         assert links[0].anchor == ""
+        assert links[0].line_num == 1  # Verify line number is populated
 
     def test_link_with_display_text(self) -> None:
         """Links with display text should be extracted correctly."""
@@ -421,6 +453,7 @@ class TestExtractWikiLinksEscapedPipes:
         assert len(links) == 1
         assert links[0].display_text == "Display Text"
         assert links[0].page_name == "PageName"
+        assert links[0].line_num == 1
 
     def test_escaped_pipe_link(self) -> None:
         """Links with escaped pipes should be extracted correctly."""
@@ -447,6 +480,16 @@ class TestExtractWikiLinksEscapedPipes:
         assert links[0].page_name == "PageName"
         assert links[0].anchor == "#anchor"
 
+    def test_multiline_content_line_numbers(self) -> None:
+        """Line numbers should be correct for links on different lines."""
+        content = "Line 1\nLine 2 [[Link1]]\nLine 3\nLine 4 [[Link2]]"
+        links = extract_wiki_links(content)
+        assert len(links) == 2
+        assert links[0].page_name == "Link1"
+        assert links[0].line_num == 2
+        assert links[1].page_name == "Link2"
+        assert links[1].line_num == 4
+
 
 def run_tests() -> int:
     """Run all tests and return exit code."""
@@ -456,7 +499,7 @@ def run_tests() -> int:
     strip_formatting_instance = TestStripMarkdownFormatting()
     convert_strips_instance = TestConvertLinksStripsFormatting()
     split_pipe_instance = TestSplitWikiLinkOnPipe()
-    escaped_pipes_instance = TestExtractWikiLinksEscapedPipes()
+    extract_links_instance = TestExtractWikiLinks()
     tests = [
         # TestIsInTableRow tests
         (test_instance.test_normal_table_row, "normal_table_row"),
@@ -548,6 +591,14 @@ def run_tests() -> int:
             strip_formatting_instance.test_multiple_occurrences,
             "strip_formatting_multiple",
         ),
+        (
+            strip_formatting_instance.test_empty_formatting_markers,
+            "strip_formatting_empty_markers",
+        ),
+        (
+            strip_formatting_instance.test_whitespace_inside_formatting,
+            "strip_formatting_whitespace",
+        ),
         # TestConvertLinksStripsFormatting tests
         (
             convert_strips_instance.test_bold_link_text_stripped,
@@ -556,6 +607,10 @@ def run_tests() -> int:
         (
             convert_strips_instance.test_bold_link_with_different_page_name,
             "convert_links_strips_bold_different_page",
+        ),
+        (
+            convert_strips_instance.test_whitespace_after_stripping_is_trimmed,
+            "convert_links_strips_whitespace",
         ),
         # TestSplitWikiLinkOnPipe tests
         (split_pipe_instance.test_no_pipe, "split_pipe_no_pipe"),
@@ -567,12 +622,19 @@ def run_tests() -> int:
         ),
         (split_pipe_instance.test_multiple_pipes_uses_last, "split_pipe_multiple"),
         (split_pipe_instance.test_page_name_only_with_anchor, "split_pipe_anchor_only"),
-        # TestExtractWikiLinksEscapedPipes tests
-        (escaped_pipes_instance.test_normal_link_extraction, "escaped_pipes_normal"),
-        (escaped_pipes_instance.test_link_with_display_text, "escaped_pipes_display"),
-        (escaped_pipes_instance.test_escaped_pipe_link, "escaped_pipes_escaped"),
-        (escaped_pipes_instance.test_link_with_anchor, "escaped_pipes_anchor"),
-        (escaped_pipes_instance.test_escaped_pipe_with_anchor, "escaped_pipes_both"),
+        # TestExtractWikiLinks tests
+        (extract_links_instance.test_normal_link_extraction, "extract_links_normal"),
+        (extract_links_instance.test_link_with_display_text, "extract_links_display"),
+        (extract_links_instance.test_escaped_pipe_link, "extract_links_escaped_pipe"),
+        (extract_links_instance.test_link_with_anchor, "extract_links_anchor"),
+        (
+            extract_links_instance.test_escaped_pipe_with_anchor,
+            "extract_links_escaped_anchor",
+        ),
+        (
+            extract_links_instance.test_multiline_content_line_numbers,
+            "extract_links_line_numbers",
+        ),
     ]
 
     passed = 0

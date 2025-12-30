@@ -356,8 +356,9 @@ def convert_links(content: str, source_file: str) -> str:
         if wiki_name is not None:
             # Use wiki page name as fallback if link text is empty
             # Strip markdown formatting (bold/italic) as it breaks GitHub Wiki links
+            # Also strip any resulting whitespace (e.g., "** Coroutines **" -> "Coroutines")
             display_text = link_text if link_text.strip() else wiki_name
-            display_text = strip_markdown_formatting(display_text)
+            display_text = strip_markdown_formatting(display_text).strip()
 
             # Check if this link is inside a table row
             # If so, we need to escape the pipe character to prevent it from

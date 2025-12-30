@@ -19,7 +19,7 @@ import re
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Set, Tuple, List, overload, Literal, NamedTuple, cast
+from typing import Set, Tuple, List, overload, Literal, NamedTuple
 
 # Import shared link utilities
 from link_utils import (
@@ -96,13 +96,17 @@ def _split_wiki_link_on_pipe(inner: str) -> Tuple[str, str]:
         # No pipe found - no display text
         return ("", inner)
 
-    display_text = inner[:pipe_idx]
-    page_part = inner[pipe_idx + 1 :]
+    # Check if this pipe was escaped (\|) for table context
+    # We check the original string to identify \| as a unit
+    is_escaped_pipe = pipe_idx > 0 and inner[pipe_idx - 1] == "\\"
 
-    # If the display text ends with a backslash, it was escaping the pipe
-    # for Markdown table parsing. Remove the trailing backslash.
-    if display_text.endswith("\\"):
-        display_text = display_text[:-1]
+    if is_escaped_pipe:
+        # Escaped pipe: exclude the backslash from display text
+        display_text = inner[: pipe_idx - 1]
+    else:
+        display_text = inner[:pipe_idx]
+
+    page_part = inner[pipe_idx + 1 :]
 
     return (display_text, page_part)
 
@@ -117,6 +121,39 @@ def extract_wiki_links(
 def extract_wiki_links(
     content: str, include_display_text: Literal[True]
 ) -> List[WikiLinkWithDisplay]: ...
+
+
+class _ParsedWikiLink(NamedTuple):
+    """Internal parsed wiki link with all components."""
+
+    display_text: str
+    page_name: str
+    anchor: str
+    line_num: int
+
+
+def _parse_wiki_link(inner: str, line_num: int) -> _ParsedWikiLink:
+    """Parse a wiki link's inner content into its components.
+
+    Args:
+        inner: The inner content of a wiki link (between [[ and ]]).
+        line_num: The line number where the link was found.
+
+    Returns:
+        _ParsedWikiLink with all components extracted.
+    """
+    # Parse using helper that handles escaped pipes
+    display_text, page_part = _split_wiki_link_on_pipe(inner)
+
+    # Extract anchor if present
+    if "#" in page_part:
+        page_name, anchor = page_part.split("#", 1)
+        anchor = "#" + anchor
+    else:
+        page_name = page_part
+        anchor = ""
+
+    return _ParsedWikiLink(display_text.strip(), page_name.strip(), anchor, line_num)
 
 
 def extract_wiki_links(
@@ -146,56 +183,24 @@ def extract_wiki_links(
     # Match [[...]] content
     pattern = re.compile(r"\[\[([^\]]+)\]\]")
 
-    # Use separate typed lists to satisfy type checker
-    # The @overload decorators ensure callers get the correct return type
+    # Parse all links once using the shared helper
+    parsed_links: List[_ParsedWikiLink] = []
+    for match in pattern.finditer(content):
+        if in_ranges(match.start(), skip_ranges):
+            continue
+
+        inner = match.group(1).strip()
+        line_num = content[: match.start()].count("\n") + 1
+        parsed_links.append(_parse_wiki_link(inner, line_num))
+
+    # Convert to the appropriate return type
     if include_display_text:
-        display_links: List[WikiLinkWithDisplay] = []
-        for match in pattern.finditer(content):
-            if in_ranges(match.start(), skip_ranges):
-                continue
-
-            inner = match.group(1).strip()
-            line_num = content[: match.start()].count("\n") + 1
-
-            # Parse the inner content using helper that handles escaped pipes
-            display_text, page_part = _split_wiki_link_on_pipe(inner)
-
-            # Extract anchor if present
-            if "#" in page_part:
-                page_name, anchor = page_part.split("#", 1)
-                anchor = "#" + anchor
-            else:
-                page_name = page_part
-                anchor = ""
-
-            display_links.append(
-                WikiLinkWithDisplay(
-                    display_text.strip(), page_name.strip(), anchor, line_num
-                )
-            )
-        return display_links
+        return [
+            WikiLinkWithDisplay(p.display_text, p.page_name, p.anchor, p.line_num)
+            for p in parsed_links
+        ]
     else:
-        simple_links: List[WikiLink] = []
-        for match in pattern.finditer(content):
-            if in_ranges(match.start(), skip_ranges):
-                continue
-
-            inner = match.group(1).strip()
-            line_num = content[: match.start()].count("\n") + 1
-
-            # Parse the inner content using helper that handles escaped pipes
-            display_text, page_part = _split_wiki_link_on_pipe(inner)
-
-            # Extract anchor if present
-            if "#" in page_part:
-                page_name, anchor = page_part.split("#", 1)
-                anchor = "#" + anchor
-            else:
-                page_name = page_part
-                anchor = ""
-
-            simple_links.append(WikiLink(page_name.strip(), anchor, line_num))
-        return simple_links
+        return [WikiLink(p.page_name, p.anchor, p.line_num) for p in parsed_links]
 
 
 def find_redundant_links(content: str) -> List[Tuple[str, int]]:
