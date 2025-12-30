@@ -325,9 +325,7 @@ class TestStripMarkdownFormatting:
 
     def test_multiple_occurrences(self) -> None:
         """Multiple formatted sections should all be stripped."""
-        assert (
-            strip_markdown_formatting("**bold1** and **bold2**") == "bold1 and bold2"
-        )
+        assert strip_markdown_formatting("**bold1** and **bold2**") == "bold1 and bold2"
         assert strip_markdown_formatting("*a* *b* *c*") == "a b c"
 
 
