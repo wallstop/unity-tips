@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import traceback
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
@@ -73,6 +74,7 @@ class StringLiteralMasker:
     Limitations:
     - Does not support C# 11 raw string literals (triple quotes: \"\"\"..\"\"\")
       If documentation uses raw strings, their content may be incorrectly formatted.
+    - Each line is processed independently; multi-line strings are not supported.
     """
 
     def __init__(self):
@@ -80,6 +82,10 @@ class StringLiteralMasker:
         # Use a unique placeholder that won't appear in real C# code
         self.placeholder_prefix = "\x00\x01STRLIT"
         self.placeholder_suffix = "\x01\x00"
+
+    def reset(self):
+        """Reset the masker state for a new line."""
+        self.literals = []
 
     def mask(self, content: str) -> str:
         """Replace string literals with placeholders."""
@@ -246,6 +252,32 @@ class CSharpFormatter:
         "unchecked",
     }
 
+    # Shell commands that should not be formatted
+    SHELL_PREFIXES = (
+        "git ",
+        "dotnet ",
+        "npm ",
+        "mkdir ",
+        "cat ",
+        "pip ",
+        "cd ",
+        "ls ",
+    )
+
+    # Patterns indicating a code block is a "before" example that should stay unformatted
+    BEFORE_EXAMPLE_PATTERNS = (
+        "let CSharpier fix it",
+        "CSharpier formats automatically",
+        "After save",
+        "Don't waste time manually formatting",
+        "CSharpier does this",
+        "formats automatically",
+        "Input: messy code",
+        "Output: CSharpier",
+        "use their own brace style",
+        "same output after save",
+    )
+
     def __init__(self):
         self.indent_size = 4
         self.masker = StringLiteralMasker()
@@ -277,20 +309,6 @@ class CSharpFormatter:
 
         return code
 
-    # Patterns indicating a code block is a "before" example that should stay unformatted
-    BEFORE_EXAMPLE_PATTERNS = (
-        "let CSharpier fix it",
-        "CSharpier formats automatically",
-        "After save",
-        "Don't waste time manually formatting",
-        "CSharpier does this",
-        "formats automatically",
-        "Input: messy code",
-        "Output: CSharpier",
-        "use their own brace style",
-        "same output after save",
-    )
-
     def _should_skip_block(self, code: str) -> bool:
         """Check if this code block should be skipped."""
         # Skip if it's a shell command or config
@@ -312,18 +330,6 @@ class CSharpFormatter:
             return True
 
         return False
-
-    # Shell commands that should not be formatted
-    SHELL_PREFIXES = (
-        "git ",
-        "dotnet ",
-        "npm ",
-        "mkdir ",
-        "cat ",
-        "pip ",
-        "cd ",
-        "ls ",
-    )
 
     def _format_line(self, line: str) -> str:
         """Format a single line of C# code."""
@@ -347,29 +353,29 @@ class CSharpFormatter:
         if any(content.startswith(prefix) for prefix in self.SHELL_PREFIXES):
             return line
 
-        # Split into code and comment parts BEFORE formatting
-        # This prevents operator formatting from modifying comments
-        code_part, comment_part = self._split_code_and_comment(content)
+        # Reset and mask string literals FIRST
+        # This allows proper detection of // comments (not in strings like URLs)
+        self.masker.reset()
+        masked_content = self.masker.mask(content)
 
-        # Mask string literals before formatting
-        self.masker = StringLiteralMasker()
-        masked_code = self.masker.mask(code_part)
+        # Now split into code and comment parts (after masking)
+        code_part, comment_part = self._split_code_and_comment(masked_content)
 
         # Apply formatting transformations on masked code (not comments)
-        masked_code = self._format_keywords_in_line(masked_code)
-        masked_code = self._format_operators_in_line(masked_code)
-        masked_code = self._format_commas_in_line(masked_code)
-        masked_code = self._format_inheritance_colon(masked_code)
-        masked_code = self._remove_space_before_semicolon(masked_code)
+        code_part = self._format_keywords_in_line(code_part)
+        code_part = self._format_operators_in_line(code_part)
+        code_part = self._format_commas_in_line(code_part)
+        code_part = self._format_inheritance_colon(code_part)
+        code_part = self._remove_space_before_semicolon(code_part)
+
+        # Rejoin code and comment (still masked)
+        if comment_part:
+            masked_content = code_part + comment_part
+        else:
+            masked_content = code_part
 
         # Restore string literals
-        code_part = self.masker.unmask(masked_code)
-
-        # Rejoin code and comment
-        if comment_part:
-            content = code_part + comment_part
-        else:
-            content = code_part
+        content = self.masker.unmask(masked_content)
 
         return indent_str + content
 
@@ -417,11 +423,11 @@ class CSharpFormatter:
         # Handle binary arithmetic operators
         # + is safe between any word characters
         content = re.sub(r"(\w)\+(\w)", r"\1 + \2", content)
-        # - only between lowercase identifiers to avoid hyphenated words like:
-        # "Read-only", "Null-conditional", "per-instance", "one-time", "1-2"
-        # Using [a-z0-9] on both sides for consistency - uppercase often indicates
-        # compound words or proper names that shouldn't have spaces added
-        content = re.sub(r"([a-z0-9])-([a-z0-9])", r"\1 - \2", content)
+        # Note: We don't format - operator because it's ambiguous:
+        # - Hyphenated words in comments are already excluded (comments split out)
+        # - But expressions like "value-1" vs "Read-only" can't be reliably distinguished
+        # - Since - is not valid in C# identifiers, actual subtraction like "a-b" in code
+        #   should be written with spaces by the developer for clarity
         # * and % are safe - they're not used in paths/identifiers
         content = re.sub(r"(\w)\*(\w)", r"\1 * \2", content)
         content = re.sub(r"(\w)%(\w)", r"\1 % \2", content)
@@ -442,9 +448,8 @@ class CSharpFormatter:
 
         Returns (code_part, comment_part) where comment_part includes the //.
 
-        Note: This is called before string masking. If "//" appears inside a string
-        (e.g., "https://"), the split may be imperfect, but string masking will
-        still handle the partial string correctly, and the result reconstructs properly.
+        Note: This is called AFTER string masking, so "//" inside strings
+        (like URLs) are already replaced with placeholders and won't match.
         """
         idx = content.find("//")
         if idx == -1:
@@ -535,8 +540,7 @@ class CSharpFormatter:
                     " = new ",  # Object initializer: var x = new Foo {
                     "=> {",  # Lambda with block body
                     "= new(",  # Target-typed new
-                    "new[] {",  # Array initializer
-                    "new[",  # Array initializer
+                    "new[] {",  # Array initializer with elements
                     "new {",  # Anonymous type
                     "new() {",  # Target-typed new with initializer
                     "with {",  # With expressions (C# 9+)
@@ -661,6 +665,11 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Show detailed output"
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit with error on first failure instead of continuing",
+    )
     return parser.parse_args(argv)
 
 
@@ -668,6 +677,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parse_args(argv)
     files_modified = 0
     blocks_formatted = 0
+    errors_encountered = 0
 
     paths_to_process: List[Path] = []
 
@@ -691,12 +701,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     action = "Would format" if args.dry_run else "Formatted"
                     print(f"{action}: {file} ({count} blocks)")
         except Exception as e:
-            print(f"Error processing {file}: {e}")
+            errors_encountered += 1
+            print(f"Error processing {file}: {type(e).__name__}: {e}")
+            if args.verbose:
+                traceback.print_exc()
+            if args.strict:
+                return 1
 
     action = "Would modify" if args.dry_run else "Modified"
     print(f"\n{action} {files_modified} files ({blocks_formatted} code blocks)")
+    if errors_encountered:
+        print(f"Errors: {errors_encountered} files failed to process")
 
-    return 0
+    return 1 if errors_encountered and args.strict else 0
 
 
 if __name__ == "__main__":
