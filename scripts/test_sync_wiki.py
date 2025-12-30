@@ -19,6 +19,7 @@ spec.loader.exec_module(sync_wiki)
 is_in_table_row = sync_wiki.is_in_table_row
 _is_separator_row = sync_wiki._is_separator_row
 convert_links = sync_wiki.convert_links
+strip_markdown_formatting = sync_wiki.strip_markdown_formatting
 
 # Import check_wiki_links functions for testing
 import check_wiki_links
@@ -286,6 +287,72 @@ More info at [Tool1](./docs/tool1.md).
             sync_wiki.WIKI_STRUCTURE.update(original_structure)
 
 
+class TestStripMarkdownFormatting:
+    """Tests for the strip_markdown_formatting function."""
+
+    def test_bold_double_asterisk(self) -> None:
+        """Bold text with ** should be stripped."""
+        assert strip_markdown_formatting("**Coroutines**") == "Coroutines"
+
+    def test_bold_double_underscore(self) -> None:
+        """Bold text with __ should be stripped."""
+        assert strip_markdown_formatting("__bold__") == "bold"
+
+    def test_italic_single_asterisk(self) -> None:
+        """Italic text with * should be stripped."""
+        assert strip_markdown_formatting("*italic*") == "italic"
+
+    def test_italic_single_underscore(self) -> None:
+        """Italic text with _ should be stripped (word boundaries only)."""
+        assert strip_markdown_formatting("_italic_") == "italic"
+
+    def test_preserves_snake_case(self) -> None:
+        """Underscores in snake_case should be preserved."""
+        assert strip_markdown_formatting("snake_case_var") == "snake_case_var"
+
+    def test_mixed_formatting(self) -> None:
+        """Mixed bold and italic should all be stripped."""
+        assert strip_markdown_formatting("**bold** and *italic*") == "bold and italic"
+
+    def test_no_formatting(self) -> None:
+        """Plain text should be unchanged."""
+        assert strip_markdown_formatting("plain text") == "plain text"
+
+
+class TestConvertLinksStripsFormatting:
+    """Tests for convert_links stripping markdown formatting from links."""
+
+    def test_bold_link_text_stripped(self) -> None:
+        """Bold formatting inside link text should be stripped."""
+        content = "[**Coroutines**](./05-coroutines.md) - Time-based operations"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format since stripped text matches
+            assert "[[Coroutines]]" in result
+            # Should NOT have bold markers inside the link
+            assert "[[**Coroutines**" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_bold_link_with_different_page_name(self) -> None:
+        """Bold formatting stripped, but different display text preserved."""
+        content = "[**Lifecycle Methods**](./01-lifecycle-methods.md)"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["01-lifecycle-methods.md"] = "Lifecycle-Methods"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use long format with clean display text
+            assert "[[Lifecycle Methods|Lifecycle-Methods]]" in result
+            # Should NOT have bold markers
+            assert "**" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+
 class TestSplitWikiLinkOnPipe:
     """Tests for the _split_wiki_link_on_pipe helper function."""
 
@@ -376,6 +443,8 @@ def run_tests() -> int:
     test_instance = TestIsInTableRow()
     short_format_instance = TestConvertLinksShortFormat()
     integration_instance = TestConvertLinksTableIntegration()
+    strip_formatting_instance = TestStripMarkdownFormatting()
+    convert_strips_instance = TestConvertLinksStripsFormatting()
     split_pipe_instance = TestSplitWikiLinkOnPipe()
     escaped_pipes_instance = TestExtractWikiLinksEscapedPipes()
     tests = [
@@ -431,6 +500,44 @@ def run_tests() -> int:
         (
             integration_instance.test_mixed_table_and_non_table_links,
             "integration_mixed_table_and_non_table",
+        ),
+        # TestStripMarkdownFormatting tests
+        (
+            strip_formatting_instance.test_bold_double_asterisk,
+            "strip_formatting_bold_asterisk",
+        ),
+        (
+            strip_formatting_instance.test_bold_double_underscore,
+            "strip_formatting_bold_underscore",
+        ),
+        (
+            strip_formatting_instance.test_italic_single_asterisk,
+            "strip_formatting_italic_asterisk",
+        ),
+        (
+            strip_formatting_instance.test_italic_single_underscore,
+            "strip_formatting_italic_underscore",
+        ),
+        (
+            strip_formatting_instance.test_preserves_snake_case,
+            "strip_formatting_preserves_snake_case",
+        ),
+        (
+            strip_formatting_instance.test_mixed_formatting,
+            "strip_formatting_mixed",
+        ),
+        (
+            strip_formatting_instance.test_no_formatting,
+            "strip_formatting_plain_text",
+        ),
+        # TestConvertLinksStripsFormatting tests
+        (
+            convert_strips_instance.test_bold_link_text_stripped,
+            "convert_links_strips_bold",
+        ),
+        (
+            convert_strips_instance.test_bold_link_with_different_page_name,
+            "convert_links_strips_bold_different_page",
         ),
         # TestSplitWikiLinkOnPipe tests
         (split_pipe_instance.test_no_pipe, "split_pipe_no_pipe"),
