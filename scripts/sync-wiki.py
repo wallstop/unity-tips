@@ -11,6 +11,7 @@ This script:
 
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path, PurePosixPath
 
@@ -164,6 +165,30 @@ def resolve_relative_path(source_file: str, link: str) -> str | None:
         return None
 
     return str(PurePosixPath(*parts)) if parts else "."
+
+
+def strip_markdown_formatting(text: str) -> str:
+    """Strip markdown formatting (bold, italic) from text.
+
+    GitHub Wiki links cannot contain markdown formatting like **bold** or *italic*.
+    This function removes such formatting so links render correctly.
+
+    Examples:
+        "**Coroutines**" -> "Coroutines"
+        "*italic*" -> "italic"
+        "__bold__" -> "bold"
+        "_italic_" -> "italic"
+        "**bold** and *italic*" -> "bold and italic"
+        "snake_case_var" -> "snake_case_var"  (preserved)
+    """
+    # Remove bold: **text** or __text__
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    text = re.sub(r"__(.+?)__", r"\1", text)
+    # Remove italic: *text* or _text_ (but not inside words like snake_case)
+    # Only match _ at word boundaries to avoid breaking snake_case
+    text = re.sub(r"\*(.+?)\*", r"\1", text)
+    text = re.sub(r"(?<!\w)_(.+?)_(?!\w)", r"\1", text)
+    return text
 
 
 def is_in_table_row(content: str, position: int) -> bool:
@@ -330,7 +355,10 @@ def convert_links(content: str, source_file: str) -> str:
 
         if wiki_name is not None:
             # Use wiki page name as fallback if link text is empty
+            # Strip markdown formatting (bold/italic) as it breaks GitHub Wiki links
+            # Also strip any resulting whitespace (e.g., "** Coroutines **" -> "Coroutines")
             display_text = link_text if link_text.strip() else wiki_name
+            display_text = strip_markdown_formatting(display_text).strip()
 
             # Check if this link is inside a table row
             # If so, we need to escape the pipe character to prevent it from
@@ -347,10 +375,15 @@ def convert_links(content: str, source_file: str) -> str:
                 separator = "|"
 
             # Replace with wiki link format:
-            # - Normal context: [[DisplayText|PageName]]
-            # - Table context:  [[DisplayText\|PageName]] (escaped pipe)
+            # - When display text matches page name: [[PageName]] (short format)
+            # - Normal context with different text: [[DisplayText|PageName]]
+            # - Table context with different text:  [[DisplayText\|PageName]] (escaped pipe)
             # Note: GitHub Wiki format is opposite of MediaWiki
-            new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
+            if display_text == wiki_name:
+                # Use short format when display text matches page name exactly
+                new_link = f"[[{wiki_name}{anchor}]]"
+            else:
+                new_link = f"[[{display_text}{separator}{wiki_name}{anchor}]]"
             result = result[: link_match.start] + new_link + result[link_match.end :]
         else:
             # Track unmapped internal links for warning

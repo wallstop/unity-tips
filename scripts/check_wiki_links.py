@@ -19,7 +19,7 @@ import re
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Set, Tuple, List
+from typing import Set, Tuple, List, overload, Literal, NamedTuple
 
 # Import shared link utilities
 from link_utils import (
@@ -54,54 +54,175 @@ REQUIRED_HOME_LINKS = [
 ]
 
 
-def extract_wiki_links(content: str) -> List[Tuple[str, str, int]]:
+class WikiLink(NamedTuple):
+    """A wiki link without display text information."""
+
+    page_name: str
+    anchor: str
+    line_num: int
+
+
+class WikiLinkWithDisplay(NamedTuple):
+    """A wiki link with display text information."""
+
+    display_text: str
+    page_name: str
+    anchor: str
+    line_num: int
+
+
+def _split_wiki_link_on_pipe(inner: str) -> Tuple[str, str]:
+    """Split wiki link inner content on the last pipe, handling escaped pipes.
+
+    In GitHub Wiki format [[DisplayText|PageName]], the pipe separates display
+    text from page name. In table contexts, the pipe is escaped as \\| to prevent
+    Markdown from treating it as a table cell separator.
+
+    Both [[DisplayText|PageName]] and [[DisplayText\\|PageName]] should parse as:
+    - display_text = "DisplayText"
+    - page_part = "PageName"
+
+    Args:
+        inner: The inner content of a wiki link (between [[ and ]]).
+
+    Returns:
+        Tuple of (display_text, page_part). If no pipe is found,
+        returns ("", inner).
+    """
+    # Find the last pipe character
+    pipe_idx = inner.rfind("|")
+
+    if pipe_idx < 0:
+        # No pipe found - no display text
+        return ("", inner)
+
+    # Check if this pipe was escaped (\|) for table context
+    # We check the original string to identify \| as a unit
+    is_escaped_pipe = pipe_idx > 0 and inner[pipe_idx - 1] == "\\"
+
+    if is_escaped_pipe:
+        # Escaped pipe: exclude the backslash from display text
+        display_text = inner[: pipe_idx - 1]
+    else:
+        display_text = inner[:pipe_idx]
+
+    page_part = inner[pipe_idx + 1 :]
+
+    return (display_text, page_part)
+
+
+@overload
+def extract_wiki_links(
+    content: str, include_display_text: Literal[False] = False
+) -> List[WikiLink]: ...
+
+
+@overload
+def extract_wiki_links(
+    content: str, include_display_text: Literal[True]
+) -> List[WikiLinkWithDisplay]: ...
+
+
+class _ParsedWikiLink(NamedTuple):
+    """Internal parsed wiki link with all components."""
+
+    display_text: str
+    page_name: str
+    anchor: str
+    line_num: int
+
+
+def _parse_wiki_link(inner: str, line_num: int) -> _ParsedWikiLink:
+    """Parse a wiki link's inner content into its components.
+
+    Args:
+        inner: The inner content of a wiki link (between [[ and ]]).
+        line_num: The line number where the link was found.
+
+    Returns:
+        _ParsedWikiLink with all components extracted.
+    """
+    # Parse using helper that handles escaped pipes
+    display_text, page_part = _split_wiki_link_on_pipe(inner)
+
+    # Extract anchor if present
+    if "#" in page_part:
+        page_name, anchor = page_part.split("#", 1)
+        anchor = "#" + anchor
+    else:
+        page_name = page_part
+        anchor = ""
+
+    return _ParsedWikiLink(display_text.strip(), page_name.strip(), anchor, line_num)
+
+
+def extract_wiki_links(
+    content: str, include_display_text: bool = False
+) -> List[WikiLink] | List[WikiLinkWithDisplay]:
     """Extract wiki-style links from content, skipping code blocks.
 
     GitHub Wiki link format is [[DisplayText|PageName]] or [[PageName]].
     Note: This is opposite of MediaWiki's [[PageName|DisplayText]] format.
 
+    Handles escaped pipes (\\|) in table contexts - these are NOT treated as
+    separators between display text and page name.
+
+    Args:
+        content: The content to extract links from.
+        include_display_text: If True, returns WikiLinkWithDisplay tuples.
+                              If False (default), returns WikiLink tuples.
+
     Returns:
-        List of (page_name, anchor, line_number) tuples.
-        anchor is empty string if no anchor present.
+        List of WikiLink or WikiLinkWithDisplay named tuples.
     """
     # Get code ranges to skip
     code_ranges = find_code_fence_ranges(content)
     inline_code_ranges = find_inline_code_ranges(content)
     skip_ranges = code_ranges + inline_code_ranges
 
-    links = []
     # Match [[...]] content
     pattern = re.compile(r"\[\[([^\]]+)\]\]")
 
+    # Parse all links once using the shared helper
+    parsed_links: List[_ParsedWikiLink] = []
     for match in pattern.finditer(content):
         if in_ranges(match.start(), skip_ranges):
             continue
 
         inner = match.group(1).strip()
         line_num = content[: match.start()].count("\n") + 1
+        parsed_links.append(_parse_wiki_link(inner, line_num))
 
-        # Parse the inner content
-        # Format: [[DisplayText|PageName#anchor]] or [[PageName#anchor]] or [[PageName]]
-        # Note: DisplayText may contain | characters, so split on the LAST pipe
-        if "|" in inner:
-            # Has display text: [[DisplayText|PageName#anchor]]
-            # rsplit with maxsplit=1 splits from the right
-            _, page_part = inner.rsplit("|", 1)
-        else:
-            # No display text: [[PageName#anchor]]
-            page_part = inner
+    # Convert to the appropriate return type
+    if include_display_text:
+        return [
+            WikiLinkWithDisplay(p.display_text, p.page_name, p.anchor, p.line_num)
+            for p in parsed_links
+        ]
+    else:
+        return [WikiLink(p.page_name, p.anchor, p.line_num) for p in parsed_links]
 
-        # Extract anchor if present
-        if "#" in page_part:
-            page_name, anchor = page_part.split("#", 1)
-            anchor = "#" + anchor
-        else:
-            page_name = page_part
-            anchor = ""
 
-        links.append((page_name.strip(), anchor, line_num))
+def find_redundant_links(content: str) -> List[Tuple[str, int]]:
+    """Find redundant wiki links where display text matches page name.
 
-    return links
+    Links like [[Coroutines|Coroutines]] are redundant and should be [[Coroutines]].
+    This helps ensure the short format optimization is consistently applied.
+
+    Returns:
+        List of (page_name, line_number) tuples for redundant links.
+    """
+    # Get links with display text
+    links = extract_wiki_links(content, include_display_text=True)
+
+    redundant = []
+    for link in links:
+        # Use NamedTuple fields for clarity
+        # If display text is non-empty and matches page name exactly, it's redundant
+        if link.display_text and link.display_text == link.page_name:
+            redundant.append((link.page_name, link.line_num))
+
+    return redundant
 
 
 def find_unconverted_links(content: str, file_path: Path) -> List[Tuple[str, int]]:
@@ -339,6 +460,17 @@ def validate_wiki(verbose: bool = False) -> int:
                 format_message(
                     Severity.WARNING,
                     f"{md_file.name}:{line_num}: Unconverted markdown link: [{href}]",
+                )
+            )
+
+        # Check for redundant wiki links like [[X|X]] that should be [[X]]
+        redundant = find_redundant_links(content)
+        for page_name, line_num in redundant:
+            warnings.append(
+                format_message(
+                    Severity.WARNING,
+                    f"{md_file.name}:{line_num}: Redundant link format: "
+                    f"[[{page_name}|{page_name}]] should be [[{page_name}]]",
                 )
             )
 

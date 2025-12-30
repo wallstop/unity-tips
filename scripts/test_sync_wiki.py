@@ -19,6 +19,13 @@ spec.loader.exec_module(sync_wiki)
 is_in_table_row = sync_wiki.is_in_table_row
 _is_separator_row = sync_wiki._is_separator_row
 convert_links = sync_wiki.convert_links
+strip_markdown_formatting = sync_wiki.strip_markdown_formatting
+
+# Import check_wiki_links functions for testing
+import check_wiki_links
+
+_split_wiki_link_on_pipe = check_wiki_links._split_wiki_link_on_pipe
+extract_wiki_links = check_wiki_links.extract_wiki_links
 
 
 class TestIsInTableRow:
@@ -148,6 +155,68 @@ More text with [[Link3]] not in table.
         assert _is_separator_row("| --- | -- |") is False
 
 
+class TestConvertLinksShortFormat:
+    """Tests for short format optimization when display text matches page name."""
+
+    def test_matching_display_text_uses_short_format(self) -> None:
+        """When link text matches wiki page name, use short format [[PageName]]."""
+        content = "[Coroutines](./05-coroutines.md) - Time-based operations"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format since "Coroutines" == "Coroutines"
+            assert "[[Coroutines]]" in result
+            # Should NOT have redundant format
+            assert "[[Coroutines|Coroutines]]" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_different_display_text_uses_long_format(self) -> None:
+        """When link text differs from wiki page name, use long format."""
+        content = "[Performance & Memory](./07-performance-memory.md) - GC tips"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["07-performance-memory.md"] = (
+                "Performance-and-Memory"
+            )
+            result = convert_links(content, "best-practices/README.md")
+            # Should use long format since display text differs
+            assert "[[Performance & Memory|Performance-and-Memory]]" in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_short_format_with_anchor(self) -> None:
+        """Short format should work correctly with anchors."""
+        content = "[Coroutines](./05-coroutines.md#starting-coroutines) - Start tips"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format with anchor
+            assert "[[Coroutines#starting-coroutines]]" in result
+            assert "[[Coroutines|Coroutines#" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_table_context_matching_text_uses_short_format(self) -> None:
+        """In tables, matching display text should still use short format (no pipe needed)."""
+        content = "| [Coroutines](./05-coroutines.md) | Description |\n| --- | --- |"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format even in tables since no pipe is needed
+            assert "[[Coroutines]]" in result
+            assert "[[Coroutines\\|Coroutines]]" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+
 class TestConvertLinksTableIntegration:
     """Integration tests for convert_links with table detection."""
 
@@ -202,8 +271,8 @@ More info at [Tool1](./docs/tool1.md).
             sync_wiki.WIKI_STRUCTURE["tool2.md"] = "Tool2-Page"
             result = convert_links(content, "README.md")
 
-            # Non-table links should have normal pipes
-            assert "[[Overview|Overview]]" in result
+            # Non-table links with matching display text use short format
+            assert "[[Overview]]" in result
 
             # Table links should have escaped pipes
             assert "[[Tool1\\|Tool1-Page]]" in result
@@ -218,10 +287,219 @@ More info at [Tool1](./docs/tool1.md).
             sync_wiki.WIKI_STRUCTURE.update(original_structure)
 
 
+class TestStripMarkdownFormatting:
+    """Tests for the strip_markdown_formatting function."""
+
+    def test_bold_double_asterisk(self) -> None:
+        """Bold text with ** should be stripped."""
+        assert strip_markdown_formatting("**Coroutines**") == "Coroutines"
+
+    def test_bold_double_underscore(self) -> None:
+        """Bold text with __ should be stripped."""
+        assert strip_markdown_formatting("__bold__") == "bold"
+
+    def test_italic_single_asterisk(self) -> None:
+        """Italic text with * should be stripped."""
+        assert strip_markdown_formatting("*italic*") == "italic"
+
+    def test_italic_single_underscore(self) -> None:
+        """Italic text with _ should be stripped (word boundaries only)."""
+        assert strip_markdown_formatting("_italic_") == "italic"
+
+    def test_preserves_snake_case(self) -> None:
+        """Underscores in snake_case should be preserved."""
+        assert strip_markdown_formatting("snake_case_var") == "snake_case_var"
+
+    def test_mixed_formatting(self) -> None:
+        """Mixed bold and italic should all be stripped."""
+        assert strip_markdown_formatting("**bold** and *italic*") == "bold and italic"
+
+    def test_no_formatting(self) -> None:
+        """Plain text should be unchanged."""
+        assert strip_markdown_formatting("plain text") == "plain text"
+
+    def test_nested_formatting(self) -> None:
+        """Nested bold and italic should be fully stripped."""
+        assert strip_markdown_formatting("**_bold italic_**") == "bold italic"
+        assert strip_markdown_formatting("*__italic bold__*") == "italic bold"
+
+    def test_multiple_occurrences(self) -> None:
+        """Multiple formatted sections should all be stripped."""
+        assert strip_markdown_formatting("**bold1** and **bold2**") == "bold1 and bold2"
+        assert strip_markdown_formatting("*a* *b* *c*") == "a b c"
+
+    def test_empty_formatting_markers(self) -> None:
+        """Empty or minimal formatting markers are handled correctly."""
+        # **** is matched by italic pattern as *(**)*  -> **
+        # ____ is matched by italic pattern as _(____)_ but only at word boundaries
+        # ** alone has no content so passes through unchanged
+        assert strip_markdown_formatting("****") == "**"
+        assert strip_markdown_formatting("____") == "__"
+        assert strip_markdown_formatting("**") == "**"
+
+    def test_whitespace_inside_formatting(self) -> None:
+        """Whitespace inside formatting should be preserved after stripping markers."""
+        # Note: The strip() call in convert_links handles final whitespace cleanup
+        assert strip_markdown_formatting("** Coroutines **") == " Coroutines "
+        assert strip_markdown_formatting("* italic *") == " italic "
+
+
+class TestConvertLinksStripsFormatting:
+    """Tests for convert_links stripping markdown formatting from links."""
+
+    def test_bold_link_text_stripped(self) -> None:
+        """Bold formatting inside link text should be stripped."""
+        content = "[**Coroutines**](./05-coroutines.md) - Time-based operations"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format since stripped text matches
+            assert "[[Coroutines]]" in result
+            # Should NOT have bold markers inside the link
+            assert "[[**Coroutines**" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_bold_link_with_different_page_name(self) -> None:
+        """Bold formatting stripped, but different display text preserved."""
+        content = "[**Lifecycle Methods**](./01-lifecycle-methods.md)"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["01-lifecycle-methods.md"] = "Lifecycle-Methods"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use long format with clean display text
+            assert "[[Lifecycle Methods|Lifecycle-Methods]]" in result
+            # Should NOT have bold markers
+            assert "**" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+    def test_whitespace_after_stripping_is_trimmed(self) -> None:
+        """Whitespace left after stripping formatting should be trimmed."""
+        content = "[** Coroutines **](./05-coroutines.md)"
+        original_structure = sync_wiki.WIKI_STRUCTURE.copy()
+        try:
+            sync_wiki.WIKI_STRUCTURE["05-coroutines.md"] = "Coroutines"
+            result = convert_links(content, "best-practices/README.md")
+            # Should use short format after trimming whitespace
+            assert "[[Coroutines]]" in result
+            # Should NOT have leading/trailing whitespace in link
+            assert "[[ Coroutines" not in result
+            assert "Coroutines ]]" not in result
+        finally:
+            sync_wiki.WIKI_STRUCTURE.clear()
+            sync_wiki.WIKI_STRUCTURE.update(original_structure)
+
+
+class TestSplitWikiLinkOnPipe:
+    """Tests for the _split_wiki_link_on_pipe helper function."""
+
+    def test_no_pipe(self) -> None:
+        """Links without pipe should return empty display text."""
+        display, page = _split_wiki_link_on_pipe("PageName")
+        assert display == ""
+        assert page == "PageName"
+
+    def test_simple_pipe(self) -> None:
+        """Links with simple pipe should split correctly."""
+        display, page = _split_wiki_link_on_pipe("Display Text|PageName")
+        assert display == "Display Text"
+        assert page == "PageName"
+
+    def test_escaped_pipe(self) -> None:
+        """Escaped pipes in table context should be handled correctly."""
+        display, page = _split_wiki_link_on_pipe("Display Text\\|PageName")
+        assert display == "Display Text"
+        assert page == "PageName"
+
+    def test_escaped_pipe_with_anchor(self) -> None:
+        """Escaped pipes with anchors should work correctly."""
+        display, page = _split_wiki_link_on_pipe("Display\\|PageName#anchor")
+        assert display == "Display"
+        assert page == "PageName#anchor"
+
+    def test_multiple_pipes_uses_last(self) -> None:
+        """Multiple pipes should split on the last one."""
+        display, page = _split_wiki_link_on_pipe("Text|With|Pipes|PageName")
+        assert display == "Text|With|Pipes"
+        assert page == "PageName"
+
+    def test_page_name_only_with_anchor(self) -> None:
+        """Page name with anchor but no display text."""
+        display, page = _split_wiki_link_on_pipe("PageName#section")
+        assert display == ""
+        assert page == "PageName#section"
+
+
+class TestExtractWikiLinks:
+    """Tests for extract_wiki_links function."""
+
+    def test_normal_link_extraction(self) -> None:
+        """Normal links should be extracted correctly with line numbers."""
+        content = "See [[PageName]] for details."
+        links = extract_wiki_links(content)
+        assert len(links) == 1
+        assert links[0].page_name == "PageName"
+        assert links[0].anchor == ""
+        assert links[0].line_num == 1  # Verify line number is populated
+
+    def test_link_with_display_text(self) -> None:
+        """Links with display text should be extracted correctly."""
+        content = "See [[Display Text|PageName]] for details."
+        links = extract_wiki_links(content, include_display_text=True)
+        assert len(links) == 1
+        assert links[0].display_text == "Display Text"
+        assert links[0].page_name == "PageName"
+        assert links[0].line_num == 1
+
+    def test_escaped_pipe_link(self) -> None:
+        """Links with escaped pipes should be extracted correctly."""
+        content = "| [[Display\\|PageName]] | Description |"
+        links = extract_wiki_links(content, include_display_text=True)
+        assert len(links) == 1
+        assert links[0].display_text == "Display"
+        assert links[0].page_name == "PageName"
+
+    def test_link_with_anchor(self) -> None:
+        """Links with anchors should be extracted correctly."""
+        content = "See [[PageName#section]] for details."
+        links = extract_wiki_links(content)
+        assert len(links) == 1
+        assert links[0].page_name == "PageName"
+        assert links[0].anchor == "#section"
+
+    def test_escaped_pipe_with_anchor(self) -> None:
+        """Escaped pipe links with anchors should work correctly."""
+        content = "| [[Display\\|PageName#anchor]] | Info |"
+        links = extract_wiki_links(content, include_display_text=True)
+        assert len(links) == 1
+        assert links[0].display_text == "Display"
+        assert links[0].page_name == "PageName"
+        assert links[0].anchor == "#anchor"
+
+    def test_multiline_content_line_numbers(self) -> None:
+        """Line numbers should be correct for links on different lines."""
+        content = "Line 1\nLine 2 [[Link1]]\nLine 3\nLine 4 [[Link2]]"
+        links = extract_wiki_links(content)
+        assert len(links) == 2
+        assert links[0].page_name == "Link1"
+        assert links[0].line_num == 2
+        assert links[1].page_name == "Link2"
+        assert links[1].line_num == 4
+
+
 def run_tests() -> int:
     """Run all tests and return exit code."""
     test_instance = TestIsInTableRow()
+    short_format_instance = TestConvertLinksShortFormat()
     integration_instance = TestConvertLinksTableIntegration()
+    strip_formatting_instance = TestStripMarkdownFormatting()
+    convert_strips_instance = TestConvertLinksStripsFormatting()
+    split_pipe_instance = TestSplitWikiLinkOnPipe()
+    extract_links_instance = TestExtractWikiLinks()
     tests = [
         # TestIsInTableRow tests
         (test_instance.test_normal_table_row, "normal_table_row"),
@@ -246,6 +524,23 @@ def run_tests() -> int:
             test_instance.test_separator_row_requires_three_dashes_in_each_cell,
             "separator_row_requires_three_dashes_in_each_cell",
         ),
+        # TestConvertLinksShortFormat tests
+        (
+            short_format_instance.test_matching_display_text_uses_short_format,
+            "short_format_matching_display_text",
+        ),
+        (
+            short_format_instance.test_different_display_text_uses_long_format,
+            "short_format_different_display_text",
+        ),
+        (
+            short_format_instance.test_short_format_with_anchor,
+            "short_format_with_anchor",
+        ),
+        (
+            short_format_instance.test_table_context_matching_text_uses_short_format,
+            "short_format_in_table_context",
+        ),
         # TestConvertLinksTableIntegration tests
         (
             integration_instance.test_link_in_table_gets_escaped_pipe,
@@ -258,6 +553,87 @@ def run_tests() -> int:
         (
             integration_instance.test_mixed_table_and_non_table_links,
             "integration_mixed_table_and_non_table",
+        ),
+        # TestStripMarkdownFormatting tests
+        (
+            strip_formatting_instance.test_bold_double_asterisk,
+            "strip_formatting_bold_asterisk",
+        ),
+        (
+            strip_formatting_instance.test_bold_double_underscore,
+            "strip_formatting_bold_underscore",
+        ),
+        (
+            strip_formatting_instance.test_italic_single_asterisk,
+            "strip_formatting_italic_asterisk",
+        ),
+        (
+            strip_formatting_instance.test_italic_single_underscore,
+            "strip_formatting_italic_underscore",
+        ),
+        (
+            strip_formatting_instance.test_preserves_snake_case,
+            "strip_formatting_preserves_snake_case",
+        ),
+        (
+            strip_formatting_instance.test_mixed_formatting,
+            "strip_formatting_mixed",
+        ),
+        (
+            strip_formatting_instance.test_no_formatting,
+            "strip_formatting_plain_text",
+        ),
+        (
+            strip_formatting_instance.test_nested_formatting,
+            "strip_formatting_nested",
+        ),
+        (
+            strip_formatting_instance.test_multiple_occurrences,
+            "strip_formatting_multiple",
+        ),
+        (
+            strip_formatting_instance.test_empty_formatting_markers,
+            "strip_formatting_empty_markers",
+        ),
+        (
+            strip_formatting_instance.test_whitespace_inside_formatting,
+            "strip_formatting_whitespace",
+        ),
+        # TestConvertLinksStripsFormatting tests
+        (
+            convert_strips_instance.test_bold_link_text_stripped,
+            "convert_links_strips_bold",
+        ),
+        (
+            convert_strips_instance.test_bold_link_with_different_page_name,
+            "convert_links_strips_bold_different_page",
+        ),
+        (
+            convert_strips_instance.test_whitespace_after_stripping_is_trimmed,
+            "convert_links_strips_whitespace",
+        ),
+        # TestSplitWikiLinkOnPipe tests
+        (split_pipe_instance.test_no_pipe, "split_pipe_no_pipe"),
+        (split_pipe_instance.test_simple_pipe, "split_pipe_simple"),
+        (split_pipe_instance.test_escaped_pipe, "split_pipe_escaped"),
+        (
+            split_pipe_instance.test_escaped_pipe_with_anchor,
+            "split_pipe_escaped_anchor",
+        ),
+        (split_pipe_instance.test_multiple_pipes_uses_last, "split_pipe_multiple"),
+        (split_pipe_instance.test_page_name_only_with_anchor, "split_pipe_anchor_only"),
+        # TestExtractWikiLinks tests
+        (extract_links_instance.test_normal_link_extraction, "extract_links_normal"),
+        (extract_links_instance.test_link_with_display_text, "extract_links_display"),
+        (extract_links_instance.test_escaped_pipe_link, "extract_links_escaped_pipe"),
+        (extract_links_instance.test_link_with_anchor, "extract_links_anchor"),
+        (
+            extract_links_instance.test_escaped_pipe_with_anchor,
+            "extract_links_escaped_anchor",
+        ),
+        (
+            extract_links_instance.test_multiline_content_line_numbers,
+            "extract_links_line_numbers",
         ),
     ]
 
