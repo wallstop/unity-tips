@@ -177,7 +177,9 @@ class TestConvertLinksShortFormat:
         content = "[Performance & Memory](./07-performance-memory.md) - GC tips"
         original_structure = sync_wiki.WIKI_STRUCTURE.copy()
         try:
-            sync_wiki.WIKI_STRUCTURE["07-performance-memory.md"] = "Performance-and-Memory"
+            sync_wiki.WIKI_STRUCTURE["07-performance-memory.md"] = (
+                "Performance-and-Memory"
+            )
             result = convert_links(content, "best-practices/README.md")
             # Should use long format since display text differs
             assert "[[Performance & Memory|Performance-and-Memory]]" in result
@@ -434,7 +436,10 @@ def run_tests() -> int:
         (split_pipe_instance.test_no_pipe, "split_pipe_no_pipe"),
         (split_pipe_instance.test_simple_pipe, "split_pipe_simple"),
         (split_pipe_instance.test_escaped_pipe, "split_pipe_escaped"),
-        (split_pipe_instance.test_escaped_pipe_with_anchor, "split_pipe_escaped_anchor"),
+        (
+            split_pipe_instance.test_escaped_pipe_with_anchor,
+            "split_pipe_escaped_anchor",
+        ),
         (split_pipe_instance.test_multiple_pipes_uses_last, "split_pipe_multiple"),
         (split_pipe_instance.test_page_name_only_with_anchor, "split_pipe_anchor_only"),
         # TestExtractWikiLinksEscapedPipes tests
