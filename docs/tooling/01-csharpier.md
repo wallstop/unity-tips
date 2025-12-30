@@ -15,9 +15,9 @@ and zero time spent manually reformatting files.
 
 ```csharp
 // Input: messy code you just typed
-public class Player : MonoBehaviour{
-private int health=100;public void TakeDamage(int amount){health -= amount;
-if (health <= 0)Die();}}
+public class Player:MonoBehaviour{
+private int health=100;public void TakeDamage(int amount){health-=amount;
+if(health<=0)Die();}}
 
 // Output: CSharpier's consistent formatting
 public class Player : MonoBehaviour
@@ -110,7 +110,7 @@ pre-commit install
 ```csharp
 // ✅ Write code naturally, let CSharpier fix it
 public void Attack(Enemy target){
-int damage = baseDamage+critBonus;
+int damage=baseDamage+critBonus;
 target.TakeDamage(damage);
 Debug.Log("Attacked "+target.name);}
 
@@ -126,16 +126,14 @@ public void Attack(Enemy target)
 ```csharp
 // ✅ Let team members use their own brace style while typing
 // Everyone gets the same output after save
-public class PlayerController : MonoBehaviour
-{
-    void Update()
-    {
+public class PlayerController : MonoBehaviour {
+    void Update() {
         // Code here
     }
 }
 
 // ✅ Format entire project before merging
-dotnet csharpier format .
+dotnet csharpier .
 ```
 
 ### ❌ DON'T

@@ -287,6 +287,8 @@ class CSharpFormatter:
         "formats automatically",
         "Input: messy code",
         "Output: CSharpier",
+        "use their own brace style",
+        "same output after save",
     )
 
     def _should_skip_block(self, code: str) -> bool:
