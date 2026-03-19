@@ -4,16 +4,16 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import sys
+import time
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
-import os
-import sys
-import time
 import requests
 
 from link_utils import LinkMatch, extract_links, split_anchor
@@ -44,7 +44,7 @@ class LinkIssue:
 class LinkChecker:
     def __init__(self) -> None:
         self.remote_cache: Dict[str, Tuple[bool, str]] = {}
-        self.heading_cache: Dict[Path, Optional[Dict[str, str]]] = {}
+        self.heading_cache: Dict[Path, Dict[str, str]] = {}
 
     def process_file(self, path: Path) -> List[LinkIssue]:
         text = path.read_text(encoding="utf-8")
@@ -72,6 +72,13 @@ class LinkChecker:
                 )
         return issues
 
+    def _rate_limited(self, url: str) -> Tuple[bool, str]:
+        message = "Rate limited (HTTP 429); skipping validation"
+        print(f"warning: {url}: {message}", file=sys.stderr)
+        result = (True, message)
+        self.remote_cache[url] = result
+        return result
+
     def _check_remote(self, url: str) -> Tuple[bool, str]:
         # Skip remote checking if configured
         if SKIP_REMOTE:
@@ -90,12 +97,8 @@ class LinkChecker:
             )
             status = response.status_code
             if status == 429:
-                message = "Rate limited (HTTP 429); skipping validation"
-                print(f"warning: {url}: {message}", file=sys.stderr)
-                result = (True, message)
-                self.remote_cache[url] = result
-                return result
-            if status >= 400 or status == 405:
+                return self._rate_limited(url)
+            if status >= 400:
                 response = requests.get(
                     url,
                     allow_redirects=True,
@@ -104,11 +107,7 @@ class LinkChecker:
                 )
                 status = response.status_code
                 if status == 429:
-                    message = "Rate limited (HTTP 429); skipping validation"
-                    print(f"warning: {url}: {message}", file=sys.stderr)
-                    result = (True, message)
-                    self.remote_cache[url] = result
-                    return result
+                    return self._rate_limited(url)
             if 500 <= status < 600:
                 time.sleep(1)
                 try:
@@ -120,7 +119,9 @@ class LinkChecker:
                     )
                     status = response.status_code
                 except requests.RequestException:
-                    pass
+                    pass  # keep `status` at the pre-retry 5xx value for the branch below
+                if status == 429:
+                    return self._rate_limited(url)
             if 200 <= status < 400:
                 result = (True, "")
             elif 500 <= status < 600 and WARN_ON_NETWORK_ERROR:
@@ -193,7 +194,7 @@ class LinkChecker:
     @staticmethod
     def _slugify(text: str) -> str:
         slug = text.strip().lower()
-        slug = re.sub(r"[\s]+", "-", slug)
+        slug = re.sub(r"\s+", "-", slug)
         slug = re.sub(r"[^a-z0-9\-]", "", slug)
         return slug.strip("-")
 
