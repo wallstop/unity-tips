@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 
 import os
 import sys
+import time
 import requests
 
 from link_utils import LinkMatch, extract_links, split_anchor
@@ -108,8 +109,24 @@ class LinkChecker:
                     result = (True, message)
                     self.remote_cache[url] = result
                     return result
+            if 500 <= status < 600:
+                time.sleep(1)
+                try:
+                    response = requests.get(
+                        url,
+                        allow_redirects=True,
+                        timeout=REQUEST_TIMEOUT,
+                        headers=headers,
+                    )
+                    status = response.status_code
+                except requests.RequestException:
+                    pass
             if 200 <= status < 400:
                 result = (True, "")
+            elif 500 <= status < 600 and WARN_ON_NETWORK_ERROR:
+                message = f"Server error (HTTP {status}); treating as warning"
+                print(f"warning: {url}: {message}", file=sys.stderr)
+                result = (True, message)
             else:
                 result = (False, f"HTTP status {status}")
         except requests.RequestException as exc:  # pragma: no cover - defensive
