@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Calculate PR size and add labels
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -133,7 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Label documentation PRs
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -258,7 +258,7 @@ jobs:
     steps:
       - name: Check if PR affects wiki sync
         id: check-files
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
