@@ -24,7 +24,7 @@ jobs:
       wiki_exists: ${{ steps.check.outputs.wiki-exists }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check wiki availability
         id: check
@@ -39,7 +39,7 @@ jobs:
     if: needs.check-wiki.outputs.wiki_exists == 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
